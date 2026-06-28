@@ -1,0 +1,6 @@
+target-name: eol.yaml
+data-root:
+  copy-from-original:
+    - etc/lsb-release
+    - sos_commands/date/date
+raised-issues:

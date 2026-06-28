@@ -401,6 +401,7 @@ class TestKernelInfo(TestKernelBase):
                     'cpu': {'cpufreq-scaling-governor': 'unknown',
                             'model': 'intel core processor (skylake, ibrs)',
                             'smt': 'disabled', 'vendor': 'genuineintel'},
+                    'release': {'name': 'focal', 'days-to-eol': 1205},
                     'systemd': {'CPUAffinity': '0-7,32-39'},
                     'version': '5.4.0-97-generic'}
         self.assertTrue(inst.is_runnable())

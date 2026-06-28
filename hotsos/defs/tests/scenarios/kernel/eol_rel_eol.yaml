@@ -1,0 +1,12 @@
+target-name: eol.yaml
+data-root:
+  files:
+    sos_commands/date/date: 'Mon Jun 30 16:19:17 UTC 2025'
+  copy-from-original:
+    - etc/lsb-release
+raised-issues:
+  KernelWarning: >-
+    This host is running a kernel from an Ubuntu release that is End of
+    Life (release=focal) which means it is no longer receiving kernel
+    updates or security fixes. Please consider upgrading to a supported
+    release.

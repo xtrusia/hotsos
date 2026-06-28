@@ -1,0 +1,11 @@
+target-name: eol.yaml
+data-root:
+  files:
+    etc/lsb-release: |
+      DISTRIB_ID=Ubuntu
+      DISTRIB_RELEASE=99.99
+      DISTRIB_CODENAME=devel
+      DISTRIB_DESCRIPTION="Ubuntu 99.99"
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

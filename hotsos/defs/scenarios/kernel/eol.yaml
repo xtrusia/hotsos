@@ -1,0 +1,17 @@
+checks:
+  is_eol:
+    property:
+      path: hotsos.core.plugins.kernel.KernelBase.is_eol
+      ops: [[truth]]
+conclusions:
+  is-eol:
+    decision: is_eol
+    raises:
+      type: KernelWarning
+      message: >-
+        This host is running a kernel from an Ubuntu release that is
+        End of Life (release={release}) which means it is no longer
+        receiving kernel updates or security fixes. Please consider
+        upgrading to a supported release.
+      format-dict:
+        release: hotsos.core.plugins.kernel.KernelBase.release_name
