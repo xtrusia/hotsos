@@ -1,0 +1,21 @@
+checks:
+  osds_have_undersized_db:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.osds_with_undersized_db
+      ops: [[length_hint], [gt, 0]]
+conclusions:
+  osds-have-undersized-db:
+    decision: osds_have_undersized_db
+    raises:
+      type: CephOSDWarning
+      message: >-
+        Found OSD(s) {osds} whose dedicated bluestore DB (block.db) partition is
+        smaller than {limit}% of their data device. Ceph recommends the DB device
+        be at least {limit}% of the block device for hybrid DB offload; older
+        releases and RGW-heavy workloads may need more. If the DB device fills,
+        rocksdb metadata will spill back onto the slow data device and negate the
+        benefit of the dedicated DB. Consider re-provisioning these OSDs with a
+        larger DB partition if the workload needs it.
+      format-dict:
+        osds: hotsos.core.plugins.storage.ceph.CephCluster.osds_with_undersized_db_str
+        limit: hotsos.core.plugins.storage.ceph.CephCluster.OSD_DB_SIZE_MIN_RATIO_PERCENT

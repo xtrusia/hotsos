@@ -283,6 +283,12 @@ class CephCluster():  # pylint: disable=too-many-public-methods
     OSD_PG_OPTIMAL_NUM_MAX = 200
     OSD_PG_OPTIMAL_NUM_MIN = 50
     OSD_DISCREPANCY_ALLOWED = 5
+    # Minimum bluefs DB (block.db) size as a percentage of the OSD's data
+    # device. Ceph recommends at least 2.5% for hybrid DB offload. Some
+    # older releases and RGW-heavy workloads need larger DB devices.
+    # See the BlueStore config reference:
+    # https://docs.ceph.com/en/latest/rados/configuration/bluestore-config-ref/
+    OSD_DB_SIZE_MIN_RATIO_PERCENT = 2.5
     # If a pool's utilisation is below this value, we consider it "empty"
     POOL_EMPTY_THRESHOLD = 2
 
@@ -820,6 +826,57 @@ class CephCluster():  # pylint: disable=too-many-public-methods
                     _bad_osds.append(osd['name'])
 
         return sorted(_bad_osds)
+
+    @cached_property
+    def _osds_undersized_db(self):
+        """
+        Returns a dict mapping OSDs whose dedicated bluefs DB (block.db)
+        partition is smaller than OSD_DB_SIZE_MIN_RATIO_PERCENT of their data
+        device to their actual DB-to-data ratio (percentage).
+
+        Only OSDs with a dedicated DB device are considered; OSDs with a
+        shared/colocated DB have no separate partition to be undersized.
+        """
+        _undersized = {}
+        report = CLIHelper().ceph_report_json_decoded()
+        if not report:
+            return _undersized
+
+        for osd in report.get('osd_metadata', []):
+            if osd.get('bluefs_dedicated_db') != '1':
+                continue
+
+            try:
+                db_size = int(osd['bluefs_db_size'])
+                data_size = int(osd['bluestore_bdev_size'])
+            except (KeyError, TypeError, ValueError):
+                continue
+
+            if db_size <= 0 or data_size <= 0:
+                continue
+
+            ratio = db_size / data_size * 100
+            if ratio < self.OSD_DB_SIZE_MIN_RATIO_PERCENT:
+                _undersized[f"osd.{osd['id']}"] = round(ratio, 2)
+
+        return _undersized
+
+    @cached_property
+    def osds_with_undersized_db(self):
+        """
+        Returns names of OSDs whose dedicated bluefs DB partition is
+        undersized relative to their data device.
+        """
+        return sorted(self._osds_undersized_db.keys())
+
+    @cached_property
+    def osds_with_undersized_db_str(self):
+        """
+        Returns a human-readable summary of undersized DB OSDs and their
+        DB-to-data ratio, e.g. "osd.0 (1.0%), osd.1 (2.5%)".
+        """
+        items = sorted(self._osds_undersized_db.items())
+        return ', '.join(f'{name} ({ratio}%)' for name, ratio in items)
 
     @cached_property
     def osds_missing_device_class(self):

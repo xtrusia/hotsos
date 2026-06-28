@@ -1,0 +1,58 @@
+target-name: osd_undersized_db.yaml
+data-root:
+  files:
+    sos_commands/ceph_mon/ceph_report: |
+      {
+        "osd_metadata": [
+          {
+            "id": 0,
+            "bluefs": "1",
+            "bluefs_dedicated_db": "1",
+            "bluefs_dedicated_wal": "0",
+            "bluefs_db_size": "10737418240",
+            "bluefs_db_type": "ssd",
+            "bluestore_bdev_size": "1000000000000",
+            "bluestore_bdev_type": "hdd",
+            "ceph_version_short": "17.2.6",
+            "hostname": "ceph-osd-0",
+            "osd_objectstore": "bluestore"
+          },
+          {
+            "id": 1,
+            "bluefs": "1",
+            "bluefs_dedicated_db": "1",
+            "bluefs_dedicated_wal": "0",
+            "bluefs_db_size": "30000000000",
+            "bluefs_db_type": "ssd",
+            "bluestore_bdev_size": "1000000000000",
+            "bluestore_bdev_type": "hdd",
+            "ceph_version_short": "17.2.6",
+            "hostname": "ceph-osd-1",
+            "osd_objectstore": "bluestore"
+          },
+          {
+            "id": 2,
+            "bluefs": "1",
+            "bluefs_dedicated_db": "0",
+            "bluefs_dedicated_wal": "0",
+            "bluestore_bdev_size": "1000000000000",
+            "bluestore_bdev_type": "ssd",
+            "ceph_version_short": "17.2.6",
+            "hostname": "ceph-osd-2",
+            "osd_objectstore": "bluestore"
+          }
+        ]
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  CephOSDWarning: >-
+    Found OSD(s) osd.0 (1.07%) whose dedicated bluestore DB (block.db) partition is
+    smaller than 2.5% of their data device. Ceph recommends the DB device
+    be at least 2.5% of the block device for hybrid DB offload; older
+    releases and RGW-heavy workloads may need more. If the DB device fills,
+    rocksdb metadata will spill back onto the slow data device and negate the
+    benefit of the dedicated DB. Consider re-provisioning these OSDs with a
+    larger DB partition if the workload needs it.
