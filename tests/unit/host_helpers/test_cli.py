@@ -324,6 +324,7 @@ class TestCommandAffinity(utils.BaseTestCase):
                         'ceph_pg_dump_json_decoded',
                         'ovn_sbctl_show',
                         'ceph_mgr_module_ls',
+                        'ceph_crash_ls',
                         'ceph_health_detail_json_decoded',
                         'sunbeam_cluster_list',
                         'ceph_status_json_decoded',

@@ -333,3 +333,26 @@ class CephMgrModuleLsCommands(UserList):
                                      f'{prefix}ceph_mgr_module_ls')
                      for prefix in prefixes])
         super().__init__(cmds)
+
+
+class CephCrashListCommands(UserList):
+    """ Generate ceph crash ls command variants.
+
+    sosreport collects this as plain text (no json variant) so we keep the raw
+    text output and parse it in the plugin. This command includes both new and
+    archived crashes.
+    """
+
+    def __init__(self):
+        """Initialise command variants for listing Ceph crash records."""
+        prefixes = [""] + CEPH_ALIASES
+        # binary
+        cmds = [BinCmd(f'{prefix}ceph crash ls') for prefix in prefixes]
+        # file-based
+        # sosreport < 4.2
+        cmds.append(FileCmd('sos_commands/ceph/ceph_crash_ls'))
+        # sosreport >= 4.2
+        cmds.extend([FileCmd('sos_commands/ceph_mon/'
+                             f'{prefix}ceph_crash_ls')
+                     for prefix in prefixes])
+        super().__init__(cmds)

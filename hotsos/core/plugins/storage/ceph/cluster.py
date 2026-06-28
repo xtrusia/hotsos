@@ -719,6 +719,25 @@ class CephCluster():  # pylint: disable=too-many-public-methods
             return 0
 
     @cached_property
+    def crashes_count(self):
+        """Return the number of crashes reported by 'ceph crash ls'.
+
+        The output is a table with a header line (ID ENTITY NEW) followed by
+        one line per crash. It includes both new and archived crash records,
+        so we count the non-empty data lines.
+        """
+        crashes = CLIHelper().ceph_crash_ls() or []
+        count = 0
+        for line in crashes:
+            line = line.strip()
+            if not line or line.startswith('ID '):
+                continue
+
+            count += 1
+
+        return count
+
+    @cached_property
     def osds_pgs(self):
         _osds_pgs = {}
         if not self.osd_df_tree:

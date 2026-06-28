@@ -1,0 +1,23 @@
+checks:
+  cluster_has_crashes:
+    # Crashes (daemon backtraces) are persisted by the crash module and listed
+    # by 'ceph crash ls'. This includes archived crashes, so a non-empty list
+    # means one or more daemons have crashed at some point and may be worth
+    # surfacing even if the daemon(s) later came back online.
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.crashes_count
+      ops: [[gt, 0]]
+conclusions:
+  cluster-has-crashes:
+    decision: cluster_has_crashes
+    raises:
+      type: CephWarning
+      message: >-
+        This Ceph cluster has {count} crash(es) reported by 'ceph crash ls'.
+        Daemon crashes (backtraces) are retained even if the daemon later
+        becomes online again and may indicate underlying issues. Use 'ceph
+        crash info <id>' to inspect each crash and 'ceph crash rm <id>' or
+        'ceph crash prune <days>' to remove retained crash records once
+        reviewed.
+      format-dict:
+        count: '@checks.cluster_has_crashes.requires.value_actual'
