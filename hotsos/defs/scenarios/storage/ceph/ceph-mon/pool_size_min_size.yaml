@@ -1,0 +1,17 @@
+checks:
+  pools_with_size_not_greater_than_min_size:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.pools_with_size_not_greater_than_min_size
+      ops: [[length_hint], [gt, 0]]
+conclusions:
+  pools-size-not-greater-than-min-size:
+    decision: pools_with_size_not_greater_than_min_size
+    raises:
+      type: CephMonWarning
+      message: >-
+        Found Ceph pool(s) {bad_pools} where size is not greater than
+        min_size. Ceph pools should satisfy size > min_size so they can keep
+        servicing I/O in degraded states. Please set min_size lower than size
+        for the affected pool(s).
+      format-dict:
+        bad_pools: '@checks.pools_with_size_not_greater_than_min_size.requires.value_actual:comma_join'

@@ -635,6 +635,32 @@ class CephCluster():  # pylint: disable=too-many-public-methods
                 return True
         return False
 
+    @cached_property
+    def pools_with_size_not_greater_than_min_size(self):
+        """
+        Return pools whose size/min_size setting violates size > min_size.
+
+        The requirement applies to all pools in ceph report. Replicated and
+        erasure-coded pools both expose size and min_size there.
+        """
+        report = self.crush_map.ceph_report
+        if not report:
+            return []
+
+        _bad_pools = []
+        for pool in report.get('osdmap', {}).get('pools', []):
+            size = pool.get('size')
+            min_size = pool.get('min_size')
+            if size is None or min_size is None:
+                continue
+
+            if size <= min_size:
+                pool_name = pool.get('pool_name', pool.get('pool', 'unknown'))
+                _bad_pools.append(f"{pool_name} (size={size}, "
+                                  f"min_size={min_size})")
+
+        return sorted(_bad_pools)
+
     @staticmethod
     def version_as_a_tuple(ver):
         """
