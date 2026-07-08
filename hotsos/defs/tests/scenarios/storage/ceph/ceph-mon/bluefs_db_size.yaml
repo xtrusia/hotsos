@@ -1,0 +1,36 @@
+data-root:
+  files:
+    sos_commands/ceph_mon/ceph_report: |
+      {
+        "osd_metadata": [
+          {
+            "id": "0",
+            "bluefs_dedicated_db": "1",
+            "bluefs_db_size": "2147483648",
+            "bluestore_bdev_size": "214748364800"
+          },
+          {
+            "id": "1",
+            "bluefs_dedicated_db": "1",
+            "bluefs_db_size": "10737418240",
+            "bluestore_bdev_size": "107374182400"
+          },
+          {
+            "id": "2",
+            "bluefs_dedicated_db": "0",
+            "bluefs_db_size": "1073741824",
+            "bluestore_bdev_size": "107374182400"
+          }
+        ]
+      }
+      report 1234567890
+  copy-from-original:
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  CephWarning: >-
+    Found OSD(s) osd.0 (db=2.0GiB, block=200.0GiB, ratio=1.0%) with
+    BlueStore DB devices smaller than 3GiB or less than 2.5% of their
+    block device size. Small DB devices can cause BlueStore metadata to
+    spill back onto the main device and reduce OSD performance.

@@ -283,6 +283,41 @@ class TestCoreCephCluster(  # pylint: disable=too-many-public-methods
         cluster = ceph.CephCluster()
         self.assertEqual([osd.id for osd in cluster.osds], [0, 1, 2])
 
+    @utils.create_data_root(
+        {'sos_commands/ceph_mon/ceph_report':
+         json.dumps({"osd_metadata": [
+             {"id": "0",
+              "bluefs_dedicated_db": "1",
+              "bluefs_db_size": str(2 * 1024 ** 3),
+              "bluestore_bdev_size": str(200 * 1024 ** 3)},
+             {"id": "1",
+              "bluefs_dedicated_db": "1",
+              "bluefs_db_size": str(10 * 1024 ** 3),
+              "bluestore_bdev_size": str(100 * 1024 ** 3)},
+             {"id": "2",
+              "bluefs_dedicated_db": "0",
+              "bluefs_db_size": str(1 * 1024 ** 3),
+              "bluestore_bdev_size": str(100 * 1024 ** 3)},
+             {"id": "3",
+              "bluefs_dedicated_db": "1",
+              "bluestore_bdev_size": str(100 * 1024 ** 3)},
+         ]})})
+    def test_bluefs_db_sizing(self):
+        cluster = ceph.CephCluster()
+        expected = {
+            0: {'osd': 'osd.0',
+                'db-size-gib': 2.0,
+                'block-size-gib': 200.0,
+                'db-to-block-ratio': 1.0},
+            1: {'osd': 'osd.1',
+                'db-size-gib': 10.0,
+                'block-size-gib': 100.0,
+                'db-to-block-ratio': 10.0}}
+        self.assertEqual(cluster.bluefs_db_sizing, expected)
+        self.assertEqual(cluster.osds_with_small_bluefs_db,
+                         ["osd.0 (db=2.0GiB, block=200.0GiB, "
+                          "ratio=1.0%)"])
+
     def test_osd_pg_max_limit_default(self):
         """When no OSD daemon config is available, use default threshold."""
         cluster = ceph.CephCluster()

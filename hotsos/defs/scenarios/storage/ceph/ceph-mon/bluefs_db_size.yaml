@@ -1,0 +1,19 @@
+checks:
+  osds_with_small_bluefs_db:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.osds_with_small_bluefs_db
+      ops: [[length_hint], [gt, 0]]
+conclusions:
+  osds-have-small-bluefs-db:
+    decision: osds_with_small_bluefs_db
+    raises:
+      type: CephWarning
+      message: >-
+        Found OSD(s) {bad_osds} with BlueStore DB devices smaller than
+        {min_size_gib}GiB or less than {min_ratio_percent}% of their block
+        device size. Small DB devices can cause BlueStore metadata to spill
+        back onto the main device and reduce OSD performance.
+      format-dict:
+        bad_osds: '@checks.osds_with_small_bluefs_db.requires.value_actual:comma_join'
+        min_size_gib: hotsos.core.plugins.storage.ceph.CephCluster.BLUEFS_DB_SIZE_MIN_GIB
+        min_ratio_percent: hotsos.core.plugins.storage.ceph.CephCluster.BLUEFS_DB_SIZE_MIN_PERCENT

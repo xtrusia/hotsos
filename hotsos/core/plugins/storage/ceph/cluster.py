@@ -292,6 +292,10 @@ class CephCluster():  # pylint: disable=too-many-public-methods
     OSD_DISCREPANCY_ALLOWED = 5
     # If a pool's utilisation is below this value, we consider it "empty"
     POOL_EMPTY_THRESHOLD = 2
+    BLUEFS_DB_SIZE_MIN_GIB = 3
+    BLUEFS_DB_SIZE_MIN_PERCENT = 2.5
+    BLUEFS_DB_SIZE_MIN_BYTES = BLUEFS_DB_SIZE_MIN_GIB * 1024 * 1024 * 1024
+    BLUEFS_DB_SIZE_MIN_RATIO = BLUEFS_DB_SIZE_MIN_PERCENT / 100
 
     def __init__(self):
         self.crush_map = CephCrushMap()
@@ -669,6 +673,80 @@ class CephCluster():  # pylint: disable=too-many-public-methods
                     _bad_meta_osds.append(device['name'])
 
         return sorted(_bad_meta_osds)
+
+    @staticmethod
+    def _bytes_to_gib(size):
+        return round(size / (1024 ** 3), 2)
+
+    @staticmethod
+    def _bluefs_db_sizing_entry(osd_id, db_size, block_size):
+        return {
+            'osd': f'osd.{osd_id}',
+            'db-size-bytes': db_size,
+            'block-size-bytes': block_size,
+            'db-to-block-ratio': db_size / block_size,
+        }
+
+    @cached_property
+    def _bluefs_db_sizing(self):
+        sizing = {}
+        report = self.crush_map.ceph_report
+        if not report:
+            return sizing
+
+        for osd in report.get('osd_metadata', []):
+            if osd.get('bluefs_dedicated_db') != '1':
+                continue
+
+            try:
+                osd_id = int(osd['id'])
+                db_size = int(osd['bluefs_db_size'])
+                block_size = int(osd['bluestore_bdev_size'])
+            except (KeyError, TypeError, ValueError):
+                continue
+
+            if db_size <= 0 or block_size <= 0:
+                continue
+
+            sizing[osd_id] = self._bluefs_db_sizing_entry(osd_id, db_size,
+                                                          block_size)
+
+        return sorted_dict(sizing)
+
+    @staticmethod
+    def _format_bluefs_db_sizing(sizing):
+        return {
+            'osd': sizing['osd'],
+            'db-size-gib': CephCluster._bytes_to_gib(
+                sizing['db-size-bytes']),
+            'block-size-gib': CephCluster._bytes_to_gib(
+                sizing['block-size-bytes']),
+            'db-to-block-ratio': round(
+                sizing['db-to-block-ratio'] * 100, 2),
+        }
+
+    @cached_property
+    def bluefs_db_sizing(self):
+        return sorted_dict({osd_id: self._format_bluefs_db_sizing(sizing)
+                            for osd_id, sizing in
+                            self._bluefs_db_sizing.items()})
+
+    @cached_property
+    def osds_with_small_bluefs_db(self):
+        bad_osds = []
+        for sizing in self._bluefs_db_sizing.values():
+            if (sizing['db-size-bytes'] >= self.BLUEFS_DB_SIZE_MIN_BYTES and
+                    sizing['db-to-block-ratio'] >=
+                    self.BLUEFS_DB_SIZE_MIN_RATIO):
+                continue
+
+            formatted = self._format_bluefs_db_sizing(sizing)
+            bad_osds.append(
+                f"{formatted['osd']} (db={formatted['db-size-gib']}GiB, "
+                f"block={formatted['block-size-gib']}GiB, "
+                f"ratio={formatted['db-to-block-ratio']}%)")
+
+        return bad_osds
 
     @cached_property
     def cluster_has_non_empty_pools(self):

@@ -75,3 +75,7 @@ class CephSummary(CephChecks):
     @summary_entry('large-omap-pgs', get_min_available_entry_index() + 8)
     def summary_large_omap_pgs(self):
         return self.cluster.large_omap_pgs or None
+
+    @summary_entry('bluefs-db-sizes', get_min_available_entry_index() + 9)
+    def summary_bluefs_db_sizes(self):
+        return self.cluster.bluefs_db_sizing or None
