@@ -1,0 +1,16 @@
+checks:
+  mgr_down_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, MGR_DOWN]]
+conclusions:
+  mgr-no-active:
+    decision: mgr_down_reported
+    raises:
+      type: CephWarning
+      message: >-
+        Ceph health detail reports MGR_DOWN: there is no active
+        ceph-mgr daemon, so stats reporting, the dashboard and other
+        mgr modules are not working. Please check that ceph-mgr is
+        running on at least one host and review its log. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#mgr-down
