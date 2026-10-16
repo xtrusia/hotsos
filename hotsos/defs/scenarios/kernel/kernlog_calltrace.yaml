@@ -19,6 +19,10 @@ checks:
     property:
       path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-fanotify
       ops: [[length_hint]]
+  has_netdev_watchdog_timeouts:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-netdevwatchdog
+      ops: [[length_hint]]
 conclusions:
   stacktraces:
     # Give this one lowest priority so that if any other call trace types match they
@@ -71,3 +75,15 @@ conclusions:
         be related to antivirus software running in the system.
       format-dict:
         numreports: '@checks.has_fanotify_hang.requires.value_actual:len'
+  netdev_watchdog_timeouts:
+    priority: 2
+    decision: has_netdev_watchdog_timeouts
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of NETDEV WATCHDOG transmit queue timeouts in
+        kern.log. Please check which interface and driver timed out and make
+        sure the NIC driver and firmware (see 'ethtool -i') are at the latest
+        version.
+      format-dict:
+        numreports: '@checks.has_netdev_watchdog_timeouts.requires.value_actual:len'
