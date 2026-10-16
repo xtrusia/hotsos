@@ -1,0 +1,25 @@
+checks:
+  net_alloc_failed:
+    input:
+      path:
+        - var/log/nova/nova-compute.log
+    # Only match the ERROR line logged once per abort by
+    # _do_build_and_run_instance (a DEBUG copy is also logged when debug
+    # is enabled).
+    expr: '([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR nova\.compute\.manager .*Build of instance \S+ aborted: Failed to allocate the network\(s\)'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  nova-network-allocation-failed:
+    decision: net_alloc_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute on this host aborted {count} instance build(s) in the last
+        24 hours with 'Failed to allocate the network(s)', and those instances
+        were not rescheduled. Please check the preceding traceback and any
+        'Timeout waiting for' warning in nova-compute.log, then the
+        neutron-server and OVS/OVN agent logs for the ports concerned.
+      format-dict:
+        count: '@checks.net_alloc_failed.search.num_results'

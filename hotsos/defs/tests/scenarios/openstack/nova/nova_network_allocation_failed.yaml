@@ -1,0 +1,19 @@
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/nova/nova-compute.log: |
+      2022-02-09 22:38:16.120 1234 DEBUG nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Build of instance 5b1e3f4a-1111-2222-3333-444455556666 aborted: Failed to allocate the network(s), not rescheduling. _do_build_and_run_instance /usr/lib/python3/dist-packages/nova/compute/manager.py:2743
+      2022-02-09 22:38:16.123 1234 ERROR nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Build of instance 5b1e3f4a-1111-2222-3333-444455556666 aborted: Failed to allocate the network(s), not rescheduling.: nova.exception.BuildAbortException: Build of instance 5b1e3f4a-1111-2222-3333-444455556666 aborted: Failed to allocate the network(s), not rescheduling.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute on this host aborted 1 instance build(s) in the last 24 hours
+    with 'Failed to allocate the network(s)', and those instances were not
+    rescheduled. Please check the preceding traceback and any 'Timeout waiting
+    for' warning in nova-compute.log, then the neutron-server and OVS/OVN agent
+    logs for the ports concerned.
