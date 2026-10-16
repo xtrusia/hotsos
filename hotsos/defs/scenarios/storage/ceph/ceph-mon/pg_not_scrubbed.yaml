@@ -1,0 +1,25 @@
+checks:
+  pg_not_scrubbed_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, PG_NOT_SCRUBBED]]
+  pg_not_deep_scrubbed_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, PG_NOT_DEEP_SCRUBBED]]
+conclusions:
+  pgs-not-scrubbed:
+    decision:
+      or:
+        - pg_not_scrubbed_reported
+        - pg_not_deep_scrubbed_reported
+    raises:
+      type: CephOSDWarning
+      message: >-
+        Ceph health detail reports PG_NOT_SCRUBBED or
+        PG_NOT_DEEP_SCRUBBED: some placement groups have not been
+        scrubbed within the configured interval, so data corruption may
+        go undetected. Please check that the noscrub/nodeep-scrub flags
+        are not set and that scrubbing is not starved by recovery or
+        client load. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#pg-not-scrubbed
