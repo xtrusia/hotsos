@@ -1,0 +1,16 @@
+checks:
+  too_many_repairs_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, OSD_TOO_MANY_REPAIRS]]
+conclusions:
+  osd-too-many-repairs:
+    decision: too_many_repairs_reported
+    raises:
+      type: CephOSDWarning
+      message: >-
+        Ceph health detail reports OSD_TOO_MANY_REPAIRS: OSDs have
+        repeatedly had to repair reads from replicas, which usually
+        indicates failing storage media. Please check the health of the
+        disks backing the affected OSDs and replace them if needed. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#osd-too-many-repairs
