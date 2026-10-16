@@ -1,0 +1,19 @@
+target-name: tcp_memory_pressure.yaml
+data-root:
+  files:
+    # kern.log has no recovery line for this. A single past report,
+    # followed by an unrelated TCP warning that must not match, is still
+    # reported with its date; the message asks whether aborts continue.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] TCP: out of memory -- consider tuning tcp_mem
+      Feb 10 12:00:00 compute4 kernel: [1698700.000000] TCP: request_sock_TCP: Possible SYN flooding on port 8080. Sending cookies.  Check SNMP counters.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  NetworkWarning: >-
+    The kernel logged 1 TCP resource limit message(s) (out of memory --
+    consider tuning tcp_mem) on Feb 10, so it may have aborted TCP
+    connections then. Please check whether 'nstat -az
+    TcpExtTCPAbortOnMemory' is still increasing and, if so, find which
+    sockets hold TCP memory or are orphaned ('ss -tm', /proc/net/sockstat)
+    before raising net.ipv4.tcp_mem or net.ipv4.tcp_max_orphans.

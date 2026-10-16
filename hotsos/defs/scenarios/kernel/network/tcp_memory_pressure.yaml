@@ -1,0 +1,33 @@
+vars:
+  # 'TCP: out of memory -- consider tuning tcp_mem' and 'TCP: too many
+  # orphaned sockets' from tcp_check_oom() in net/ipv4/tcp.c
+  # (net_info_ratelimited). kern.log lines start with the legacy syslog
+  # timestamp or the RFC3339 one used by rsyslog on Ubuntu 24.04 and later,
+  # where the kernel uptime may be absent. Group 1 is the date, group 2 the
+  # time and group 3 the message.
+  expr_tcp_oom: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?TCP: (out of memory -- consider tuning tcp_mem|too many orphaned sockets)'
+checks:
+  tcp_mem:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_tcp_oom
+      hint: 'TCP: '
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  tcp-memory-pressure:
+    decision: tcp_mem
+    raises:
+      type: NetworkWarning
+      message: >-
+        The kernel logged {count} TCP resource limit message(s) ({kinds})
+        on {dates}, so it may have aborted TCP connections then. Please
+        check whether 'nstat -az TcpExtTCPAbortOnMemory' is still
+        increasing and, if so, find which sockets hold TCP memory or are
+        orphaned ('ss -tm', /proc/net/sockstat) before raising
+        net.ipv4.tcp_mem or net.ipv4.tcp_max_orphans.
+      format-dict:
+        count: '@checks.tcp_mem.search.num_results'
+        kinds: '@checks.tcp_mem.search.results_group_3:unique_comma_join'
+        dates: '@checks.tcp_mem.search.results_group_1:unique_comma_join'

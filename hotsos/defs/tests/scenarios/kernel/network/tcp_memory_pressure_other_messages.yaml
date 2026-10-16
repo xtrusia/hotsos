@@ -1,0 +1,11 @@
+target-name: tcp_memory_pressure.yaml
+data-root:
+  files:
+    # Recent TCP boot lines that do not report memory pressure.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] TCP: Hash tables configured (established 131072 bind 65536)
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] TCP: cubic registered
+      2022-02-10T10:48:13.123456+00:00 compute4 kernel: TCP: cubic registered
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

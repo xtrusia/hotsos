@@ -1,0 +1,17 @@
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] TCP: out of memory -- consider tuning tcp_mem
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] TCP: too many orphaned sockets
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: TCP: out of memory -- consider tuning tcp_mem
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  NetworkWarning: >-
+    The kernel logged 3 TCP resource limit message(s) (out of memory --
+    consider tuning tcp_mem, too many orphaned sockets) on 2022-02-10, Feb
+    10, so it may have aborted TCP connections then. Please check whether
+    'nstat -az TcpExtTCPAbortOnMemory' is still increasing and, if so, find
+    which sockets hold TCP memory or are orphaned ('ss -tm',
+    /proc/net/sockstat) before raising net.ipv4.tcp_mem or
+    net.ipv4.tcp_max_orphans.

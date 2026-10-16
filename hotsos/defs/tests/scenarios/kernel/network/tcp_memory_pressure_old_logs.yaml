@@ -1,0 +1,13 @@
+target-name: tcp_memory_pressure.yaml
+data-root:
+  files:
+    # The positive lines moved to Feb 8, more than 24 hours before the
+    # sosreport date but inside the 7 day --all-logs window used by the
+    # unit tests, so only search-result-age-hours filters them.
+    var/log/kern.log: |
+      Feb  8 10:48:13 compute4 kernel: [1694413.621694] TCP: out of memory -- consider tuning tcp_mem
+      Feb  8 10:48:13 compute4 kernel: [1694413.621694] TCP: too many orphaned sockets
+      2022-02-08T11:02:44.123456+00:00 compute4 kernel: TCP: out of memory -- consider tuning tcp_mem
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
