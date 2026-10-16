@@ -1,0 +1,47 @@
+vars:
+  # src/os/bluestore/BlueStore.cc BlueStore::_verify_csum() (same format in
+  # 16.2.x to 19.2.x):
+  #   bluestore(<osd path>) _verify_csum bad <csum type>/0x<chunk size>
+  #   checksum at blob offset 0x.., got 0x<csum>, expected 0x.., ...
+  # Ceph computes crc32c with seed -1 and no final xor, which gives
+  # 0x6706be76 for a 4 KiB chunk of zeros (other chunk sizes give other
+  # values and are not matched). Group 3 is the OSD id; the OSD data path
+  # differs per deployment (/var/lib/ceph/osd/ceph-N, or under
+  # /var/snap/microceph/common/data/osd for MicroCeph).
+  expr_zeroed_read: '^([\d-]+)[T ]([\d:]+)\S+ .+ bluestore\(\S*/ceph-(\d+)\) _verify_csum bad crc32c/0x1000 checksum at blob offset 0x[0-9a-f]+, got 0x6706be76,'
+checks:
+  # The upstream crc-err-bluestore event (ceph_event_checks.py) raises an
+  # OSD error for more than 3 checksum errors of any value per OSD per day.
+  # This only adds the all-zero read diagnosis, so both can be raised. A
+  # read that succeeded on retry is logged at debug level 5 only, so a past
+  # error is still reported while it is in the window.
+  bluestore_zeroed_read:
+    input: 'storage.ceph:ceph-osd*.log'
+    search:
+      expr: $expr_zeroed_read
+      hint: '_verify_csum bad'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  bluestore-zeroed-read:
+    decision: bluestore_zeroed_read
+    raises:
+      type: CephOSDWarning
+      message: >-
+        ceph-osd logged {count} BlueStore checksum error(s)
+        ('_verify_csum bad crc32c/0x1000 ... got 0x6706be76') for OSD
+        id(s) {osds} on {dates}. 0x6706be76 is the checksum of a 4 KiB
+        block of zeros, so those reads returned zeros instead of the
+        stored data, which usually comes from the disk, its controller
+        or the kernel I/O path rather than from BlueStore. BlueStore
+        retries such reads (bluestore_retry_disk_reads, 3 by default)
+        and returns an I/O error if every retry fails. Please check the
+        kernel log and SMART data of the disks behind those OSDs and
+        look for BLUESTORE_SPURIOUS_READ_ERRORS in 'ceph health
+        detail', and please see
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#bluestore-spurious-read-errors
+        for the possible causes.
+      format-dict:
+        count: '@checks.bluestore_zeroed_read.search.num_results'
+        dates: '@checks.bluestore_zeroed_read.search.results_group_1:unique_comma_join'
+        osds: '@checks.bluestore_zeroed_read.search.results_group_3:unique_comma_join'

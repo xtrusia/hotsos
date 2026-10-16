@@ -1,0 +1,27 @@
+target-name: bluestore_zeroed_read.yaml
+data-root:
+  files:
+    # The errors stopped and the OSD kept running. There is no recovery line
+    # to match (a read that succeeded on retry is logged at debug level 5), so
+    # the past errors are still reported with their dates.
+    var/log/ceph/ceph-osd.1.log: |
+      2022-02-09T18:18:32.791+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x1000 checksum at blob offset 0x0, got 0x6706be76, expected 0xc939ea08, device location [0x41822f0000~1000], logical extent 0x200000~1000, object #2:4a3b1c2d:::rbd_data.1f2e3d4c5b6a.0000000000000a1b:head#
+      2022-02-09T18:18:32.795+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x1000 checksum at blob offset 0x0, got 0x6706be76, expected 0xc939ea08, device location [0x41822f0000~1000], logical extent 0x200000~1000, object #2:4a3b1c2d:::rbd_data.1f2e3d4c5b6a.0000000000000a1b:head#
+      2022-02-10T09:30:44.512+0000 7faf9d3bb700  1 osd.1 1240 tick checking mon for new map
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  CephOSDWarning: >-
+    ceph-osd logged 2 BlueStore checksum error(s) ('_verify_csum bad
+    crc32c/0x1000 ... got 0x6706be76') for OSD id(s) 1 on 2022-02-09.
+    0x6706be76 is the checksum of a 4 KiB block of zeros, so those reads
+    returned zeros instead of the stored data, which usually comes from the
+    disk, its controller or the kernel I/O path rather than from BlueStore.
+    BlueStore retries such reads (bluestore_retry_disk_reads, 3 by default)
+    and returns an I/O error if every retry fails. Please check the kernel
+    log and SMART data of the disks behind those OSDs and look for
+    BLUESTORE_SPURIOUS_READ_ERRORS in 'ceph health detail', and please see
+    https://docs.ceph.com/en/latest/rados/operations/health-checks/#bluestore-spurious-read-errors
+    for the possible causes.

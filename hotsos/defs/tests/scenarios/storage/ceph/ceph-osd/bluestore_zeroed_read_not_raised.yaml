@@ -1,0 +1,14 @@
+target-name: bluestore_zeroed_read.yaml
+data-root:
+  files:
+    # Checksum errors that are not a 4 KiB zero block: a different checksum,
+    # and a 64 KiB chunk, which is not matched even when the value equals
+    # the 4 KiB zero checksum (a regex boundary case).
+    var/log/ceph/ceph-osd.1.log: |
+      2022-02-09T18:18:32.791+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x1000 checksum at blob offset 0x0, got 0x591a6ff2, expected 0xc939ea08, device location [0x41822f0000~1000], logical extent 0x200000~1000, object #2:4a3b1c2d:::rbd_data.1f2e3d4c5b6a.0000000000000a1b:head#
+      2022-02-09T18:19:02.001+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x10000 checksum at blob offset 0x0, got 0x6706be76, expected 0xc939ea08, device location [0x41822f0000~10000], logical extent 0x200000~10000, object #2:4a3b1c2d:::rbd_data.1f2e3d4c5b6a.0000000000000a1b:head#
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
