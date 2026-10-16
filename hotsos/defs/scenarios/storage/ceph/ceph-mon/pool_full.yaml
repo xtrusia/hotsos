@@ -1,0 +1,16 @@
+checks:
+  pool_full_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, POOL_FULL]]
+conclusions:
+  pool-full-reported:
+    decision: pool_full_reported
+    raises:
+      type: CephWarning
+      message: >-
+        Ceph health detail reports POOL_FULL: one or more pools have
+        reached or are approaching their quota, or are flagged full
+        because their OSDs are out of space. Please check 'ceph df' and
+        raise the pool quota or add capacity as appropriate. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#pool-full
