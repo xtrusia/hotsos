@@ -1,0 +1,24 @@
+checks:
+  recent_crash_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, RECENT_CRASH]]
+  recent_mgr_module_crash_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, RECENT_MGR_MODULE_CRASH]]
+conclusions:
+  recent-crash:
+    decision:
+      or:
+        - recent_crash_reported
+        - recent_mgr_module_crash_reported
+    raises:
+      type: CephDaemonWarning
+      message: >-
+        Ceph health detail reports RECENT_CRASH or
+        RECENT_MGR_MODULE_CRASH: one or more Ceph daemons or mgr
+        modules have crashed recently. Please inspect the reports with
+        'ceph crash ls' and 'ceph crash info <id>', then archive them
+        with 'ceph crash archive-all'. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#recent-crash
