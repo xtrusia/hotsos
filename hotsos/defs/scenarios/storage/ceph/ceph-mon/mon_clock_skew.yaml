@@ -1,0 +1,17 @@
+checks:
+  mon_clock_skew_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, MON_CLOCK_SKEW]]
+conclusions:
+  mon-clock-skew:
+    decision: mon_clock_skew_reported
+    raises:
+      type: CephMonWarning
+      message: >-
+        Ceph health detail reports MON_CLOCK_SKEW: the clock of at
+        least one monitor differs from the leader by more than
+        mon_clock_drift_allowed, which may affect quorum. Please check
+        that time synchronisation (chrony or ntpd) is working on all
+        monitor hosts. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#mon-clock-skew
