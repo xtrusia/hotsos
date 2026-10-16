@@ -1,0 +1,23 @@
+checks:
+  hook_failed:
+    input:
+      path:
+        - var/log/juju/unit-*.log
+    expr: '([\d-]+) ([\d:]+) ERROR juju\.worker\.uniter\.operation \S+ hook "(\S+)" \(via [^)]+\) failed: '
+    constraints:
+      min-results: 3
+      search-result-age-hours: 24
+conclusions:
+  unit-hook-failed:
+    decision: hook_failed
+    raises:
+      type: JujuWarning
+      message: >-
+        Juju unit logs on this host report {count} charm hook failures
+        in the last 24 hours for hook(s): {hooks}. Please check 'juju
+        status' for units in error state, fix the cause shown in the
+        unit log before the failure and run 'juju resolved <unit>' if
+        needed.
+      format-dict:
+        count: '@checks.hook_failed.search.num_results'
+        hooks: '@checks.hook_failed.search.results_group_3:unique_comma_join'
