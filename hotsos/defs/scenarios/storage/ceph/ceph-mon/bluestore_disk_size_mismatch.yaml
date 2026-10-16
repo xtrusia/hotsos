@@ -1,0 +1,17 @@
+checks:
+  disk_size_mismatch_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, BLUESTORE_DISK_SIZE_MISMATCH]]
+conclusions:
+  bluestore-disk-size-mismatch:
+    decision: disk_size_mismatch_reported
+    raises:
+      type: CephOSDWarning
+      message: >-
+        Ceph health detail reports BLUESTORE_DISK_SIZE_MISMATCH: the
+        block device size of one or more OSDs disagrees with the
+        BlueStore free list size, which can lead to data corruption.
+        Please identify the OSDs with 'ceph health detail' and redeploy
+        them one at a time. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#bluestore-disk-size-mismatch
