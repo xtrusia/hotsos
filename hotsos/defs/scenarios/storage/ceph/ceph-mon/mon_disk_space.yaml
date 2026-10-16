@@ -1,0 +1,24 @@
+checks:
+  mon_disk_low_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, MON_DISK_LOW]]
+  mon_disk_crit_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, MON_DISK_CRIT]]
+conclusions:
+  mon-disk-space-low:
+    decision:
+      or:
+        - mon_disk_low_reported
+        - mon_disk_crit_reported
+    raises:
+      type: CephMonWarning
+      message: >-
+        Ceph health detail reports MON_DISK_LOW or MON_DISK_CRIT: the
+        filesystem hosting a monitor data store (/var/lib/ceph/mon) is
+        low on space, and a monitor that runs out of space will stop.
+        Please free up space or extend the filesystem on the affected
+        monitor hosts. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#mon-disk-low
