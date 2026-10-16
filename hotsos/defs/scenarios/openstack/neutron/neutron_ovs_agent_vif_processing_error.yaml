@@ -1,0 +1,21 @@
+checks:
+  ovs_agent_vif_error:
+    input:
+      path:
+        - var/log/neutron/neutron-openvswitch-agent.log
+    expr: '([\d-]+) ([\d:]+)\.\d{3} .+ ERROR neutron\.plugins\.ml2\.drivers\.openvswitch\.agent\.ovs_neutron_agent .+ Error while processing VIF ports'
+    constraints:
+      min-results: 3
+      search-result-age-hours: 24
+conclusions:
+  neutron-ovs-agent-vif-processing-error:
+    decision: ovs_agent_vif_error
+    raises:
+      type: OpenstackError
+      message: >-
+        The neutron openvswitch agent on this host logged 'Error while
+        processing VIF ports' {count} time(s) in the last 24 hours, so new or
+        updated ports may not be wired. Please check the traceback after the
+        message in the agent log and restart the agent if it does not recover.
+      format-dict:
+        count: '@checks.ovs_agent_vif_error.search.num_results'

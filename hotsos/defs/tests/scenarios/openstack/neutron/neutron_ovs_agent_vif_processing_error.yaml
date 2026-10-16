@@ -1,0 +1,19 @@
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/neutron/neutron-openvswitch-agent.log: |
+      2022-02-09 22:38:10.123 1234 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-abc - - - - -] Error while processing VIF ports
+      2022-02-09 22:38:20.123 1234 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-abc - - - - -] Error while processing VIF ports
+      2022-02-09 22:38:30.123 1234 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-abc - - - - -] Error while processing VIF ports
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackError: >-
+    The neutron openvswitch agent on this host logged 'Error while processing
+    VIF ports' 3 time(s) in the last 24 hours, so new or updated ports may not
+    be wired. Please check the traceback after the message in the agent log and
+    restart the agent if it does not recover.
