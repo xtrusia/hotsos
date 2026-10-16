@@ -1,0 +1,41 @@
+data-root:
+  files:
+    sos_commands/ceph_mon/json_output/ceph_status_--format_json-pretty: |
+      {
+          "fsid": "eccf3d48-859f-11ec-9de2-d72b3e8a3058",
+          "health": {
+              "status": "HEALTH_ERR"
+          }
+      }
+    sos_commands/ceph_mon/json_output/ceph_health_detail_--format_json-pretty: |
+      {
+          "status": "HEALTH_ERR",
+          "checks": {
+              "OSD_NEARFULL": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "1 nearfull osd(s)"
+                  },
+                  "muted": false
+              },
+              "OSD_FULL": {
+                  "severity": "HEALTH_ERR",
+                  "summary": {
+                      "message": "1 full osd(s)"
+                  },
+                  "muted": false
+              }
+          },
+          "mutes": []
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  CephOSDWarning: >-
+    Ceph health detail reports OSD_NEARFULL, OSD_BACKFILLFULL or OSD_FULL:
+    one or more OSDs have exceeded a capacity ratio, and full OSDs block
+    writes. Please check 'ceph osd df' and add capacity, rebalance or
+    delete unneeded data. See
+    https://docs.ceph.com/en/latest/rados/operations/health-checks/#osd-full

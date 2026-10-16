@@ -1,0 +1,28 @@
+checks:
+  osd_nearfull_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, OSD_NEARFULL]]
+  osd_backfillfull_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, OSD_BACKFILLFULL]]
+  osd_full_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, OSD_FULL]]
+conclusions:
+  osd-full-reported:
+    decision:
+      or:
+        - osd_nearfull_reported
+        - osd_backfillfull_reported
+        - osd_full_reported
+    raises:
+      type: CephOSDWarning
+      message: >-
+        Ceph health detail reports OSD_NEARFULL, OSD_BACKFILLFULL or
+        OSD_FULL: one or more OSDs have exceeded a capacity ratio, and
+        full OSDs block writes. Please check 'ceph osd df' and add
+        capacity, rebalance or delete unneeded data. See
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#osd-full
