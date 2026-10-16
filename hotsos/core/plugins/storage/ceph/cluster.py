@@ -110,6 +110,63 @@ class CephCluster():  # pylint: disable=too-many-public-methods
         return None
 
     @cached_property
+    def _bluestore_legacy_format_health(self):
+        """
+        Return the BLUESTORE_LEGACY_STATFS, BLUESTORE_NO_PER_POOL_OMAP and
+        BLUESTORE_NO_PER_PG_OMAP checks from 'ceph health detail', muted or
+        not.
+        """
+        detail = CLIHelper().ceph_health_detail_json_decoded() or {}
+        legacy = ('BLUESTORE_LEGACY_STATFS', 'BLUESTORE_NO_PER_POOL_OMAP',
+                  'BLUESTORE_NO_PER_PG_OMAP')
+        return {code: check for code, check in detail.get('checks', {}).items()
+                if code in legacy}
+
+    @cached_property
+    def bluestore_legacy_format_checks(self):
+        """
+        Return the health checks that report OSDs with a legacy BlueStore
+        stats or omap format. Muted checks are included since muting them
+        does not make the conversion safe.
+        """
+        return sorted(self._bluestore_legacy_format_health)
+
+    @cached_property
+    def bluestore_legacy_format_osds(self):
+        """
+        Return the OSDs listed in the detail of the legacy BlueStore format
+        health checks (" osd.3 legacy (not per-pool) omap detected, ...").
+        """
+        osds = set()
+        for check in self._bluestore_legacy_format_health.values():
+            for detail in check.get('detail', []):
+                ret = re.match(r'\s*(osd\.\d+) ', detail.get('message', ''))
+                if ret:
+                    osds.add(ret.group(1))
+
+        return sorted(osds, key=lambda osd: int(osd.split('.')[1]))
+
+    @cached_property
+    def osd_versions_with_unsafe_omap_conversion(self):
+        """
+        Return the OSD versions from 'ceph versions' that are Pacific 16.2.6
+        or earlier, where Ceph warns that the omap format conversion done by
+        repair/quick-fix can corrupt omap data
+        (https://tracker.ceph.com/issues/53062).
+        """
+        unsafe = []
+        for ver in self.daemon_versions('osd'):
+            ret = re.match(r'(\d+)\.(\d+)\.(\d+)', ver)
+            if not ret:
+                continue
+
+            ver_tuple = tuple(int(x) for x in ret.groups())
+            if (16, 2, 0) <= ver_tuple < (16, 2, 7):
+                unsafe.append(ver)
+
+        return sorted(unsafe)
+
+    @cached_property
     def _mon_dump(self):
         return CLIHelper().ceph_mon_dump_json_decoded() or {}
 

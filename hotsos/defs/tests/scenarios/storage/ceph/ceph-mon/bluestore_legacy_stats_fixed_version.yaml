@@ -1,0 +1,95 @@
+target-name: bluestore_legacy_stats.yaml
+data-root:
+  files:
+    # The legacy format checks are active but every OSD runs 16.2.7, where
+    # the conversion is safe; Ceph's own health warning is enough.
+    sos_commands/ceph_mon/json_output/ceph_status_--format_json-pretty: |
+      {
+          "fsid": "eccf3d48-859f-11ec-9de2-d72b3e8a3058",
+          "health": {
+              "status": "HEALTH_WARN"
+          }
+      }
+    sos_commands/ceph_mon/json_output/ceph_health_detail_--format_json-pretty: |
+      {
+          "status": "HEALTH_WARN",
+          "checks": {
+              "BLUESTORE_LEGACY_STATFS": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "3 OSD(s) reporting legacy (not per-pool) BlueStore stats",
+                      "count": 3
+                  },
+                  "detail": [
+                      {
+                          "message": " osd.0 legacy statfs reporting detected, suggest to run store repair to get consistent statistic reports"
+                      },
+                      {
+                          "message": " osd.1 legacy statfs reporting detected, suggest to run store repair to get consistent statistic reports"
+                      },
+                      {
+                          "message": " osd.2 legacy statfs reporting detected, suggest to run store repair to get consistent statistic reports"
+                      }
+                  ],
+                  "muted": false
+              },
+              "BLUESTORE_NO_PER_POOL_OMAP": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "3 OSD(s) reporting legacy (not per-pool) BlueStore omap usage stats",
+                      "count": 3
+                  },
+                  "detail": [
+                      {
+                          "message": " osd.0 legacy (not per-pool) omap detected, suggest to run store repair to benefit from per-pool omap usage statistics"
+                      },
+                      {
+                          "message": " osd.1 legacy (not per-pool) omap detected, suggest to run store repair to benefit from per-pool omap usage statistics"
+                      },
+                      {
+                          "message": " osd.2 legacy (not per-pool) omap detected, suggest to run store repair to benefit from per-pool omap usage statistics"
+                      }
+                  ],
+                  "muted": false
+              },
+              "BLUESTORE_NO_PER_PG_OMAP": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "3 OSD(s) reporting legacy (not per-pg) BlueStore omap",
+                      "count": 3
+                  },
+                  "detail": [
+                      {
+                          "message": " osd.0 legacy (not per-pg) omap detected, suggest to run store repair to benefit from faster PG removal"
+                      },
+                      {
+                          "message": " osd.1 legacy (not per-pg) omap detected, suggest to run store repair to benefit from faster PG removal"
+                      },
+                      {
+                          "message": " osd.2 legacy (not per-pg) omap detected, suggest to run store repair to benefit from faster PG removal"
+                      }
+                  ],
+                  "muted": false
+              }
+          },
+          "mutes": []
+      }
+    sos_commands/ceph_mon/ceph_versions: |
+      {
+          "mon": {
+              "ceph version 16.2.7 (0a1b2c3d4e5f60718293a4b5c6d7e8f901234567) pacific (stable)": 3
+          },
+          "mgr": {
+              "ceph version 16.2.7 (0a1b2c3d4e5f60718293a4b5c6d7e8f901234567) pacific (stable)": 3
+          },
+          "osd": {
+              "ceph version 16.2.7 (0a1b2c3d4e5f60718293a4b5c6d7e8f901234567) pacific (stable)": 3
+          },
+          "mds": {},
+          "overall": {}
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-bugs:

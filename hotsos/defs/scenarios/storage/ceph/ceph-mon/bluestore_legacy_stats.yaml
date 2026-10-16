@@ -1,0 +1,46 @@
+checks:
+  # BLUESTORE_LEGACY_STATFS, BLUESTORE_NO_PER_POOL_OMAP or
+  # BLUESTORE_NO_PER_PG_OMAP in 'ceph health detail', muted or not: muting
+  # them postpones the conversion but does not make it safe. Ceph already
+  # reports these checks and suggests a store repair; this only adds the
+  # tracker 53062 warning, so it is limited to OSDs on Pacific 16.2.6 or
+  # earlier, the range of the Ceph upgrade note (the faulty conversion code
+  # shipped in 16.2.6, fixed in 16.2.7). OSDs created on Octopus already
+  # have per-pool omap and BLUESTORE_NO_PER_PG_OMAP is off by default
+  # (bluestore_warn_on_no_per_pg_omap = false), so they are only seen here
+  # if that warning is enabled.
+  legacy_format_reported:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.bluestore_legacy_format_checks
+      ops: [[length_hint], [gt, 0]]
+  unsafe_omap_conversion_version:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.osd_versions_with_unsafe_omap_conversion
+      ops: [[length_hint], [gt, 0]]
+conclusions:
+  bluestore-legacy-format-unsafe-conversion:
+    decision:
+      - legacy_format_reported
+      - unsafe_omap_conversion_version
+    raises:
+      type: CephTrackerBug
+      bug-id: 53062
+      message: >-
+        Ceph health detail reports {checks} for {osds} (a legacy
+        BlueStore stats or omap format, for which Ceph suggests a store
+        repair) and 'ceph versions' shows running OSD version(s)
+        {versions}. Ceph warns that on Pacific 16.2.6 and earlier the
+        omap format conversion done by 'ceph-bluestore-tool repair' or
+        'quick-fix', or by an OSD started with
+        bluestore_fsck_quick_fix_on_mount = true, can corrupt omap data.
+        'ceph versions' does not say which OSDs run which version, and
+        OSDs created on Octopus may not be listed above. Please do not
+        run repair or quick-fix on any OSD that runs one of those
+        versions, keep bluestore_fsck_quick_fix_on_mount false until all
+        OSDs run 16.2.7 or later, and then convert the OSDs as described
+        in
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#bluestore-no-per-pg-omap.
+      format-dict:
+        checks: hotsos.core.plugins.storage.ceph.CephCluster.bluestore_legacy_format_checks:comma_join
+        osds: hotsos.core.plugins.storage.ceph.CephCluster.bluestore_legacy_format_osds:comma_join
+        versions: hotsos.core.plugins.storage.ceph.CephCluster.osd_versions_with_unsafe_omap_conversion:comma_join
