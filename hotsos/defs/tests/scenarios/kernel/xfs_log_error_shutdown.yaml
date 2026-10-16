@@ -1,0 +1,22 @@
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  9 22:10:01 compute4 kernel: [1694413.621000] XFS (sdb1): log I/O error -5
+      Feb  9 22:10:01 compute4 kernel: [1694413.621694] XFS (sdb1): Log I/O Error (0x2) detected at xlog_ioend_work+0x6e/0x70 [xfs] (fs/xfs/xfs_log.c:1377).  Shutting down filesystem.
+      Feb  9 22:10:01 compute4 kernel: [1694413.621700] XFS (sdb1): Please unmount the filesystem and rectify the problem(s)
+      Feb  9 23:15:42 compute4 kernel: [1698354.101010] XFS (sdb1): Mounting V5 Filesystem
+      Feb  9 23:15:43 compute4 kernel: [1698355.202020] XFS (sdb1): Ending clean mount
+      Feb 10 01:02:03 compute4 kernel: [1730000.000001] XFS (sdc1): Log I/O error (0x2) detected at xlog_ioend_work+0x6e/0x70 [xfs] (fs/xfs/xfs_log.c:1272). Shutting down filesystem
+      Feb 10 03:00:00 compute4 kernel: [1736000.000001] XFS (sdd1): Log I/O Error Detected. Shutting down filesystem
+      2022-02-10T09:13:27.512043+00:00 compute4 kernel: XFS (dm-3): Filesystem has been shut down due to log error (0x2).
+      2022-02-10T09:13:27.512050+00:00 compute4 kernel: XFS (dm-3): Please unmount the filesystem and rectify the problem(s).
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged 4 XFS log error shutdown(s) for dm-3, sdb1, sdc1,
+    sdd1 on 2022-02-10, Feb  9, Feb 10. I/O to a shut down filesystem fails
+    until it is unmounted and mounted again, which may have been done
+    since. Please check the XFS and block-layer errors logged before each
+    shutdown, fix the cause, and if the filesystem is still shut down,
+    unmount and mount it to replay the log.

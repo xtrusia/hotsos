@@ -1,0 +1,19 @@
+target-name: xfs_log_error_shutdown.yaml
+data-root:
+  files:
+    # The positive lines shifted 2 days back: more than 24 hours before the
+    # sosreport date but inside the 7 day --all-logs window used by the
+    # unit tests, so only search-result-age-hours filters them.
+    var/log/kern.log: |
+      Feb  7 22:10:01 compute4 kernel: [1694413.621000] XFS (sdb1): log I/O error -5
+      Feb  7 22:10:01 compute4 kernel: [1694413.621694] XFS (sdb1): Log I/O Error (0x2) detected at xlog_ioend_work+0x6e/0x70 [xfs] (fs/xfs/xfs_log.c:1377).  Shutting down filesystem.
+      Feb  7 22:10:01 compute4 kernel: [1694413.621700] XFS (sdb1): Please unmount the filesystem and rectify the problem(s)
+      Feb  7 23:15:42 compute4 kernel: [1698354.101010] XFS (sdb1): Mounting V5 Filesystem
+      Feb  7 23:15:43 compute4 kernel: [1698355.202020] XFS (sdb1): Ending clean mount
+      Feb  8 01:02:03 compute4 kernel: [1730000.000001] XFS (sdc1): Log I/O error (0x2) detected at xlog_ioend_work+0x6e/0x70 [xfs] (fs/xfs/xfs_log.c:1272). Shutting down filesystem
+      Feb  8 03:00:00 compute4 kernel: [1736000.000001] XFS (sdd1): Log I/O Error Detected. Shutting down filesystem
+      2022-02-08T09:13:27.512043+00:00 compute4 kernel: XFS (dm-3): Filesystem has been shut down due to log error (0x2).
+      2022-02-08T09:13:27.512050+00:00 compute4 kernel: XFS (dm-3): Please unmount the filesystem and rectify the problem(s).
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

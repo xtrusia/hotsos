@@ -1,0 +1,52 @@
+vars:
+  # Group 1 is the date, group 2 the time and group 3 the device.
+  # NOTE: the kern.log timestamp pattern is of the form
+  #       "Jun  8 10:48:13 compute4 kernel: [1694413.621694]"
+  #       or (RFC3339, rsyslog high precision timestamps on newer Ubuntu;
+  #       the kernel timestamp may be absent)
+  #       "2024-05-16T09:13:27.512043+00:00 compute4 kernel:"
+  # The XFS log shutdown message differs between kernel versions:
+  #   < 5.14 (xfs_fsops.c): "Log I/O Error Detected. Shutting down
+  #                          filesystem"
+  #   5.14 (xfs_fsops.c): "Log I/O error (0x2) detected at <fn> ...
+  #                        Shutting down filesystem"
+  #   >= 5.15 (xfs_fsops.c): "Log I/O Error (0x2) detected at <fn> ...
+  #                           Shutting down filesystem."
+  #   >= 5.18 (xfs_log.c): "Filesystem has been shut down due to log
+  #                         error (0x2)."
+  # Since 5.15 a user requested shutdown without log flush
+  # (XFS_IOC_GOINGDOWN NOLOGFLUSH) also prints the "Log I/O Error" form
+  # with SHUTDOWN_FORCE_UMOUNT (0x4) set in the flags e.g. (0x6). The 5.18+
+  # "due to log error" form is printed for any flags passed to
+  # xlog_force_shutdown() e.g. (0x8) SHUTDOWN_CORRUPT_INCORE from
+  # xfs_trans_ail_delete(). Only flags whose lowest hex digit has
+  # SHUTDOWN_LOG_IO_ERROR (0x2) set and SHUTDOWN_FORCE_UMOUNT (0x4) clear
+  # are accepted.
+  # NOTE: the age constraint ignores a UTC offset in RFC3339 timestamps
+  #       (shared timestamp matcher), so it is exact only for UTC logs.
+  expr_xfs_log_shutdown: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?XFS \((\S+)\): (?:Filesystem has been shut down due to log error \(0x[0-9a-f]*[23ab]\)|Log I/O Error Detected\.\s+Shutting down filesystem|Log I/O [Ee]rror \(0x[0-9a-f]*[23ab]\) detected at)'
+checks:
+  xfs_shut:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_xfs_log_shutdown
+      hint: 'XFS \('
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  xfs-log-error-shutdown:
+    decision: xfs_shut
+    raises:
+      type: KernelError
+      message: >-
+        The kernel logged {count} XFS log error shutdown(s) for {dev} on
+        {dates}. I/O to a shut down filesystem fails until it is unmounted
+        and mounted again, which may have been done since. Please check the
+        XFS and block-layer errors logged before each shutdown, fix the
+        cause, and if the filesystem is still shut down, unmount and mount
+        it to replay the log.
+      format-dict:
+        count: '@checks.xfs_shut.search.num_results'
+        dev: '@checks.xfs_shut.search.results_group_3:unique_comma_join'
+        dates: '@checks.xfs_shut.search.results_group_1:unique_comma_join'

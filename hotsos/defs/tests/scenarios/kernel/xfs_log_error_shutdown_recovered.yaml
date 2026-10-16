@@ -1,0 +1,22 @@
+target-name: xfs_log_error_shutdown.yaml
+data-root:
+  files:
+    # A log error shutdown followed by a successful remount (log replayed).
+    # The shutdown is still reported with its date.
+    var/log/kern.log: |
+      Feb 10 10:10:01 compute4 kernel: [1694413.621000] XFS (sdb1): log I/O error -5
+      Feb 10 10:10:01 compute4 kernel: [1694413.621694] XFS (sdb1): Log I/O Error (0x2) detected at xlog_ioend_work+0x6e/0x70 [xfs] (fs/xfs/xfs_log.c:1377).  Shutting down filesystem.
+      Feb 10 10:10:01 compute4 kernel: [1694413.621700] XFS (sdb1): Please unmount the filesystem and rectify the problem(s)
+      Feb 10 10:25:42 compute4 kernel: [1695354.101010] XFS (sdb1): Mounting V5 Filesystem
+      Feb 10 10:25:43 compute4 kernel: [1695355.101010] XFS (sdb1): Starting recovery (logdev: internal)
+      Feb 10 10:25:44 compute4 kernel: [1695356.202020] XFS (sdb1): Ending recovery (logdev: internal)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged 1 XFS log error shutdown(s) for sdb1 on Feb 10. I/O
+    to a shut down filesystem fails until it is unmounted and mounted
+    again, which may have been done since. Please check the XFS and
+    block-layer errors logged before each shutdown, fix the cause, and if
+    the filesystem is still shut down, unmount and mount it to replay the
+    log.

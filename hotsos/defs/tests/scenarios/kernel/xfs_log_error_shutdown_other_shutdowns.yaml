@@ -1,0 +1,16 @@
+target-name: xfs_log_error_shutdown.yaml
+data-root:
+  files:
+    # Recent shutdowns that are not caused by a log write failure
+    # (0x8 in-memory corruption, 0x6 user requested) and mount lines.
+    var/log/kern.log: |
+      2022-02-10T10:48:13.000000+00:00 compute4 kernel: XFS (dm-5): Filesystem has been shut down due to log error (0x8).
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] XFS (sdb1): Corruption of in-memory data (0x8) detected at xfs_trans_cancel+0x10f/0x130 [xfs] (fs/xfs/xfs_trans.c:1097).  Shutting down filesystem.
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] XFS (sdc1): User initiated shutdown received.
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] XFS (sdc1): Log I/O Error (0x6) detected at xfs_fs_goingdown+0x56/0x90 [xfs] (fs/xfs/xfs_fsops.c:496).  Shutting down filesystem.
+      2022-02-10T10:48:13.000000+00:00 compute4 kernel: XFS (dm-4): Log I/O Error (0x6) detected at xfs_fs_goingdown+0x56/0x90 [xfs] (fs/xfs/xfs_fsops.c:496).  Shutting down filesystem.
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] XFS (sdb1): Mounting V5 Filesystem
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] XFS (sdb1): Ending clean mount
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
