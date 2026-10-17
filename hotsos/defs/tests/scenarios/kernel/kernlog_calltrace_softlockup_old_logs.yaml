@@ -1,0 +1,14 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Jan 31 00:07:13 compute4 kernel: [  567.622415] NMI watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [swapper/0:0]
+      Jan 31 00:07:13 compute4 kernel: [  567.622420] Call Trace:
+      Jan 31 00:07:13 compute4 kernel: [  567.622421]  <IRQ>
+      Jan 31 01:07:13 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      Jan 31 01:07:13 compute4 kernel: Call Trace:
+      Jan 31 01:07:13 compute4 kernel:  <IRQ>
+      2022-01-31T12:00:01.123456+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [qemu-system-x86:4242]
+      2022-01-31T12:00:01.123500+00:00 compute4 kernel: Call Trace:
+      2022-01-31T12:00:01.123510+00:00 compute4 kernel:  <TASK>
+raised-issues:

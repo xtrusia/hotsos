@@ -19,6 +19,10 @@ checks:
     property:
       path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-fanotify
       ops: [[length_hint]]
+  has_softlockups:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-softlockup
+      ops: [[length_hint]]
 conclusions:
   stacktraces:
     # Give this one lowest priority so that if any other call trace types match they
@@ -71,3 +75,14 @@ conclusions:
         be related to antivirus software running in the system.
       format-dict:
         numreports: '@checks.has_fanotify_hang.requires.value_actual:len'
+  softlockups:
+    priority: 2
+    decision: has_softlockups
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of soft lockups ('BUG: soft lockup - CPU#N stuck')
+        in kern.log. Please check the call trace that follows each report and,
+        on virtual machines, check the hypervisor host for CPU contention.
+      format-dict:
+        numreports: '@checks.has_softlockups.requires.value_actual:len'
