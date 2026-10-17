@@ -1,0 +1,38 @@
+vars:
+  # Syslog timestamps may be legacy "Jun  8 10:48:13 host" or RFC3339
+  # "2024-06-08T10:48:13.123456+00:00 host". Group 1 is the date, group 2
+  # the time and group 3 the backend.
+  expr_no_server: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ haproxy\[\d+\]: \S+ (\S+) has no server available!'
+checks:
+  haproxy_no_server:
+    input:
+      path:
+        - var/log/haproxy.log
+    expr: $expr_no_server
+    hint: 'has no server available'
+    # A single event is also logged when all API units are restarted at once
+    # (config changes, upgrades), and the charm haproxy.cfg logs to two
+    # targets (local0 and local1 notice) so each event appears twice. Report
+    # when the hour counted back from the newest line holds at least 20
+    # lines, over all backends together. A later restart wave moves that
+    # hour and can hide an earlier burst.
+    constraints:
+      min-results: 20
+      search-period-hours: 1
+      search-result-age-hours: 24
+conclusions:
+  openstack-haproxy-backend-no-server:
+    decision: haproxy_no_server
+    raises:
+      type: OpenstackWarning
+      message: >-
+        haproxy logged 'has no server available!' {count} times within one hour
+        on {dates} (backend(s): {backends}), so requests to those backends may
+        have failed then. A restart of all API units also logs one event per
+        backend (twice on charmed deployments). Please check the preceding
+        'Server <backend>/<server> is DOWN' lines and whether those API
+        services are running and healthy.
+      format-dict:
+        count: '@checks.haproxy_no_server.search.num_results'
+        backends: '@checks.haproxy_no_server.search.results_group_3:unique_comma_join'
+        dates: '@checks.haproxy_no_server.search.results_group_1:unique_comma_join'

@@ -1,0 +1,45 @@
+target-name: haproxy_backend_no_server.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    # One duplicated event for each of ten backends at the same time (20
+    # lines). The count is over all backends, so this is reported too.
+    var/log/haproxy.log: |
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend aodh-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend aodh-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend barbican-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend barbican-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend cinder-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend cinder-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend glance-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend glance-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend heat-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend heat-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend keystone-public_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend keystone-public_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend neutron-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend neutron-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend nova-api-os-compute_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend nova-api-os-compute_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend nova-placement-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend nova-placement-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend octavia-api_10.5.0.10 has no server available!
+      2022-02-10T10:28:35.123456+00:00 juju-abc-0 haproxy[1234]: backend octavia-api_10.5.0.10 has no server available!
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackWarning: >-
+    haproxy logged 'has no server available!' 20 times within one hour on
+    2022-02-10 (backend(s): aodh-api_10.5.0.10, barbican-api_10.5.0.10,
+    cinder-api_10.5.0.10, glance-api_10.5.0.10, heat-api_10.5.0.10,
+    keystone-public_10.5.0.10, neutron-api_10.5.0.10,
+    nova-api-os-compute_10.5.0.10, nova-placement-api_10.5.0.10,
+    octavia-api_10.5.0.10), so requests to those backends may have failed
+    then. A restart of all API units also logs one event per backend (twice
+    on charmed deployments). Please check the preceding 'Server
+    <backend>/<server> is DOWN' lines and whether those API services are
+    running and healthy.
