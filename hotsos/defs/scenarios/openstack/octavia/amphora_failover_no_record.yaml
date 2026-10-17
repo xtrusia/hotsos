@@ -1,0 +1,22 @@
+checks:
+  failover_no_record:
+    input:
+      path:
+        - var/log/octavia/*.log
+    expr: '([\d-]+) ([\d:]+)\.\d{3} .+ ERROR \S+ .+ Amphora failover for amphora (\S+) failed because there is no record of this amphora in the database'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  octavia-amphora-failover-no-record:
+    decision: failover_no_record
+    raises:
+      type: OpenstackWarning
+      message: >-
+        Octavia skipped {count} amphora failover(s) in the last 24 hours
+        because amphora id(s) {amps} had no database record. Please check that
+        [house_keeping] amphora_expiry_age is not too short and look for
+        leftover compute instances named amphora-<id>.
+      format-dict:
+        count: '@checks.failover_no_record.search.num_results'
+        amps: '@checks.failover_no_record.search.results_group_3:unique_comma_join'

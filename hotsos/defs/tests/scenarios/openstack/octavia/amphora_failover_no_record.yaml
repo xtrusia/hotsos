@@ -1,0 +1,21 @@
+target-name: amphora_failover_no_record.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/octavia/octavia-worker.log: |
+      2022-02-10 10:28:35.123 1234 ERROR octavia.controller.worker.v2.controller_worker [-] Amphora failover for amphora 8a6b0d1c-1111-2222-3333-444455556666 failed because there is no record of this amphora in the database. Check that the [house_keeping] amphora_expiry_age configuration setting is not too short. Skipping failover.
+      2022-02-10 10:30:35.456 1234 ERROR octavia.controller.worker.v2.controller_worker [-] Amphora failover for amphora 9c7d1e2f-1111-2222-3333-444455556666 failed because there is no record of this amphora in the database. Check that the [house_keeping] amphora_expiry_age configuration setting is not too short. Skipping failover.
+      2022-02-10 10:31:00.000 1234 INFO octavia.controller.worker.v2.flows.amphora_flows [-] Performing failover for amphora: {'id': 'abc'}
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackWarning: >-
+    Octavia skipped 2 amphora failover(s) in the last 24 hours because amphora
+    id(s) 8a6b0d1c-1111-2222-3333-444455556666,
+    9c7d1e2f-1111-2222-3333-444455556666 had no database record. Please check
+    that [house_keeping] amphora_expiry_age is not too short and look for
+    leftover compute instances named amphora-<id>.
