@@ -1,0 +1,27 @@
+checks:
+  mce_logged:
+    input:
+      path: 'var/log/kern.log'
+    # NOTE: the kern.log timestamp is either of the legacy form
+    #       "Jun  8 10:48:13 compute4 kernel: [1694413.621694]" or the
+    #       RFC3339 form "2024-06-08T10:48:13.621694+00:00 compute4 kernel:"
+    #       (rsyslog default since Ubuntu 24.04, kernel timestamp optional).
+    search:
+      expr: '^(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?mce: \[Hardware Error\]: (?:Machine check events logged|CPU \d+: Machine Check)'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  kernel-mce-hardware-error:
+    decision: mce_logged
+    raises:
+      type: KernelError
+      message: >-
+        kern.log contains {numreports} x86 machine check (MCE) line(s)
+        from the last 24 hours, meaning the CPU or platform reported a
+        corrected or uncorrected hardware error. Please decode the
+        events with mcelog or rasdaemon, check the BMC/IPMI event log
+        and contact the hardware vendor if errors are uncorrected or
+        recurring.
+      format-dict:
+        numreports: '@checks.mce_logged.search.num_results'

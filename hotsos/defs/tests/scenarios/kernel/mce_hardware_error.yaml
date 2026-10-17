@@ -1,0 +1,21 @@
+data-root:
+  files:
+    # Legacy lines followed by newer RFC3339 lines (e.g. after an upgrade to
+    # 24.04). The first line is older than 24h and must not be counted, nor
+    # must the TSC/PROCESSOR lines that follow the 'CPU N' line.
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] mce: [Hardware Error]: Machine check events logged
+      Feb 10 08:00:01 compute4 kernel: [1694413.621690] mce: [Hardware Error]: CPU 3: Machine Check: 0 Bank 7: 8c00004000010090
+      Feb 10 08:00:01 compute4 kernel: [1694413.621691] mce: [Hardware Error]: TSC 0 ADDR 1c3f8f080 MISC 9001
+      Feb 10 08:00:01 compute4 kernel: [1694413.621692] mce: [Hardware Error]: PROCESSOR 0:50654 TIME 1644393601 SOCKET 0 APIC 6 microcode 2006b06
+      Feb 10 08:00:01 compute4 kernel: [1694413.621694] mce: [Hardware Error]: Machine check events logged
+      2022-02-10T10:48:13.621694+00:00 compute4 kernel: mce: [Hardware Error]: Machine check events logged
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    kern.log contains 3 x86 machine check (MCE) line(s) from the last 24
+    hours, meaning the CPU or platform reported a corrected or uncorrected
+    hardware error. Please decode the events with mcelog or rasdaemon,
+    check the BMC/IPMI event log and contact the hardware vendor if errors
+    are uncorrected or recurring.

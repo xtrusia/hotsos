@@ -1,0 +1,13 @@
+target-name: mce_hardware_error.yaml
+data-root:
+  files:
+    # RFC3339 only. Same as the rfc3339 positive test but every
+    # matching line is more than 24h old so none is counted.
+    var/log/kern.log: |
+      2022-02-01T10:48:13.621694+00:00 compute4 kernel: mce: [Hardware Error]: Machine check events logged
+      2022-02-08T08:00:01.621690+00:00 compute4 kernel: mce: [Hardware Error]: CPU 3: Machine Check: 0 Bank 7: 8c00004000010090
+      2022-02-08T08:00:01.621691+00:00 compute4 kernel: mce: [Hardware Error]: TSC 0 ADDR 1c3f8f080 MISC 9001
+      2022-02-08T10:48:13.621694+00:00 compute4 kernel: mce: [Hardware Error]: Machine check events logged
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
