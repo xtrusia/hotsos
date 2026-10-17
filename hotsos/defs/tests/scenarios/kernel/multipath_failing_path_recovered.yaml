@@ -1,0 +1,17 @@
+target-name: multipath_failing_path.yaml
+data-root:
+  files:
+    # A path failed and was reinstated a minute later. The failure is still
+    # reported with its date; the message asks to check 'multipath -ll'.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] device-mapper: multipath: 253:3: Failing path 8:16.
+      Feb 10 10:49:20 compute4 kernel: [1694480.112233] device-mapper: multipath: 253:3: Reinstating path 8:16.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    device-mapper multipath marked path(s) 8:16 as failed (1 'Failing path'
+    line(s)) on Feb 10. I/O to a LUN goes on through its remaining paths,
+    and queues or fails if all of them have failed. Please check with
+    'multipath -ll' whether these paths are active again, and check the
+    FC/iSCSI links and the switch and array health.

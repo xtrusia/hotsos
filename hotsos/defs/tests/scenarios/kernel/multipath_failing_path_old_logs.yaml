@@ -1,0 +1,13 @@
+target-name: multipath_failing_path.yaml
+data-root:
+  files:
+    # Same as the positive test but every matching line is more than 24h
+    # old (inside the default log window) so none is counted.
+    var/log/kern.log: |
+      Feb  8 10:48:13 compute4 kernel: [1694413.621694] device-mapper: multipath: 253:3: Failing path 8:16.
+      Feb  8 10:48:13 compute4 kernel: [1694413.621694] device-mapper: multipath: 253:3: Failing path 8:32.
+      Feb  8 10:48:13 compute4 kernel: [1694413.621694] device-mapper: multipath: Failing path 8:16.
+      2022-02-08T11:02:44.123456+00:00 compute4 kernel: device-mapper: multipath: 253:4: Failing path 65:48.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
