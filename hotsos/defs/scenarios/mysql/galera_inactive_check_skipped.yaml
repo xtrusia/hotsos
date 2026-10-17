@@ -1,0 +1,34 @@
+checks:
+  galera_inactive_check_skipped:
+    input:
+      path:
+        - var/log/mysql/error.log
+    # Codership Galera (MariaDB) logs 'last inactive check more than PT1.5S
+    # ago (<gap>), skipping check' and Percona Galera (PXC 5.7 and 8.0)
+    # logs 'last inactive check more than PT1.5S
+    # (3*evs.inactive_check_period) ago (<gap>), skipping check'. Only gaps
+    # of 5 seconds (default evs.suspect_timeout) or more are matched.
+    # Timestamps are MySQL/PXC style (2022-02-09T10:28:35.123456Z) or
+    # MariaDB style (2022-02-09 10:30:35); MariaDB pads single digit hours
+    # with a space (2022-02-09  9:30:35), which the common timestamp
+    # matcher cannot parse, so such lines are only counted once an earlier
+    # line in the file with a parseable timestamp falls within the age
+    # window.
+    expr: '^(\d{4}-\d{2}-\d{2})[T ]\s?(\d{1,2}:\d{2}:\d{2})(?:\.\d+)?\S* .*last inactive check more than \S+ (?:\(3\*evs\.inactive_check_period\) )?ago \((P(?:\d+[YMD])+\S*|PT(?:\d+H|\d+M|[5-9]|\d{2,})\S*)\), skipping check'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  mysql-galera-inactive-check-skipped:
+    decision: galera_inactive_check_skipped
+    raises:
+      type: MySQLWarning
+      message: >-
+        The MySQL error log contains {count} Galera 'last inactive check
+        more than ... ago, skipping check' warning(s) from the last 24
+        hours with gaps of {gaps}, so Galera group communication on this
+        node stalled for at least 5 seconds. Please check CPU steal,
+        swap and disk latency on this host around those times.
+      format-dict:
+        count: '@checks.galera_inactive_check_skipped.search.num_results'
+        gaps: '@checks.galera_inactive_check_skipped.search.results_group_3:unique_comma_join'

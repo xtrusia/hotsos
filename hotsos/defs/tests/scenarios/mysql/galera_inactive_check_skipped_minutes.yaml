@@ -1,0 +1,18 @@
+target-name: galera_inactive_check_skipped.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  percona-xtradb-cluster-server 1:8.0.32-24-1.focal amd64 Percona XtraDB Cluster database server
+    var/log/mysql/error.log: |
+      2022-02-10T10:28:35.123456Z 0 [Warning] [MY-000000] [Galera] last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT1M5.2S), skipping check
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  MySQLWarning: >-
+    The MySQL error log contains 1 Galera 'last inactive check more than
+    ... ago, skipping check' warning(s) from the last 24 hours with gaps
+    of PT1M5.2S, so Galera group communication on this node stalled for
+    at least 5 seconds. Please check CPU steal, swap and disk latency on
+    this host around those times.

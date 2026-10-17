@@ -1,0 +1,22 @@
+target-name: galera_inactive_check_skipped.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  galera-4 26.4.11-0ubuntu0.22.04.1 amd64 Replication framework for transactional applications
+      ii  mariadb-server-10.6 1:10.6.12-0ubuntu0.22.04.1 amd64 MariaDB database server binaries
+    var/log/mysql/error.log: |
+      2022-02-09 23:10:00 0 [Note] WSREP: (5b1e3f4a-1111, 'tcp://0.0.0.0:4567') turning message relay requesting off
+      2022-02-10  9:30:35 0 [Warning] WSREP: last inactive check more than PT1.5S ago (PT7.2S), skipping check
+      2022-02-10 10:30:35 0 [Warning] WSREP: last inactive check more than PT1.5S ago (PT6.50082S), skipping check
+      2022-02-10 10:31:35 0 [Warning] WSREP: last inactive check more than PT1.5S ago (PT3.50082S), skipping check
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  MySQLWarning: >-
+    The MySQL error log contains 2 Galera 'last inactive check more than
+    ... ago, skipping check' warning(s) from the last 24 hours with gaps
+    of PT6.50082S, PT7.2S, so Galera group communication on this node
+    stalled for at least 5 seconds. Please check CPU steal, swap and
+    disk latency on this host around those times.
