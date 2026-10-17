@@ -1,0 +1,11 @@
+target-name: ext4_fs_error.yaml
+data-root:
+  files:
+    # Recent EXT4-fs lines that are not error reports.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs (sda1): mounted filesystem with ordered data mode. Opts: (null)
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs warning (device sda1): ext4_dx_add_entry:2300: Directory index full!
+      2022-02-10T11:48:13.123456+00:00 compute4 kernel: EXT4-fs (dm-0): error count since last fsck: 3
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

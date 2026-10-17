@@ -1,0 +1,32 @@
+checks:
+  ext4_error:
+    input:
+      path: 'var/log/kern.log'
+    # NOTE: the kern.log timestamp pattern is of the form
+    #       "Jun  8 10:48:13 compute4 kernel: [1694413.621694]" or
+    #       "2024-06-08T10:48:13.123456+00:00 compute4 kernel:" (RFC3339,
+    #       printk time may be absent).
+    # NOTE: the global searcher already drops lines older than 24 hours
+    #       unless use_all_logs is set, so a longer age limit would not be
+    #       applied consistently.
+    search:
+      expr: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* .* kernel: (?:\[.*\] )?EXT4-fs error \(device ([^)\s]+)\)'
+      hint: 'EXT4-fs error'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  kernel-ext4-fs-error:
+    decision: ext4_error
+    raises:
+      type: KernelError
+      message: >-
+        kern.log contains {numreports} 'EXT4-fs error' message(s) from
+        the last 24 hours for device(s) {devs}, so the filesystem may
+        have been remounted read-only depending on its errors= mount
+        option. Please check the full messages and disk health, and run
+        fsck on the unmounted filesystem if they show corruption or I/O
+        errors.
+      format-dict:
+        numreports: '@checks.ext4_error.search.num_results'
+        devs: '@checks.ext4_error.search.results_group_2:unique_comma_join'
