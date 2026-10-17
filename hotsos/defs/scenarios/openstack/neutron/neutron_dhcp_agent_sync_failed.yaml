@@ -1,0 +1,23 @@
+checks:
+  dhcp_sync_failed:
+    input:
+      path:
+        - var/log/neutron/neutron-dhcp-agent.log
+    expr: '([\d-]+) ([\d:]+)\.\d{3} .+ ERROR neutron\.agent\.dhcp\.agent .+ Unable to sync network state\.'
+    constraints:
+      min-results: 10
+      search-period-hours: 24
+      search-result-age-hours: 24
+conclusions:
+  neutron-dhcp-agent-sync-failed:
+    decision: dhcp_sync_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        The neutron DHCP agent on this host logged 'Unable to sync network
+        state.' {count} times within 24 hours, so DHCP/dnsmasq config may be
+        out of date for some networks. Please check for a later 'Synchronizing
+        state complete' line and, if there is none, the traceback,
+        RPC/messaging connectivity and neutron-server health.
+      format-dict:
+        count: '@checks.dhcp_sync_failed.search.num_results'

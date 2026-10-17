@@ -1,0 +1,24 @@
+target-name: neutron_dhcp_agent_sync_failed.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/neutron/neutron-dhcp-agent.log: |
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+      2022-02-09 22:39:16.123 1234 ERROR neutron.agent.dhcp.agent [-] Unable to sync network state on deleted network 3f2a1b2c-1111-2222-3333-444455556666
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
