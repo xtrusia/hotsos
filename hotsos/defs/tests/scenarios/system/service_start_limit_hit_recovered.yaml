@@ -1,0 +1,22 @@
+target-name: service_start_limit_hit.yaml
+data-root:
+  files:
+    # The unit hit the start limit and was started again after
+    # 'systemctl reset-failed'. It is still reported with its date; the
+    # message says it may have been started since.
+    var/log/syslog: |
+      Feb 10 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Start request repeated too quickly.
+      Feb 10 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Failed with result 'start-limit-hit'.
+      Feb 10 11:30:00 compute4 systemd[1]: Starting OpenStack Neutron OVS cleanup...
+      Feb 10 11:30:01 compute4 systemd[1]: Finished OpenStack Neutron OVS cleanup.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  SystemWarning: >-
+    systemd refused 1 start request(s) in total for
+    neutron-ovs-cleanup.service on Feb 10 because the unit start rate limit
+    was hit; a service with Restart= is not restarted automatically after
+    this. These units may have been started again since. Please check
+    'systemctl status' and 'journalctl -u' for these units and fix the
+    cause; if the limit still blocks a start, 'systemctl reset-failed' with
+    the unit name clears it for that unit.

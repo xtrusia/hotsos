@@ -1,0 +1,12 @@
+target-name: service_start_limit_hit.yaml
+data-root:
+  files:
+    # The positive lines on Feb 7: more than 24 hours before the sosreport
+    # date but inside the 7 day --all-logs window used by the unit tests.
+    var/log/syslog: |
+      Feb  7 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Start request repeated too quickly.
+      Feb  7 10:48:13 compute4 systemd[1]: ceph-mon@host.service: Start request repeated too quickly.
+      2022-02-07T10:48:13.123456+00:00 compute4 systemd[1]: neutron-ovs-cleanup.service: Start request repeated too quickly.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

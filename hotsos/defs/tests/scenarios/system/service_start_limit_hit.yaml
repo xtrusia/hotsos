@@ -1,0 +1,17 @@
+data-root:
+  files:
+    var/log/syslog: |
+      Feb 10 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Start request repeated too quickly.
+      Feb 10 10:48:13 compute4 systemd[1]: ceph-mon@host.service: Start request repeated too quickly.
+      2022-02-10T10:48:13.123456+00:00 compute4 systemd[1]: neutron-ovs-cleanup.service: Start request repeated too quickly.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  SystemWarning: >-
+    systemd refused 3 start request(s) in total for ceph-mon@host.service,
+    neutron-ovs-cleanup.service on 2022-02-10, Feb 10 because the unit
+    start rate limit was hit; a service with Restart= is not restarted
+    automatically after this. These units may have been started again
+    since. Please check 'systemctl status' and 'journalctl -u' for these
+    units and fix the cause; if the limit still blocks a start, 'systemctl
+    reset-failed' with the unit name clears it for that unit.

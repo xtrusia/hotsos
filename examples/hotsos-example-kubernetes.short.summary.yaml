@@ -4,3 +4,11 @@ potential-issues:
       - Unattended upgrades are enabled which can lead to uncontrolled changes to
         this environment. If maintenance windows are required please consider disabling
         unattended upgrades.
+      - systemd refused 4 start request(s) in total for snap.kube-apiserver.daemon.service,
+        snap.kube-controller-manager.daemon.service, snap.kube-proxy.daemon.service,
+        snap.kube-scheduler.daemon.service on Feb 11 because the unit start rate limit
+        was hit; a service with Restart= is not restarted automatically after this.
+        These units may have been started again since. Please check 'systemctl status'
+        and 'journalctl -u' for these units and fix the cause; if the limit still
+        blocks a start, 'systemctl reset-failed' with the unit name clears it for
+        that unit.

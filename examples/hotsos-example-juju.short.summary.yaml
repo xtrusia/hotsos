@@ -4,6 +4,12 @@ potential-issues:
       - Unattended upgrades are enabled which can lead to uncontrolled changes to
         this environment. If maintenance windows are required please consider disabling
         unattended upgrades.
+      - systemd refused 6 start request(s) in total for ceph-osd@0.service on Feb
+        10 because the unit start rate limit was hit; a service with Restart= is not
+        restarted automatically after this. These units may have been started again
+        since. Please check 'systemctl status' and 'journalctl -u' for these units
+        and fix the cause; if the limit still blocks a start, 'systemctl reset-failed'
+        with the unit name clears it for that unit.
   juju:
     JujuWarnings:
       - Juju logs for unit(s) 'ceph-osd/0' contain 3 Traceback(s) from the last 48

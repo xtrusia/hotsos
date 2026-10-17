@@ -1,0 +1,10 @@
+target-name: service_start_limit_hit.yaml
+data-root:
+  files:
+    var/log/syslog: |
+      Feb 10 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Failed with result 'exit-code'.
+      Feb 10 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Scheduled restart job, restart counter is at 2.
+      Feb 10 10:48:13 compute4 systemd[1]: neutron-ovs-cleanup.service: Failed with result 'start-limit-hit'.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

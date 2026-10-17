@@ -1,0 +1,34 @@
+vars:
+  # systemd logs "<unit>: Start request repeated too quickly." (unit.c
+  # unit_test_start_limit()) for each start refused while the unit's start
+  # rate limit (StartLimitBurst within StartLimitIntervalSec) is exceeded.
+  # syslog lines start with the legacy timestamp or the RFC3339 one. Group 1
+  # is the date, group 2 the time and group 3 the unit. Only the system
+  # manager (systemd[1]) is matched.
+  expr_start_limit: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ systemd\[1\]: (\S+): Start request repeated too quickly\.'
+checks:
+  start_limit:
+    input:
+      path: 'var/log/syslog'
+    search:
+      expr: $expr_start_limit
+      hint: 'Start request repeated too quickly'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  system-service-start-limit-hit:
+    decision: start_limit
+    raises:
+      type: SystemWarning
+      message: >-
+        systemd refused {numreports} start request(s) in total for {units}
+        on {dates} because the unit start rate limit was hit; a service with
+        Restart= is not restarted automatically after this. These units may
+        have been started again since. Please check 'systemctl status' and
+        'journalctl -u' for these units and fix the cause; if the limit
+        still blocks a start, 'systemctl reset-failed' with the unit name
+        clears it for that unit.
+      format-dict:
+        numreports: '@checks.start_limit.search.num_results'
+        units: '@checks.start_limit.search.results_group_3:unique_comma_join'
+        dates: '@checks.start_limit.search.results_group_1:unique_comma_join'
