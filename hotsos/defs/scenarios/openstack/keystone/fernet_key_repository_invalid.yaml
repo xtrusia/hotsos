@@ -1,0 +1,32 @@
+vars:
+  # Matches both the default oslo.log format and the format set by the
+  # keystone charm's logging.conf (log_config_append):
+  # '(%(name)s): %(asctime)s %(levelname)s %(message)s'. Group 1 is the
+  # date, group 2 the time and group 3 the repository path (which may
+  # contain spaces).
+  expr_fernet_repo_invalid: '(?:\(keystone\.common\.fernet_utils\): )?([\d-]+) ([\d:]+)[.,]\d{3} (?:\d+ ERROR keystone\.common\.fernet_utils .+ |ERROR )Either \[fernet_tokens\] key_repository does not exist or Keystone does not have sufficient permission to access it: (\S(?:.*\S)?)'
+checks:
+  fernet_repo_invalid:
+    input:
+      path:
+        - var/log/keystone/*.log
+    expr: $expr_fernet_repo_invalid
+    hint: 'key_repository does not exist'
+    constraints:
+      search-result-age-hours: 24
+conclusions:
+  keystone-fernet-key-repository-invalid:
+    decision: fernet_repo_invalid
+    raises:
+      type: OpenstackWarning
+      message: >-
+        Keystone logged {count} time(s) on {dates} that its [fernet_tokens]
+        key_repository ({repos}) does not exist or is not accessible, so
+        token issue and validation may have failed then. Please check that
+        the directory exists, is accessible to the keystone user (writable
+        too where keys are rotated) and holds the same keys as the other
+        keystone units.
+      format-dict:
+        count: '@checks.fernet_repo_invalid.search.num_results'
+        dates: '@checks.fernet_repo_invalid.search.results_group_1:unique_comma_join'
+        repos: '@checks.fernet_repo_invalid.search.results_group_3:unique_comma_join'

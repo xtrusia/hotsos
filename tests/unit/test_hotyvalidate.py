@@ -5,7 +5,11 @@ import unittest
 from unittest import mock
 
 from hotsos.core.config import HotSOSConfig
-from tools.validation.hotyvalidate import HotYValidate, configure_defs_dir
+from tools.validation.hotyvalidate import (
+    HotYValidate,
+    SearchExpressionValidator,
+    configure_defs_dir,
+)
 
 
 class TestHotYValidate(unittest.TestCase):
@@ -92,3 +96,23 @@ class TestHotYValidate(unittest.TestCase):
                             ([str(tests / 'example_alt.yaml')],
                              {str(scenarios / 'example.yaml'):
                               [str(tests / 'example_alt.yaml')]}))
+
+
+class TestSearchExpressionValidator(unittest.TestCase):
+    """Tests for leading timestamp detection in search expressions."""
+
+    def test_logger_prefixed_timestamp(self):
+        """Accept an optional '(logger): ' prefix before a date group."""
+        for expr in [r'(?:\(keystone\.common\.fernet_utils\): )?([\d-]+) '
+                     r'([\d:]+)[.,]\d{3} .+',
+                     r'(?:\([\w.]+\): )?(\d{4}-\d{2}-\d{2}) ([\d:]+)']:
+            with self.subTest(expr=expr):
+                self.assertTrue(SearchExpressionValidator.is_compliant(expr))
+
+    def test_logger_prefixed_unsupported(self):
+        """Reject a prefix that is not followed by a supported date group."""
+        for expr in [r'(?:\(foo\): )?(\w{3,5}\s+\d{1,2}\s+[\d:]+)',
+                     r'(?:\(foo\): )?.+ ([\d-]+) ([\d:]+)',
+                     r'(?:foo )?([\d-]+) ([\d:]+)']:
+            with self.subTest(expr=expr):
+                self.assertFalse(SearchExpressionValidator.is_compliant(expr))

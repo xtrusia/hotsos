@@ -152,7 +152,14 @@ class CommonTimestampMatcher(TimestampMatcherBase):
         # openvswitch = ceph
         kernlog = (r'^(?P<month>\w{3,5})\s+(?P<day>\d{1,2})\s+'
                    r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})')
-        return [openstack, ceph, kernlog, apache]
+        # Python logging lines prefixed with the logger name, as written by
+        # the keystone charm's logging.conf (log_config_append) format
+        # '(%(name)s): %(asctime)s %(levelname)s %(message)s', for example
+        # '(keystone.common.fernet_utils): 2024-01-01 12:00:00,123 ERROR ...'
+        logger_prefixed = (r'^\([\w.-]+\): (?P<year>\d{4})-(?P<month>\d{2})-'
+                           r'(?P<day>\d{2})\s+(?P<hours>\d{2}):'
+                           r'(?P<minutes>\d{2}):(?P<seconds>\d+)')
+        return [openstack, ceph, kernlog, apache, logger_prefixed]
 
 
 class ExtraSearchConstraints():

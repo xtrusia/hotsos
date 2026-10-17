@@ -20,9 +20,10 @@ from hotsos.core.ycheck.engine.common import (
 # the first result group(s) so that ExtraSearchConstraints hands them back to
 # core.search.CommonTimestampMatcher. The alternatives below cover every format
 # in CommonTimestampMatcher.patterns: openstack/ceph/openvswitch/juju
-# (YYYY-MM-DD[ T]HH:MM:SS), kernlog/syslog (Mon DD HH:MM:SS, string month) and
-# apache (IP - - [DD/Mon/YYYY:HH:MM:SS +ZZZZ]). Examples of expressions each
-# alternative accepts:
+# (YYYY-MM-DD[ T]HH:MM:SS), kernlog/syslog (Mon DD HH:MM:SS, string month),
+# apache (IP - - [DD/Mon/YYYY:HH:MM:SS +ZZZZ]) and python logging lines
+# prefixed with the logger name ((name): YYYY-MM-DD HH:MM:SS,mmm). Examples of
+# expressions each alternative accepts:
 #   ([\d-]+)T([\d:]+)...                 journalctl ISO 8601
 #   ([\d-]+) ([\d:]+)...                 file log, space separated
 #   ([\d-]+ [\d:]+.\d{3})...             combined date+time single group
@@ -30,6 +31,7 @@ from hotsos.core.ycheck.engine.common import (
 #   (\w{3,5}\s+\d{1,2}\s+[\d:]+) ...     syslog/kern.log style
 #   ([\d.]+[\s-]+\[\d{2}/\w{3,5}/...)  apache access log (IP + bracketed date)
 #   (\S+) (\S+) ...                      loose date/time tokens
+#   (?:\(\S+\): )?([\d-]+) ([\d:]+)...   optional '(logger): ' prefix
 LEADING_TIMESTAMP_RE = re.compile(
     r"(?:"
     r"\(\[\\d-\]\+ \[\\d:\]"       # ([\d-]+ [\d:]   (combined date+time group)
@@ -39,6 +41,10 @@ LEADING_TIMESTAMP_RE = re.compile(
     r"|\(\\w\{\d+,\d*\}\\s"        # (\w{3,5}\s      (syslog month)
     r"|\(\[\\d\.\]\+"              # ([\d.]+      (apache access-log IP prefix)
     r"|\(\\S\+\)[ T]\("            # (\S+) (         (loose token then group)
+    # (?:\(<logger>\): )? followed by a YYYY-MM-DD date group (python logging
+    # lines prefixed with the logger name)
+    r"|\(\?:\\\((?:[^()\\]|\\.)+\\\): \)\?"
+    r"(?:\(\[\\d-\]\+ \[\\d:\]|\(\[\\d-\]\+\)|\(\\d\{4\})"
     r")"
 )
 

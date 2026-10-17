@@ -1,0 +1,16 @@
+target-name: fernet_key_repository_invalid.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/keystone/keystone.log: |
+      2022-02-07 10:28:35.123 1234 ERROR keystone.common.fernet_utils [-] Either [fernet_tokens] key_repository does not exist or Keystone does not have sufficient permission to access it: /etc/keystone/fernet-keys/
+      2022-02-07 10:28:36.123 1234 ERROR keystone.common.fernet_utils [-] Either [fernet_tokens] key_repository does not exist or Keystone does not have sufficient permission to access it: /etc/keystone/fernet-keys/
+      2022-02-07 10:28:37.123 1234 WARNING keystone.common.fernet_utils [-] key_repository is world readable: /etc/keystone/fernet-keys/
+      2022-02-07 10:28:38.123 1234 ERROR keystone.common.fernet_utils [-] Either [credential] key_repository does not exist or Keystone does not have sufficient permission to access it: /etc/keystone/credential-keys/
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
