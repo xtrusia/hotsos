@@ -1,0 +1,29 @@
+checks:
+  galera_inconsistency:
+    input:
+      path:
+        - var/log/mysql/error.log
+    # Galera 4 (PXC 8.0, MariaDB 10.4+) ReplicatorSMM::handle_apply_error()
+    # logs 'Inconsistency detected: ...'. Timestamps are MySQL/PXC style
+    # (2022-02-09T10:28:35.123456Z) or MariaDB style (2022-02-09 10:30:35)
+    # where MariaDB pads single digit hours with a space
+    # (2022-02-09  9:30:35). The common timestamp matcher cannot parse padded
+    # hours, so such lines are only counted once an earlier line in the file
+    # with a parseable timestamp falls within the age window.
+    expr: '^(\d{4}-\d{2}-\d{2})[T ]\s?(\d{1,2}:\d{2}:\d{2})(?:\.\d+)?\S* .*\[ERROR\].* Inconsistency detected'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  galera-inconsistency-detected:
+    decision: galera_inconsistency
+    raises:
+      type: MySQLWarning
+      message: >-
+        The MySQL error log contains {count} Galera 'Inconsistency
+        detected' message(s) from the last 24 hours, so this node may
+        have left the cluster with diverged data. Please check the
+        current wsrep state of the node and re-join it with a full SST
+        if it is still out of the cluster.
+      format-dict:
+        count: '@checks.galera_inconsistency.search.num_results'

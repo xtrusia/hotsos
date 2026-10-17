@@ -1,0 +1,14 @@
+target-name: galera_inconsistency.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii percona-xtradb-cluster-server 8.0.32-24-1.focal all
+    var/log/mysql/error.log: |
+      2022-02-07T10:28:35.123456Z 0 [ERROR] [MY-000000] [Galera] Inconsistency detected: Inconsistent by consensus on 5b1e3f4a-1111-2222-3333-444455556666:12345
+      2022-02-07 10:30:35 0 [ERROR] WSREP: Inconsistency detected: Inconsistent by consensus on 5b1e3f4a-1111-2222-3333-444455556666:12346
+      2022-02-08  9:30:35 0 [ERROR] WSREP: Inconsistency detected: Inconsistent by consensus on 5b1e3f4a-1111-2222-3333-444455556666:12347
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
