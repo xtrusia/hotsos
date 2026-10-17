@@ -1,0 +1,35 @@
+vars:
+  # 'upcall: datapath reached the dynamic limit of N flows.' (OVS 2.15 and
+  # later, commit cade1c46) or 'upcall: datapath flow limit reached'
+  # (2.14 and earlier) from ofproto-dpif-upcall.c; the flow is then not
+  # installed. Group 1 is the
+  # date and group 2 the time.
+  expr_flow_limit: '([\d-]+)T([\d:]+)\.\d+Z\|\d+\|ofproto_dpif_upcall\S*\|WARN\|upcall: datapath (?:reached the dynamic limit of \d+ flows|flow limit reached)'
+checks:
+  flow_limit:
+    input:
+      path: 'var/log/openvswitch/ovs-vswitchd.log'
+    expr: $expr_flow_limit
+    hint: 'upcall: datapath'
+    # The warning is rate limited (VLOG_RATE_LIMIT_INIT(1, 5): up to 5 at
+    # once, then 1 per minute). After a vswitchd restart the dynamic limit
+    # starts at MIN(other_config:flow-limit, 10000) and can be hit while it
+    # grows. 10 is a heuristic for repeated limit hits.
+    constraints:
+      min-results: 10
+      search-result-age-hours: 24
+conclusions:
+  openvswitch-datapath-flow-limit-reached:
+    decision: flow_limit
+    raises:
+      type: OpenvSwitchWarning
+      message: >-
+        ovs-vswitchd logged {count} 'upcall: datapath' flow limit warnings
+        on {dates}, so new datapath flows were not installed then and their
+        packets were handled in userspace by ovs-vswitchd. Please run
+        'ovs-appctl upcall/show' and check other_config:flow-limit and the
+        'Unreasonably long ...ms poll interval' and 'Spent an unreasonably
+        long ...ms dumping flows' lines from the same time.
+      format-dict:
+        count: '@checks.flow_limit.search.num_results'
+        dates: '@checks.flow_limit.search.results_group_1:unique_comma_join'

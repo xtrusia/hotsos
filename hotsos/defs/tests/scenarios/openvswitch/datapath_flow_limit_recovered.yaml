@@ -1,0 +1,28 @@
+target-name: datapath_flow_limit.yaml
+data-root:
+  files:
+    # Form used by OVS 2.14 and earlier. The warnings stopped at 10:29
+    # (the log has no recovery line for this); they are still reported
+    # with their date.
+    var/log/openvswitch/ovs-vswitchd.log: |
+      2022-02-10T10:20:35.123Z|00100|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:21:35.123Z|00101|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:22:35.123Z|00102|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:23:35.123Z|00103|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:24:35.123Z|00104|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:25:35.123Z|00105|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:26:35.123Z|00106|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:27:35.123Z|00107|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:28:35.123Z|00108|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T10:29:35.123Z|00109|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath flow limit reached
+      2022-02-10T14:00:00.123Z|00200|bridge|INFO|bridge br-int: using datapath ID 0000a2b1c3d4e5f6
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenvSwitchWarning: >-
+    ovs-vswitchd logged 10 'upcall: datapath' flow limit warnings on
+    2022-02-10, so new datapath flows were not installed then and their
+    packets were handled in userspace by ovs-vswitchd. Please run
+    'ovs-appctl upcall/show' and check other_config:flow-limit and the
+    'Unreasonably long ...ms poll interval' and 'Spent an unreasonably long
+    ...ms dumping flows' lines from the same time.

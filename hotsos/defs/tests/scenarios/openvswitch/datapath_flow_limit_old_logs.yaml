@@ -1,0 +1,20 @@
+target-name: datapath_flow_limit.yaml
+data-root:
+  files:
+    # The positive lines on Feb 7: more than 24 hours before the sosreport
+    # date but inside the 7 day --all-logs window used by the unit tests.
+    var/log/openvswitch/ovs-vswitchd.log: |
+      2022-02-07T10:20:35.123Z|00100|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 100000 flows.
+      2022-02-07T10:21:35.123Z|00101|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 101000 flows.
+      2022-02-07T10:22:35.123Z|00102|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 102000 flows.
+      2022-02-07T10:23:35.123Z|00103|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 103000 flows.
+      2022-02-07T10:24:35.123Z|00104|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 104000 flows.
+      2022-02-07T10:25:35.123Z|00105|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 105000 flows.
+      2022-02-07T10:26:35.123Z|00106|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 106000 flows.
+      2022-02-07T10:27:35.123Z|00107|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 107000 flows.
+      2022-02-07T10:28:35.123Z|00108|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 108000 flows.
+      2022-02-07T10:29:35.123Z|00109|ofproto_dpif_upcall(handler5)|WARN|upcall: datapath reached the dynamic limit of 109000 flows.
+      2022-02-07T10:35:35.123Z|00125|ofproto_dpif_upcall(revalidator7)|WARN|Spent an unreasonably long 2300ms dumping flows
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
