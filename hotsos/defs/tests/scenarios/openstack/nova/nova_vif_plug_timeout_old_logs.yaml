@@ -1,0 +1,17 @@
+target-name: nova_vif_plug_timeout.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/nova/nova-compute.log: |
+      2022-02-09 10:38:10.123 1234 WARNING nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Timeout waiting for ['network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666'] for instance with vm_state building and task_state spawning. Event states are: network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666: timed out after 300.00 seconds
+      2022-02-09 10:48:10.123 1234 WARNING nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Timeout waiting for ['network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666'] for instance with vm_state active and task_state rebuild_spawning. Event states are: network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666: timed out after 300.00 seconds
+      2022-02-09 10:58:10.123 1234 WARNING nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Timeout waiting for ['network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666'] for instance with vm_state resized and task_state resize_reverting. Event states are: network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666: timed out after 300.00 seconds
+      2022-02-09 11:32:12.518 7 WARNING nova.virt.libvirt.driver [req-57321447-272f-4820-813d-925a43d69462 0b16e2645828414d86f094c2a7a693eb 66fcb198228e4d9d97f09dc7ce1d5130 - default default] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Timeout waiting for [('network-vif-plugged', '2d0f5c7e-1111-2222-3333-444455556666')] for instance with vm_state building and task_state spawning: eventlet.timeout.Timeout: 300 seconds
+      2022-02-09 23:08:10.123 1234 WARNING nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Timeout waiting for ['network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666'] for instance with vm_state active and task_state migrating. Event states are: network-vif-plugged-2d0f5c7e-1111-2222-3333-444455556666: timed out after 300.00 seconds
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

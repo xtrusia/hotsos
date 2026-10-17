@@ -1,0 +1,29 @@
+checks:
+  vif_plug_timeout:
+    input:
+      path:
+        - var/log/nova/nova-compute.log
+    # task_state migrating is excluded since during a live migration it is
+    # the source compute that waits for the event triggered by plugging on
+    # the destination host, so the problem would not be on this host.
+    # Older releases log the event list as tuples and end the line with
+    # ': eventlet.timeout.Timeout: ...' instead of '. Event states are: ...'.
+    expr: '([\d-]+) ([\d:]+)\.\d{3} .+ Timeout waiting for \[.*network-vif-plugged.*\] for instance with vm_state \S+ and task_state (?!migrating\b)\w+[.:]'
+    constraints:
+      min-results: 3
+      # Must not exceed the default global search window of 24 hours.
+      search-result-age-hours: 24
+conclusions:
+  nova-vif-plug-timeout:
+    decision: vif_plug_timeout
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute on this host logged {count} 'Timeout waiting for
+        [...network-vif-plugged...]' warning(s) in the last 24 hours (live
+        migrations excluded), so instance operations may have failed if
+        vif_plugging_is_fatal=True. Please check that the neutron agent or
+        ovn-controller on this host is healthy and that neutron-server can send
+        events to nova.
+      format-dict:
+        count: '@checks.vif_plug_timeout.search.num_results'
