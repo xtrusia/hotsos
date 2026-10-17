@@ -1,0 +1,10 @@
+target-name: iscsi_conn_error.yaml
+data-root:
+  files:
+    # Recent iSCSI lines that are not conn errors.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694]  connection1:0: ping timeout of 5 secs expired, recv timeout 5, last rx 4294, last ping 4294, now 4294
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] scsi host6: iSCSI Initiator over TCP/IP
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

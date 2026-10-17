@@ -1,0 +1,13 @@
+target-name: iscsi_conn_error.yaml
+data-root:
+  files:
+    # Same as the positive test but every matching line is more than 24h
+    # old (Feb 8 is inside the 7 day --all-logs window used by the unit
+    # tests) so none is counted.
+    var/log/kern.log: |
+      Feb  8 10:48:13 compute4 kernel: [1694413.621694]  connection1:0: detected conn error (1020)
+      Feb  8 10:48:14 compute4 kernel: [  725.797102]  connection1:0: detected conn error (1022)
+      2022-02-08T11:02:51.123456+00:00 compute4 kernel:  connection2:0: detected conn error (1020)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

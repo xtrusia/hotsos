@@ -1,0 +1,23 @@
+target-name: iscsi_conn_error.yaml
+data-root:
+  files:
+    # Three conn errors on one connection, then iscsid reports the connection operational
+    # again (syslog, not read by this scenario). The errors are still
+    # reported with their date.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694]  connection1:0: detected conn error (1020)
+      Feb 10 10:48:19 compute4 kernel: [1694419.621694]  connection1:0: detected conn error (1020)
+      Feb 10 10:48:25 compute4 kernel: [1694425.621694]  connection1:0: detected conn error (1020)
+    var/log/syslog: |
+      Feb 10 10:48:31 compute4 iscsid: connection1:0 is operational after recovery (2 attempts)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    The kernel logged 3 iSCSI 'detected conn error' line(s) for
+    connection1:0 (error codes: 1020) on Feb 10, so connections to the
+    target failed then and I/O may have failed if a session did not
+    recover. The codes are defined in enum iscsi_err in the kernel header
+    include/scsi/iscsi_if.h. Please check 'iscsiadm -m session -P3', the
+    multipath state, network connectivity to the portal and the target
+    health.

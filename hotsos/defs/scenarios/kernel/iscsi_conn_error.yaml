@@ -1,0 +1,45 @@
+vars:
+  # 'connectionN:M: detected conn error (CODE)' from
+  # iscsi_conn_error_event() in drivers/scsi/scsi_transport_iscsi.c. The
+  # connection device has no bus or class, so dev_printk() prints an empty
+  # driver string and an extra space before the connection name; \s+
+  # accepts either spacing. kern.log lines start with the legacy syslog
+  # timestamp or an RFC3339 one (rsyslog RSYSLOG_FileFormat), with or
+  # without the kernel uptime. Group 1 is the date, group 2 the time, group 3 the connection
+  # (session:connection) and group 4 the iscsi_err code.
+  expr_conn_error: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel:(?: \[[^\]]*\])?\s+(connection\d+:\d+): detected conn error \((\d+)\)'
+checks:
+  iscsi_conn_err:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_conn_error
+      hint: 'detected conn error'
+      # Any code is matched (enum iscsi_err, include/scsi/iscsi_if.h).
+      # 1011 conn failed, 1019 xmit failed, 1020 TCP connection closed and
+      # 1022 NOP-out timed out are transport losses, seen during a target
+      # failover; 1021 is a session reset by the SCSI error handler after
+      # commands timed out (libiscsi iscsi_eh_session_reset()); 1014/1015
+      # are header/data digest errors and 1001/1008/1010 protocol errors.
+      # Every line is reported: a count threshold would be host-wide and
+      # cannot tell a failover from a lost session.
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  kernel-iscsi-conn-error:
+    decision: iscsi_conn_err
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel logged {count} iSCSI 'detected conn error' line(s) for
+        {conns} (error codes: {codes}) on {dates}, so connections to the
+        target failed then and I/O may have failed if a session did not
+        recover. The codes are defined in enum iscsi_err in the kernel
+        header include/scsi/iscsi_if.h. Please check
+        'iscsiadm -m session -P3', the multipath state, network
+        connectivity to the portal and the target health.
+      format-dict:
+        count: '@checks.iscsi_conn_err.search.num_results'
+        conns: '@checks.iscsi_conn_err.search.results_group_3:unique_comma_join'
+        codes: '@checks.iscsi_conn_err.search.results_group_4:unique_comma_join'
+        dates: '@checks.iscsi_conn_err.search.results_group_1:unique_comma_join'

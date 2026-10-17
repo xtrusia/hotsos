@@ -1,0 +1,18 @@
+target-name: iscsi_conn_error.yaml
+data-root:
+  files:
+    # A data digest error (1015) is not a connection loss; it is reported
+    # with its code.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694]  connection1:0: detected conn error (1015)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    The kernel logged 1 iSCSI 'detected conn error' line(s) for
+    connection1:0 (error codes: 1015) on Feb 10, so connections to the
+    target failed then and I/O may have failed if a session did not
+    recover. The codes are defined in enum iscsi_err in the kernel header
+    include/scsi/iscsi_if.h. Please check 'iscsiadm -m session -P3', the
+    multipath state, network connectivity to the portal and the target
+    health.
