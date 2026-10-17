@@ -1,0 +1,21 @@
+target-name: service_oom_killed.yaml
+data-root:
+  files:
+    # The service was OOM killed and systemd restarted it. The failure is
+    # still reported with its date; the message says it may have been
+    # restarted since.
+    var/log/syslog: |
+      Feb 10 10:48:13 compute4 systemd[1]: nova-compute.service: A process of this unit has been killed by the OOM killer.
+      Feb 10 10:48:13 compute4 systemd[1]: nova-compute.service: Failed with result 'oom-kill'.
+      Feb 10 10:48:23 compute4 systemd[1]: nova-compute.service: Scheduled restart job, restart counter is at 1.
+      Feb 10 10:48:23 compute4 systemd[1]: Started OpenStack Compute.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  SystemWarning: >-
+    systemd reported 1 unit failure(s) with result 'oom-kill' for
+    nova-compute.service on Feb 10: the kernel OOM killer or systemd-oomd
+    killed processes of these units then. They may have been restarted
+    since. Please check the memory limits and usage of these units, the
+    kernel OOM reports in kern.log and systemd-oomd messages in the
+    journal.

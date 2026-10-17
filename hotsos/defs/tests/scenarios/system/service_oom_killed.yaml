@@ -1,0 +1,16 @@
+data-root:
+  files:
+    var/log/syslog: |
+      Feb 10 10:48:13 compute4 systemd[1]: nova-compute.service: Failed with result 'oom-kill'.
+      Feb 10 10:48:13 compute4 systemd[1]: ceph-osd@3.service: Failed with result 'oom-kill'.
+      2022-02-10T11:02:44.123456+00:00 compute4 systemd[1]: session-3.scope: Failed with result 'oom-kill'.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  SystemWarning: >-
+    systemd reported 3 unit failure(s) with result 'oom-kill' for
+    ceph-osd@3.service, nova-compute.service, session-3.scope on
+    2022-02-10, Feb 10: the kernel OOM killer or systemd-oomd killed
+    processes of these units then. They may have been restarted since.
+    Please check the memory limits and usage of these units, the kernel OOM
+    reports in kern.log and systemd-oomd messages in the journal.

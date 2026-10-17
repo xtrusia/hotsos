@@ -1,0 +1,9 @@
+target-name: service_oom_killed.yaml
+data-root:
+  files:
+    var/log/syslog: |
+      Feb 10 10:48:13 compute4 systemd[1]: nova-compute.service: Failed with result 'exit-code'.
+      Feb 10 10:48:13 compute4 systemd[1]: nova-compute.service: Failed with result 'timeout'.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

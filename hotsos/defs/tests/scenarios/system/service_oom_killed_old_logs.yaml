@@ -1,0 +1,12 @@
+target-name: service_oom_killed.yaml
+data-root:
+  files:
+    # The positive lines on Feb 8: more than 24 hours before the sosreport
+    # date but inside the 7 day --all-logs window used by the unit tests.
+    var/log/syslog: |
+      Feb  8 10:48:13 compute4 systemd[1]: nova-compute.service: Failed with result 'oom-kill'.
+      Feb  8 10:48:13 compute4 systemd[1]: ceph-osd@3.service: Failed with result 'oom-kill'.
+      2022-02-08T11:02:44.123456+00:00 compute4 systemd[1]: session-3.scope: Failed with result 'oom-kill'.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
