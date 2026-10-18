@@ -1,0 +1,19 @@
+target-name: etcd_slow_apply.yaml
+data-root:
+  files:
+    var/log/pods/kube-system_etcd-node1_0123456789abcdef/etcd/0.log: |
+      2022-02-11T10:20:30.123456789Z stderr F 2022-02-11 10:20:30.123456 W | etcdserver: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (1.23456789s) to execute
+      2022-02-11T10:21:30.123456789Z stderr F 2022-02-11 10:21:30.123456 W | etcdserver: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (3.5s) to execute
+      2022-02-11T10:22:30.123456789Z stderr F 2022-02-11 10:22:30.123456 W | etcdserver: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (1m2.3456s) to execute
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KubernetesWarning: >-
+    etcd logged 3 slow request warnings ('took too long') of one second or
+    more on 2022-02-11, so some etcd requests were slow then and Kubernetes
+    API calls that use them may have been slow too. Possible causes are
+    slow disk I/O, an overloaded host, very large requests or a leader
+    election, for example after an etcd member restart. Please check the
+    etcd log on those dates (the warnings give the exact times) for leader
+    elections and slow disk sync warnings ('slow fdatasync' or 'sync
+    duration of'), and the load on this host.

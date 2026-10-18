@@ -1,0 +1,13 @@
+target-name: etcd_slow_apply.yaml
+data-root:
+  files:
+    # capnslog form: sub-second warnings are not counted, which leaves 2
+    # recent warnings of one second or more, below min-results.
+    var/log/syslog: |
+      Feb 11 10:20:30 juju-0a1b2c-5 etcd[2817]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (250.123456ms) to execute
+      Feb 11 10:21:30 juju-0a1b2c-5 etcd[2817]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (999.5ms) to execute
+      Feb 11 10:22:30 juju-0a1b2c-5 etcd[2817]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (1.5s) to execute
+      Feb 11 10:23:30 juju-0a1b2c-5 etcd[2817]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (2.5s) to execute
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

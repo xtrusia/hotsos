@@ -1,0 +1,11 @@
+target-name: etcd_slow_apply.yaml
+data-root:
+  files:
+    # The same text under other syslog tags is not matched.
+    var/log/syslog: |
+      Feb 11 10:20:30 juju-0a1b2c-5 k8s.etcd[3001]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (2.5s) to execute
+      Feb 11 10:21:30 juju-0a1b2c-5 kube-apiserver.daemon[68699]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (2.5s) to execute
+      Feb 11 10:22:30 juju-0a1b2c-5 etcdctl[4100]: read-only range request "key:\"/registry/pods/\" range_end:\"/registry/pods0\" " with result "range_response_count:500 size:1048576" took too long (2.5s) to execute
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

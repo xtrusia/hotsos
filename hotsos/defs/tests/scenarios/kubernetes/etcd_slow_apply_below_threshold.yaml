@@ -1,0 +1,14 @@
+target-name: etcd_slow_apply.yaml
+data-root:
+  files:
+    # Sub-second warnings are not counted, which leaves 2 recent warnings
+    # of one second or more, below min-results.
+    var/log/pods/kube-system_etcd-node1_0123456789abcdef/etcd/0.log: |
+      2022-02-11T10:20:31.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:20:31.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"250.123456ms","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:21:31.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:21:31.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"999.5ms","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:22:31.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:22:31.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1.5s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:23:31.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:23:31.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"2.5s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:24:30.123456789Z stderr F {"level":"info","ts":"2022-02-11T10:24:30.123Z","caller":"etcdserver/server.go:2000","msg":"saved snapshot"}
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

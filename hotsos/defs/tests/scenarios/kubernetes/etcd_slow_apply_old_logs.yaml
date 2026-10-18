@@ -1,0 +1,14 @@
+target-name: etcd_slow_apply.yaml
+data-root:
+  files:
+    # The positive lines on Feb 9: more than 24 hours before the sosreport
+    # date but inside the 7 day --all-logs window used by the unit tests.
+    var/log/pods/kube-system_etcd-node1_0123456789abcdef/etcd/0.log: |
+      2022-02-09T10:20:30.123456789Z stderr F {"level":"warn","ts":"2022-02-09T10:20:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1.23456789s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-09T10:21:30.123456789Z stderr F {"level":"warn","ts":"2022-02-09T10:21:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"3.5s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-09T10:22:30.123456789Z stderr F {"level":"warn","ts":"2022-02-09T10:22:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1m2.3456s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-09T10:24:30Z stderr F {"level":"warn","ts":"2022-02-09T10:24:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"2s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-09T10:25:30.5+00:00 stderr F {"level":"warn","ts":"2022-02-09T10:25:30.500Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1h0m0s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

@@ -1,0 +1,20 @@
+data-root:
+  files:
+    var/log/pods/kube-system_etcd-node1_0123456789abcdef/etcd/0.log: |
+      2022-02-11T10:20:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:20:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1.23456789s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:21:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:21:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"3.5s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:22:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:22:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1m2.3456s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:24:30Z stderr F {"level":"warn","ts":"2022-02-11T10:24:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"2s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:25:30.5+00:00 stderr F {"level":"warn","ts":"2022-02-11T10:25:30.500Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1h0m0s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KubernetesWarning: >-
+    etcd logged 5 slow request warnings ('took too long') of one second or
+    more on 2022-02-11, so some etcd requests were slow then and Kubernetes
+    API calls that use them may have been slow too. Possible causes are
+    slow disk I/O, an overloaded host, very large requests or a leader
+    election, for example after an etcd member restart. Please check the
+    etcd log on those dates (the warnings give the exact times) for leader
+    elections and slow disk sync warnings ('slow fdatasync' or 'sync
+    duration of'), and the load on this host.

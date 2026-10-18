@@ -1,0 +1,49 @@
+vars:
+  # etcd 'took too long' slow request warnings (warnOfExpensiveGenericRequest()
+  # in etcdserver/util.go) with a took value of one second or more:
+  #  - zap JSON (etcd 3.5, or 3.4 with logger zap), in a CRI pod log line or
+  #    on stderr of the snap.etcd.etcd service (syslog tag etcd.etcd):
+  #    {"level":"warn",...,"msg":"apply request took too long","took":"1.2s",...}
+  #  - capnslog text (etcd 3.4 default logger), in syslog with tag etcd for
+  #    snap etcd, or with a '<date> <time> W | etcdserver: ' prefix in pods:
+  #    read-only range request "..." with result "..." took too long (1.2s) to execute
+  # Lines start with a CRI/RFC3339 or a traditional syslog timestamp.
+  # Group 1 is the date and group 2 the time.
+  expr_etcd_slow: '^(\d{4}-\d{2}-\d{2}|\w{3,5}\s+\d{1,2})[T ]([\d:]+)\S* (?:(?:stdout|stderr) F |\S+ etcd(?:\.etcd)?\[\d+\]: )(?:\{.*"msg":"apply request took too long".*"took":"(?:\d+h)?(?:\d+m)?\d+(?:\.\d+)?s"|(?:\d{4}-\d{2}-\d{2} [\d:.]+ W \| etcdserver: )?(?:read-only (?:range|txn) )?request ".*" with result ".*" took too long \((?:\d+h)?(?:\d+m)?\d+(?:\.\d+)?s\) to execute)'
+checks:
+  etcd_slow:
+    input:
+      path:
+        # kubeadm static pod logs (CRI format), collected by sos only with
+        # the kubernetes plugin kubelogs option.
+        - 'var/log/pods/kube-system_etcd-*/etcd/*.log'
+        # snap etcd (Charmed Kubernetes etcd charm) logs to the journal,
+        # which is forwarded to syslog. Searched only when the kubernetes
+        # plugin runs, i.e. a core Kubernetes package or snap is on the
+        # same host; etcd alone is only a dependency for this plugin.
+        - 'var/log/syslog'
+    expr: $expr_etcd_slow
+    hint: 'took too long'
+    # Noise filter: one slow request is common (e.g. a large range
+    # request); 3 or more of one second or more are reported. The count is
+    # log lines, not incidents.
+    constraints:
+      min-results: 3
+      search-result-age-hours: 24
+conclusions:
+  kubernetes-etcd-slow-apply:
+    decision: etcd_slow
+    raises:
+      type: KubernetesWarning
+      message: >-
+        etcd logged {count} slow request warnings ('took too long') of one
+        second or more on {dates}, so some etcd requests were slow then and
+        Kubernetes API calls that use them may have been slow too. Possible
+        causes are slow disk I/O, an overloaded host, very large requests or
+        a leader election, for example after an etcd member restart. Please
+        check the etcd log on those dates (the warnings give the exact
+        times) for leader elections and slow disk sync warnings ('slow
+        fdatasync' or 'sync duration of'), and the load on this host.
+      format-dict:
+        count: '@checks.etcd_slow.search.num_results'
+        dates: '@checks.etcd_slow.search.results_group_1:unique_comma_join'

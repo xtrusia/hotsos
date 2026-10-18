@@ -1,0 +1,15 @@
+target-name: etcd_slow_apply.yaml
+data-root:
+  files:
+    # Other etcd warnings that contain 'took too long' are not matched. Two
+    # real slow request warnings (one below min-results) make any false
+    # match raise.
+    var/log/pods/kube-system_etcd-node1_0123456789abcdef/etcd/0.log: |
+      2022-02-11T10:20:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:20:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"1.23456789s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:21:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:21:30.123Z","caller":"etcdserver/util.go:170","msg":"apply request took too long","took":"3.5s","expected-duration":"100ms","prefix":"read-only range ","request":"key:\"/registry/pods/\" range_end:\"/registry/pods0\" ","response":"range_response_count:500 size:1048576"}
+      2022-02-11T10:23:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:23:30.123Z","caller":"etcdserver/raft.go:429","msg":"leader failed to send out heartbeat on time; took too long, leader is overloaded likely from slow disk","to":"8e9e05c52164694d","heartbeat-interval":"100ms","expected-duration":"200ms","exceeded-duration":"1.5s"}
+      2022-02-11T10:24:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:24:30.123Z","caller":"etcdserver/v3_server.go:921","msg":"waiting for ReadIndex response took too long, retrying","sent-request-id":7587861468893450123,"retry-timeout":"500ms"}
+      2022-02-11T10:25:30.123456789Z stderr F {"level":"warn","ts":"2022-02-11T10:25:30.123Z","caller":"etcdserver/v3_server.go:921","msg":"waiting for ReadIndex response took too long, retrying","sent-request-id":7587861468893450124,"retry-timeout":"500ms"}
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
