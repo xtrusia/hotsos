@@ -1,0 +1,16 @@
+data-root:
+  files:
+    var/log/juju/unit-neutron-openvswitch-43.log: |
+      2022-02-10 10:20:10 ERROR juju.api monitor.go:59 health ping timed out after 30s
+      2022-02-10 10:20:10 ERROR juju.worker.dependency engine.go:551 "api-caller" manifold worker returned unexpected error: api connection broken unexpectedly
+      2022-02-10 10:48:11 INFO juju-log Loaded template from templates/queens/openvswitch_agent.ini
+    var/log/juju/machine-1.log: |
+      2022-02-10 10:48:10 WARNING juju.api monitor.go:59 health ping timed out after 30s
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  JujuWarning: >-
+    Juju agent logs contain 2 'health ping timed out' message(s) on
+    2022-02-10, so agents lost their API connection to the controller then
+    and had to reconnect. Please check network connectivity from this host
+    to the controller API address and the controller load on those dates.

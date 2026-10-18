@@ -1,0 +1,10 @@
+target-name: api_health_ping_timeout.yaml
+data-root:
+  files:
+    # Recent lines that are not the monitor's timeout message.
+    var/log/juju/unit-neutron-openvswitch-43.log: |
+      2022-02-10 10:20:10 DEBUG juju.api monitor.go:55 health ping failed: connection is shut down
+      2022-02-10 10:48:10 INFO juju-log health ping timed out after 30s
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

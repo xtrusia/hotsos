@@ -1,0 +1,30 @@
+vars:
+  # 'health ping timed out after <timeout>' from the Juju API client monitor
+  # (api/monitor.go, logger juju.api): ERROR up to Juju 3.2, WARNING from
+  # 3.3 (still in 3.6). The connection is then treated as broken and the
+  # agent reconnects. Group 1 is the date and group 2 the time.
+  expr_ping_timeout: '([\d-]+) ([\d:]+) (?:ERROR|WARNING) juju\.api monitor\.go:\d+ health ping timed out after \S+'
+checks:
+  ping_timeout:
+    input:
+      path:
+        - 'var/log/juju/machine-[0-9]*.log'
+        - 'var/log/juju/unit-*.log'
+    expr: $expr_ping_timeout
+    hint: 'health ping timed out'
+    constraints:
+      search-result-age-hours: 24
+conclusions:
+  juju-api-health-ping-timeout:
+    decision: ping_timeout
+    raises:
+      type: JujuWarning
+      message: >-
+        Juju agent logs contain {count} 'health ping timed out' message(s)
+        on {dates}, so agents lost their API connection to the controller
+        then and had to reconnect. Please check network connectivity from
+        this host to the controller API address and the controller load
+        on those dates.
+      format-dict:
+        count: '@checks.ping_timeout.search.num_results'
+        dates: '@checks.ping_timeout.search.results_group_1:unique_comma_join'

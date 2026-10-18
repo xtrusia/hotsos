@@ -1,0 +1,16 @@
+target-name: api_health_ping_timeout.yaml
+data-root:
+  files:
+    # The ping timed out and the agent connected again a few seconds
+    # later. The timeout is still reported with its date.
+    var/log/juju/machine-1.log: |
+      2022-02-10 10:48:10 WARNING juju.api monitor.go:59 health ping timed out after 30s
+      2022-02-10 10:48:15 INFO juju.api apiclient.go:664 connection established to "wss://10.5.0.2:17070/model/0b1c2d3e-4f50-4617-8a9b-0c1d2e3f4a5b/api"
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  JujuWarning: >-
+    Juju agent logs contain 1 'health ping timed out' message(s) on
+    2022-02-10, so agents lost their API connection to the controller then
+    and had to reconnect. Please check network connectivity from this host
+    to the controller API address and the controller load on those dates.
