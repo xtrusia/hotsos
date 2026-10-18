@@ -1,0 +1,17 @@
+target-name: vfs_file_max_reached.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] VFS: file-max limit 1048576 reached
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] VFS: file-max limit 1048576 reached
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] VFS: Busy inodes after unmount of dm-3. Self-destruct in 5 seconds.  Have a nice day...
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: VFS: file-max limit 1048576 reached
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    kern.log contains 2 'VFS: file-max limit N reached' message(s) from the
+    last 24 hours (limit: 1048576), so processes without CAP_SYS_ADMIN
+    could not open new files (ENFILE). Please compare /proc/sys/fs/file-nr
+    with fs.file-max, find the processes holding the most file descriptors
+    and fix the leak or raise fs.file-max.

@@ -1,0 +1,11 @@
+target-name: vfs_file_max_reached.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Jan  1 10:48:13 compute4 kernel: [1694413.621694] VFS: file-max limit 1048576 reached
+      2022-01-02T10:48:13.123456+00:00 compute4 kernel: VFS: file-max limit 1048576 reached
+      Feb  9 10:48:13 compute4 kernel: [1694413.621694] VFS: file-max limit 1048576 reached
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] VFS: Busy inodes after unmount of dm-3. Self-destruct in 5 seconds.  Have a nice day...
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] VFS: Dirty inode writeback failed for block device sda1 (err=-5).
+  copy-from-original:
+    - sos_commands/date/date
