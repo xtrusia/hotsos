@@ -470,6 +470,68 @@ class HungtaskTraceType(TraceTypeBase):
         yield from self.hungtasks
 
 
+class SimpleTraceTypeBase(TraceTypeBase):
+    """
+    Base class for trace types that are identified by a single kern.log line
+    and where we only need to count the number of occurrences. The line is
+    typically followed by a call trace that the GenericTraceType also counts.
+    Implementations must provide name and expr.
+    """
+    def __init__(self):
+        self._search_def = None
+        self.traces = []
+
+    @property
+    @abc.abstractmethod
+    def expr(self):
+        """ Regular expression that identifies one occurrence. """
+
+    @property
+    def searchdef(self):
+        if self._search_def is None:
+            self._search_def = SearchDef(self.expr, tag=self.name)
+
+        return self._search_def
+
+    def apply(self, results):
+        """
+        Run through the results.
+        @param results: list of search.SearchResult objects.
+        """
+        log.debug("%s has %s results", self.__class__.__name__, len(results))
+        for _ in results:
+            # just save a value so that the list length represents the
+            # number of occurrences.
+            self.traces.append(True)
+
+    @property
+    def heuristics(self):
+        """
+        Register any heuristics we want to run here.
+        """
+        return []
+
+    def __len__(self):
+        return len(self.traces)
+
+    def __iter__(self):
+        yield from self.traces
+
+
+class PageAllocFailureTraceType(SimpleTraceTypeBase):
+    """
+    Page allocation failure reports from warn_alloc() (mm/page_alloc.c).
+    """
+    @property
+    def name(self):
+        return 'calltrace-pageallocfailure'
+
+    @property
+    def expr(self):
+        return (r'.+: page allocation failure: order:\d+, '
+                r'mode:0x[0-9a-f]+')
+
+
 class CallTraceManager(KernLogBase):
     """
     Manager for all call trace analysis types. From here all analysis is run
@@ -480,7 +542,7 @@ class CallTraceManager(KernLogBase):
         # All trace types should be registered here.
         self.tracetypes = [GenericTraceType(), OOMKillerTraceType(),
                            BcacheDeadlockType(), HungtaskTraceType(),
-                           FanotifyDeadlockType()]
+                           FanotifyDeadlockType(), PageAllocFailureTraceType()]
         self.run()
 
     def run(self):
