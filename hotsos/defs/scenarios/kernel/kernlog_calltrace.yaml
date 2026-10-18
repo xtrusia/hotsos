@@ -19,6 +19,10 @@ checks:
     property:
       path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-fanotify
       ops: [[length_hint]]
+  has_bad_page_state:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-badpagestate
+      ops: [[length_hint]]
 conclusions:
   stacktraces:
     # Give this one lowest priority so that if any other call trace types match they
@@ -71,3 +75,15 @@ conclusions:
         be related to antivirus software running in the system.
       format-dict:
         numreports: '@checks.has_fanotify_hang.requires.value_actual:len'
+  bad_page_state:
+    priority: 2
+    decision: has_bad_page_state
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of 'BUG: Bad page state' in kern.log, which
+        indicates memory corruption by a kernel or driver bug or by faulty RAM.
+        Please check the 'page dumped because' reason and call trace that
+        follow each report, check for EDAC or MCE errors and run a memory test.
+      format-dict:
+        numreports: '@checks.has_bad_page_state.requires.value_actual:len'
