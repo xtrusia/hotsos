@@ -1,0 +1,33 @@
+vars:
+  # ovsrcu_synchronize() in lib/ovs-rcu.c logs 'blocked N ms waiting for
+  # <thread> to quiesce' when the wait passes a threshold that starts at
+  # 1000 ms and doubles after each warning. Only N >= 8000 is matched;
+  # shorter stalls can come from a restart or a large reconfiguration.
+  # Group 1 is the date, group 2 the time and group 3 the thread that has
+  # not quiesced (the waiting thread is in the module suffix, or main).
+  expr_rcu_long: '([\d-]+)T([\d:]+)\.\d+Z\|\d+\|ovs_rcu(?:\([^)]*\))?\|WARN\|blocked (?:[89]\d{3}|\d{5,}) ms waiting for (\S+) to quiesce'
+checks:
+  rcu_long:
+    input:
+      path: 'var/log/openvswitch/ovs-vswitchd.log'
+    expr: $expr_rcu_long
+    hint: 'to quiesce'
+    constraints:
+      search-result-age-hours: 24
+conclusions:
+  openvswitch-ovs-rcu-quiesce-blocked:
+    decision: rcu_long
+    raises:
+      type: OpenvSwitchWarning
+      message: >-
+        ovs-vswitchd logged {count} ovs_rcu warning(s) of 8000 ms or more
+        waiting for thread(s) {threads} 'to quiesce' on {dates}, so RCU
+        synchronization stalled for at least 8 seconds then. Please check
+        the host load and 'Unreasonably long ...ms poll interval' warnings
+        from the same time, and if it happens again capture per-thread CPU
+        usage of ovs-vswitchd with 'top -H' and its thread stacks with gdb
+        or eu-stack.
+      format-dict:
+        count: '@checks.rcu_long.search.num_results'
+        threads: '@checks.rcu_long.search.results_group_3:unique_comma_join'
+        dates: '@checks.rcu_long.search.results_group_1:unique_comma_join'

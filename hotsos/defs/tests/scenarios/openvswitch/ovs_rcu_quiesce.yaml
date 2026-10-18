@@ -1,0 +1,23 @@
+data-root:
+  files:
+    var/log/openvswitch/ovs-vswitchd.log: |
+      2022-02-10T10:20:10.386Z|00004|ovs_rcu(urcu3)|WARN|blocked 1000 ms waiting for main to quiesce
+      2022-02-10T10:20:11.386Z|00005|ovs_rcu(urcu3)|WARN|blocked 2000 ms waiting for main to quiesce
+      2022-02-10T10:20:13.386Z|00006|ovs_rcu(urcu3)|WARN|blocked 4000 ms waiting for main to quiesce
+      2022-02-10T10:20:17.386Z|00007|ovs_rcu(urcu3)|WARN|blocked 8000 ms waiting for main to quiesce
+      2022-02-10T10:26:11.386Z|00008|ovs_rcu|WARN|blocked 1000 ms waiting for pmd-c05/id:12 to quiesce
+      2022-02-10T10:26:12.386Z|00009|ovs_rcu|WARN|blocked 2000 ms waiting for pmd-c05/id:12 to quiesce
+      2022-02-10T10:26:14.386Z|00010|ovs_rcu|WARN|blocked 4000 ms waiting for pmd-c05/id:12 to quiesce
+      2022-02-10T10:26:18.386Z|00011|ovs_rcu|WARN|blocked 8000 ms waiting for pmd-c05/id:12 to quiesce
+      2022-02-10T10:26:26.386Z|00012|ovs_rcu|WARN|blocked 16000 ms waiting for pmd-c05/id:12 to quiesce
+      2022-02-10T10:26:40.386Z|00013|timeval|WARN|Unreasonably long 4905ms poll interval (1817ms user, 2811ms system)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenvSwitchWarning: >-
+    ovs-vswitchd logged 3 ovs_rcu warning(s) of 8000 ms or more waiting for
+    thread(s) main, pmd-c05/id:12 'to quiesce' on 2022-02-10, so RCU
+    synchronization stalled for at least 8 seconds then. Please check the
+    host load and 'Unreasonably long ...ms poll interval' warnings from the
+    same time, and if it happens again capture per-thread CPU usage of
+    ovs-vswitchd with 'top -H' and its thread stacks with gdb or eu-stack.
