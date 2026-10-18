@@ -1,0 +1,19 @@
+target-name: bind_tcp_port_failed.yaml
+data-root:
+  files:
+    var/log/mysql/error.log: |
+      2022-02-01T10:20:30.123456Z 0 [ERROR] Can't start server: Bind on TCP/IP port: Permission denied
+      2022-02-10T10:20:30.123456Z 0 [ERROR] Can't start server: Bind on TCP/IP port: Address already in use
+      2022-02-10T10:20:30.223456Z 0 [ERROR] Do you already have another mysqld server running on port: 3306 ?
+      2022-02-10T10:30:30.123456Z 0 [ERROR] Can't start server: Bind on TCP/IP port: Cannot assign requested address
+      2022-02-10T10:30:30.223456Z 0 [Note] Retrying bind on TCP/IP port 3306
+      2022-02-10T10:40:30.123456Z 0 [ERROR] Can't start server: listen() on TCP/IP port: Address already in use
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  MySQLWarning: >-
+    MySQL error.log reports 2 failure(s) in the last 24 hours to bind
+    the TCP/IP port (Address already in use, Cannot assign requested
+    address), so that mysqld instance did not start. Please check
+    whether mysqld is running now, which process owns the port ('ss
+    -ltnp') and the bind-address and port settings.

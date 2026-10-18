@@ -1,0 +1,22 @@
+checks:
+  bind_failed:
+    input:
+      path: 'var/log/mysql/error.log'
+    expr: '(\d{4}-\d{2}-\d{2})T([\d:]+)\.\d+(?:Z|[+-]\d{2}:?\d{2}) .*\[ERROR\] .*Can\x27t start server: Bind on TCP/IP port: (.+)'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  mysql-bind-tcp-port-failed:
+    decision: bind_failed
+    raises:
+      type: MySQLWarning
+      message: >-
+        MySQL error.log reports {count} failure(s) in the last 24 hours
+        to bind the TCP/IP port ({errors}), so that mysqld instance did
+        not start. Please check whether mysqld is running now, which
+        process owns the port ('ss -ltnp') and the bind-address and port
+        settings.
+      format-dict:
+        count: '@checks.bind_failed.search.num_results'
+        errors: '@checks.bind_failed.search.results_group_3:unique_comma_join'
