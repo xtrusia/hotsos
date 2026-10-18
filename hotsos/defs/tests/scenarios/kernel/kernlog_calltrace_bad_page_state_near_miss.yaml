@@ -1,0 +1,7 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 11:03:44 compute4 kernel: [1694633.621694] BUG: Bad rss-counter state mm:00000000abcd1234 type:MM_ANONPAGES val:1
+      2022-02-10T11:04:44.123456+00:00 compute4 kernel: BUG: Bad page map in process qemu-system-x86  pte:8000000123456067 pmd:1abcd067
+raised-issues:

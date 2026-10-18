@@ -19,6 +19,30 @@ checks:
     property:
       path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-fanotify
       ops: [[length_hint]]
+  has_softlockups:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-softlockup
+      ops: [[length_hint]]
+  has_rcu_stalls:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-rcustall
+      ops: [[length_hint]]
+  has_bad_page_state:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-badpagestate
+      ops: [[length_hint]]
+  has_page_alloc_failures:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-pageallocfailure
+      ops: [[length_hint]]
+  has_netdev_watchdog_timeouts:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-netdevwatchdog
+      ops: [[length_hint]]
+  has_other_stacktraces:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.other_stacktraces
+      ops: [[length_hint]]
 conclusions:
   stacktraces:
     # Give this one lowest priority so that if any other call trace types match they
@@ -71,3 +95,91 @@ conclusions:
         be related to antivirus software running in the system.
       format-dict:
         numreports: '@checks.has_fanotify_hang.requires.value_actual:len'
+  softlockups:
+    priority: 2
+    decision: has_softlockups
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of soft lockups ('BUG: soft lockup -
+        CPU#N stuck') in the kernel log on {dates}. Please check the
+        call trace that follows each report and, on virtual machines,
+        check the hypervisor host for CPU contention.
+      format-dict:
+        numreports: '@checks.has_softlockups.requires.value_actual:len'
+        dates: hotsos.core.plugins.kernel.CallTraceManager.calltrace_softlockup_dates
+  rcu_stalls:
+    priority: 2
+    decision: has_rcu_stalls
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of RCU CPU stall warnings ('detected
+        stalls on CPUs/tasks' or 'self-detected stall on CPU') in the
+        kernel log on {dates}. Please check the stall details and call
+        traces (if any) that follow each warning and, on virtual machines,
+        check the hypervisor host for CPU contention.
+      format-dict:
+        numreports: '@checks.has_rcu_stalls.requires.value_actual:len'
+        dates: hotsos.core.plugins.kernel.CallTraceManager.calltrace_rcustall_dates
+  bad_page_state:
+    priority: 2
+    decision: has_bad_page_state
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of 'BUG: Bad page state' in the kernel
+        log on {dates}, which indicates memory corruption by a kernel
+        or driver bug or by faulty RAM. Please check the 'page dumped
+        because' reason and call trace that follow each report, check
+        for EDAC or MCE errors and run a memory test.
+      format-dict:
+        numreports: '@checks.has_bad_page_state.requires.value_actual:len'
+        dates: hotsos.core.plugins.kernel.CallTraceManager.calltrace_badpagestate_dates
+  page_allocation_failures:
+    priority: 2
+    decision: has_page_alloc_failures
+    raises:
+      type: MemoryWarning
+      message: >-
+        {numreports} reports of kernel page allocation failures in the
+        kernel log on {dates}. Please check the order and mode flags
+        on each failure line and the call trace that follows to
+        identify the subsystem or driver, and check memory
+        fragmentation in /proc/buddyinfo.
+      format-dict:
+        numreports: '@checks.has_page_alloc_failures.requires.value_actual:len'
+        dates: hotsos.core.plugins.kernel.CallTraceManager.calltrace_pageallocfailure_dates
+  netdev_watchdog_timeouts:
+    priority: 2
+    decision: has_netdev_watchdog_timeouts
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of NETDEV WATCHDOG transmit queue
+        timeouts for {interfaces} in the kernel log on {dates}. Please
+        check the driver and firmware of those interfaces ('ethtool -i
+        <interface>') and make sure they are at the latest version and, on
+        virtual machines, check the hypervisor host.
+      format-dict:
+        numreports: '@checks.has_netdev_watchdog_timeouts.requires.value_actual:len'
+        interfaces: hotsos.core.plugins.kernel.CallTraceManager.netdev_watchdog_interfaces
+        dates: hotsos.core.plugins.kernel.CallTraceManager.calltrace_netdevwatchdog_dates
+  other_stacktraces:
+    # Raised with the priority 2 conclusions above so that call traces that
+    # were not attributed to one of their reports are still reported.
+    priority: 2
+    decision: has_other_stacktraces
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} call traces in the kernel log on {dates} were not
+        attributed to a soft lockup, RCU stall, bad page state, page
+        allocation failure or NETDEV WATCHDOG report, or to an OOM
+        kill, hung task, bcache or fanotify deadlock that hotsos
+        counted. Please check the WARNING, BUG, oops, panic, 'invoked
+        oom-killer' or 'blocked for more than' line before each call
+        trace to identify the cause.
+      format-dict:
+        numreports: '@checks.has_other_stacktraces.requires.value_actual:len'
+        dates: hotsos.core.plugins.kernel.CallTraceManager.other_stacktraces_dates

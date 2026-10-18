@@ -1,0 +1,24 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 00:07:13 compute4 kernel: [1234.567890] rcu: INFO: rcu_sched self-detected stall on CPU
+      Feb 10 00:07:13 compute4 kernel: [1234.567891] rcu:         3-....: (14999 ticks this GP) idle=6a2/1/0x4000000000000002 softirq=81257/81257 fqs=7360
+      Feb 10 00:07:13 compute4 kernel: [1234.567892]         (t=15000 jiffies g=1234573 q=4189)
+      Feb 10 00:07:13 compute4 kernel: [1234.567893] NMI backtrace for cpu 3
+      Feb 10 00:07:13 compute4 kernel: [1234.567894] CPU: 3 PID: 4242 Comm: qemu-system-x86 Not tainted 5.15.0-91-generic #101-Ubuntu
+      Feb 10 00:07:13 compute4 kernel: [1234.567895] Call Trace:
+      Feb 10 00:07:13 compute4 kernel: [1234.567896]  <IRQ>
+      Feb 10 01:10:00 compute4 kernel: INFO: rcu_preempt detected stalls on CPUs/tasks:
+      Feb 10 01:10:00 compute4 kernel:         5-...0: (1 GPs behind) idle=8ae/1/0x4000000000000000 softirq=9152/9153 fqs=2425
+      Feb 10 01:10:00 compute4 kernel: Call Trace:
+      2022-02-10T10:20:30.123456+00:00 compute4 kernel: rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
+      2022-02-10T10:20:30.123500+00:00 compute4 kernel: Call Trace:
+      2022-02-10T10:20:30.123510+00:00 compute4 kernel:  <TASK>
+raised-issues:
+  KernelError: >-
+    3 reports of RCU CPU stall warnings ('detected stalls on CPUs/tasks' or
+    'self-detected stall on CPU') in the kernel log on Feb 10, 2022-02-10.
+    Please check the stall details and call traces (if any) that follow
+    each warning and, on virtual machines, check the hypervisor host for
+    CPU contention.

@@ -1,0 +1,17 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # No kern.log: the kernel log comes from the journal export.
+    sos_commands/logs/journalctl_--no-pager: |
+      Feb 10 00:07:13 compute4 kernel: NMI watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [swapper/0:0]
+      Feb 10 00:07:13 compute4 kernel: Call Trace:
+      Feb 10 00:07:13 compute4 kernel:  <IRQ>
+      Feb 10 01:07:13 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      Feb 10 01:07:13 compute4 kernel: Call Trace:
+      Feb 10 01:07:13 compute4 kernel:  <IRQ>
+raised-issues:
+  KernelError: >-
+    2 reports of soft lockups ('BUG: soft lockup - CPU#N stuck') in the
+    kernel log on Feb 10. Please check the call trace that follows each
+    report and, on virtual machines, check the hypervisor host for CPU
+    contention.

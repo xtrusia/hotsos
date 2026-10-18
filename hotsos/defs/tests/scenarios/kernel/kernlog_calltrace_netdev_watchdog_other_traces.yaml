@@ -1,0 +1,28 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # An unrelated call trace and a netdev_crit() netdev watchdog timeout
+    # (no call trace): the unrelated trace is reported by
+    # 'other_stacktraces'.
+    var/log/kern.log: |
+      Feb  9 11:00:01 compute4 kernel: [1607121.099999] ------------[ cut here ]------------
+      Feb  9 11:00:01 compute4 kernel: [1607121.100000] WARNING: CPU: 2 PID: 4242 at fs/ext4/inode.c:3800 ext4_set_page_dirty+0x40/0x60
+      Feb  9 11:00:01 compute4 kernel: [1607121.100100] Call Trace:
+      Feb  9 11:00:01 compute4 kernel: [1607121.100101]  <TASK>
+      Feb  9 11:00:01 compute4 kernel: [1607121.100102]  folio_mark_dirty+0x2f/0x60
+      Feb  9 11:00:01 compute4 kernel: [1607121.100103]  </TASK>
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] ixgbe 0000:03:00.0 eth2: NETDEV WATCHDOG: CPU: 4: transmit queue 1 timed out 5012 ms
+raised-issues:
+  KernelError:
+    - >-
+      1 reports of NETDEV WATCHDOG transmit queue timeouts for eth2 (ixgbe)
+      in the kernel log on Feb 10. Please check the driver and firmware of
+      those interfaces ('ethtool -i <interface>') and make sure they are at
+      the latest version and, on virtual machines, check the hypervisor host.
+    - >-
+      1 call traces in the kernel log on Feb 9 were not attributed to a
+      soft lockup, RCU stall, bad page state, page allocation failure or
+      NETDEV WATCHDOG report, or to an OOM kill, hung task, bcache or
+      fanotify deadlock that hotsos counted. Please check the WARNING,
+      BUG, oops, panic, 'invoked oom-killer' or 'blocked for more than'
+      line before each call trace to identify the cause.

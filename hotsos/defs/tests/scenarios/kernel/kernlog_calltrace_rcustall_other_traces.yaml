@@ -1,0 +1,161 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # The call traces of each CPU and of the starved RCU kthread are part of
+    # the RCU stall report, also with a 6.8 NETDEV WATCHDOG line (no call
+    # trace) and a user space 'traps:' line in between. The call trace of the WARNING after it ('cut
+    # here') and a call trace 101 lines after the soft lockup call trace are
+    # not, so they are reported by 'other_stacktraces'.
+    var/log/kern.log: |
+      Feb  9 03:00:00 compute4 kernel: [1000.000001] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
+      Feb  9 03:00:00 compute4 kernel: [1000.000002] rcu:         0-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb  9 03:00:00 compute4 kernel: [1000.000003] rcu:         3-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb  9 03:00:00 compute4 kernel: [1000.000004] Sending NMI from CPU 1 to CPUs 0:
+      Feb  9 03:00:00 compute4 kernel: [1000.000005] NMI backtrace for cpu 0
+      Feb  9 03:00:00 compute4 kernel: [1000.000006] Call Trace:
+      Feb  9 03:00:00 compute4 kernel: [1000.000007]  <IRQ>
+      Feb  9 03:00:00 compute4 kernel: [1000.000007] ixgbe 0000:03:00.0 eth2: NETDEV WATCHDOG: CPU: 4: transmit queue 1 timed out 5012 ms
+      Feb  9 03:00:00 compute4 kernel: [1000.000007] traps: qemu-system-x86[4242] general protection fault ip:7f0000001000 sp:7ffd00001000 error:0 in libc.so.6[7f0000000000+195000]
+      Feb  9 03:00:00 compute4 kernel: [1000.000008] Sending NMI from CPU 1 to CPUs 3:
+      Feb  9 03:00:00 compute4 kernel: [1000.000009] NMI backtrace for cpu 3
+      Feb  9 03:00:00 compute4 kernel: [1000.000010] Call Trace:
+      Feb  9 03:00:00 compute4 kernel: [1000.000011]  <IRQ>
+      Feb  9 03:00:00 compute4 kernel: [1000.000012] rcu: rcu_sched kthread starved for 15002 jiffies! g1234 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=2
+      Feb  9 03:00:00 compute4 kernel: [1000.000013] rcu: RCU grace-period kthread stack dump:
+      Feb  9 03:00:00 compute4 kernel: [1000.000014] task:rcu_sched       state:I stack:    0 pid:   14 ppid:     2 flags:0x00004000
+      Feb  9 03:00:00 compute4 kernel: [1000.000015] Call Trace:
+      Feb  9 03:00:00 compute4 kernel: [1000.000016]  <TASK>
+      Feb  9 03:05:00 compute4 kernel: [1300.000001] ------------[ cut here ]------------
+      Feb  9 03:05:00 compute4 kernel: [1300.000002] WARNING: CPU: 2 PID: 4242 at fs/ext4/inode.c:3800 ext4_set_page_dirty+0x40/0x60
+      Feb  9 03:05:00 compute4 kernel: [1300.000003] Call Trace:
+      Feb  9 03:05:00 compute4 kernel: [1300.000004]  <TASK>
+      Feb 10 05:00:00 compute4 kernel: [9000.000001] watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      Feb 10 05:00:00 compute4 kernel: [9000.000002] Call Trace:
+      Feb 10 05:00:00 compute4 kernel: [9000.000003]  <IRQ>
+      Feb 10 05:00:01 compute4 kernel: [9001.000000] eth0: link state changed 0
+      Feb 10 05:00:01 compute4 kernel: [9001.000001] eth0: link state changed 1
+      Feb 10 05:00:01 compute4 kernel: [9001.000002] eth0: link state changed 2
+      Feb 10 05:00:01 compute4 kernel: [9001.000003] eth0: link state changed 3
+      Feb 10 05:00:01 compute4 kernel: [9001.000004] eth0: link state changed 4
+      Feb 10 05:00:01 compute4 kernel: [9001.000005] eth0: link state changed 5
+      Feb 10 05:00:01 compute4 kernel: [9001.000006] eth0: link state changed 6
+      Feb 10 05:00:01 compute4 kernel: [9001.000007] eth0: link state changed 7
+      Feb 10 05:00:01 compute4 kernel: [9001.000008] eth0: link state changed 8
+      Feb 10 05:00:01 compute4 kernel: [9001.000009] eth0: link state changed 9
+      Feb 10 05:00:01 compute4 kernel: [9001.000010] eth0: link state changed 10
+      Feb 10 05:00:01 compute4 kernel: [9001.000011] eth0: link state changed 11
+      Feb 10 05:00:01 compute4 kernel: [9001.000012] eth0: link state changed 12
+      Feb 10 05:00:01 compute4 kernel: [9001.000013] eth0: link state changed 13
+      Feb 10 05:00:01 compute4 kernel: [9001.000014] eth0: link state changed 14
+      Feb 10 05:00:01 compute4 kernel: [9001.000015] eth0: link state changed 15
+      Feb 10 05:00:01 compute4 kernel: [9001.000016] eth0: link state changed 16
+      Feb 10 05:00:01 compute4 kernel: [9001.000017] eth0: link state changed 17
+      Feb 10 05:00:01 compute4 kernel: [9001.000018] eth0: link state changed 18
+      Feb 10 05:00:01 compute4 kernel: [9001.000019] eth0: link state changed 19
+      Feb 10 05:00:01 compute4 kernel: [9001.000020] eth0: link state changed 20
+      Feb 10 05:00:01 compute4 kernel: [9001.000021] eth0: link state changed 21
+      Feb 10 05:00:01 compute4 kernel: [9001.000022] eth0: link state changed 22
+      Feb 10 05:00:01 compute4 kernel: [9001.000023] eth0: link state changed 23
+      Feb 10 05:00:01 compute4 kernel: [9001.000024] eth0: link state changed 24
+      Feb 10 05:00:01 compute4 kernel: [9001.000025] eth0: link state changed 25
+      Feb 10 05:00:01 compute4 kernel: [9001.000026] eth0: link state changed 26
+      Feb 10 05:00:01 compute4 kernel: [9001.000027] eth0: link state changed 27
+      Feb 10 05:00:01 compute4 kernel: [9001.000028] eth0: link state changed 28
+      Feb 10 05:00:01 compute4 kernel: [9001.000029] eth0: link state changed 29
+      Feb 10 05:00:01 compute4 kernel: [9001.000030] eth0: link state changed 30
+      Feb 10 05:00:01 compute4 kernel: [9001.000031] eth0: link state changed 31
+      Feb 10 05:00:01 compute4 kernel: [9001.000032] eth0: link state changed 32
+      Feb 10 05:00:01 compute4 kernel: [9001.000033] eth0: link state changed 33
+      Feb 10 05:00:01 compute4 kernel: [9001.000034] eth0: link state changed 34
+      Feb 10 05:00:01 compute4 kernel: [9001.000035] eth0: link state changed 35
+      Feb 10 05:00:01 compute4 kernel: [9001.000036] eth0: link state changed 36
+      Feb 10 05:00:01 compute4 kernel: [9001.000037] eth0: link state changed 37
+      Feb 10 05:00:01 compute4 kernel: [9001.000038] eth0: link state changed 38
+      Feb 10 05:00:01 compute4 kernel: [9001.000039] eth0: link state changed 39
+      Feb 10 05:00:01 compute4 kernel: [9001.000040] eth0: link state changed 40
+      Feb 10 05:00:01 compute4 kernel: [9001.000041] eth0: link state changed 41
+      Feb 10 05:00:01 compute4 kernel: [9001.000042] eth0: link state changed 42
+      Feb 10 05:00:01 compute4 kernel: [9001.000043] eth0: link state changed 43
+      Feb 10 05:00:01 compute4 kernel: [9001.000044] eth0: link state changed 44
+      Feb 10 05:00:01 compute4 kernel: [9001.000045] eth0: link state changed 45
+      Feb 10 05:00:01 compute4 kernel: [9001.000046] eth0: link state changed 46
+      Feb 10 05:00:01 compute4 kernel: [9001.000047] eth0: link state changed 47
+      Feb 10 05:00:01 compute4 kernel: [9001.000048] eth0: link state changed 48
+      Feb 10 05:00:01 compute4 kernel: [9001.000049] eth0: link state changed 49
+      Feb 10 05:00:01 compute4 kernel: [9001.000050] eth0: link state changed 50
+      Feb 10 05:00:01 compute4 kernel: [9001.000051] eth0: link state changed 51
+      Feb 10 05:00:01 compute4 kernel: [9001.000052] eth0: link state changed 52
+      Feb 10 05:00:01 compute4 kernel: [9001.000053] eth0: link state changed 53
+      Feb 10 05:00:01 compute4 kernel: [9001.000054] eth0: link state changed 54
+      Feb 10 05:00:01 compute4 kernel: [9001.000055] eth0: link state changed 55
+      Feb 10 05:00:01 compute4 kernel: [9001.000056] eth0: link state changed 56
+      Feb 10 05:00:01 compute4 kernel: [9001.000057] eth0: link state changed 57
+      Feb 10 05:00:01 compute4 kernel: [9001.000058] eth0: link state changed 58
+      Feb 10 05:00:01 compute4 kernel: [9001.000059] eth0: link state changed 59
+      Feb 10 05:00:01 compute4 kernel: [9001.000060] eth0: link state changed 60
+      Feb 10 05:00:01 compute4 kernel: [9001.000061] eth0: link state changed 61
+      Feb 10 05:00:01 compute4 kernel: [9001.000062] eth0: link state changed 62
+      Feb 10 05:00:01 compute4 kernel: [9001.000063] eth0: link state changed 63
+      Feb 10 05:00:01 compute4 kernel: [9001.000064] eth0: link state changed 64
+      Feb 10 05:00:01 compute4 kernel: [9001.000065] eth0: link state changed 65
+      Feb 10 05:00:01 compute4 kernel: [9001.000066] eth0: link state changed 66
+      Feb 10 05:00:01 compute4 kernel: [9001.000067] eth0: link state changed 67
+      Feb 10 05:00:01 compute4 kernel: [9001.000068] eth0: link state changed 68
+      Feb 10 05:00:01 compute4 kernel: [9001.000069] eth0: link state changed 69
+      Feb 10 05:00:01 compute4 kernel: [9001.000070] eth0: link state changed 70
+      Feb 10 05:00:01 compute4 kernel: [9001.000071] eth0: link state changed 71
+      Feb 10 05:00:01 compute4 kernel: [9001.000072] eth0: link state changed 72
+      Feb 10 05:00:01 compute4 kernel: [9001.000073] eth0: link state changed 73
+      Feb 10 05:00:01 compute4 kernel: [9001.000074] eth0: link state changed 74
+      Feb 10 05:00:01 compute4 kernel: [9001.000075] eth0: link state changed 75
+      Feb 10 05:00:01 compute4 kernel: [9001.000076] eth0: link state changed 76
+      Feb 10 05:00:01 compute4 kernel: [9001.000077] eth0: link state changed 77
+      Feb 10 05:00:01 compute4 kernel: [9001.000078] eth0: link state changed 78
+      Feb 10 05:00:01 compute4 kernel: [9001.000079] eth0: link state changed 79
+      Feb 10 05:00:01 compute4 kernel: [9001.000080] eth0: link state changed 80
+      Feb 10 05:00:01 compute4 kernel: [9001.000081] eth0: link state changed 81
+      Feb 10 05:00:01 compute4 kernel: [9001.000082] eth0: link state changed 82
+      Feb 10 05:00:01 compute4 kernel: [9001.000083] eth0: link state changed 83
+      Feb 10 05:00:01 compute4 kernel: [9001.000084] eth0: link state changed 84
+      Feb 10 05:00:01 compute4 kernel: [9001.000085] eth0: link state changed 85
+      Feb 10 05:00:01 compute4 kernel: [9001.000086] eth0: link state changed 86
+      Feb 10 05:00:01 compute4 kernel: [9001.000087] eth0: link state changed 87
+      Feb 10 05:00:01 compute4 kernel: [9001.000088] eth0: link state changed 88
+      Feb 10 05:00:01 compute4 kernel: [9001.000089] eth0: link state changed 89
+      Feb 10 05:00:01 compute4 kernel: [9001.000090] eth0: link state changed 90
+      Feb 10 05:00:01 compute4 kernel: [9001.000091] eth0: link state changed 91
+      Feb 10 05:00:01 compute4 kernel: [9001.000092] eth0: link state changed 92
+      Feb 10 05:00:01 compute4 kernel: [9001.000093] eth0: link state changed 93
+      Feb 10 05:00:01 compute4 kernel: [9001.000094] eth0: link state changed 94
+      Feb 10 05:00:01 compute4 kernel: [9001.000095] eth0: link state changed 95
+      Feb 10 05:00:01 compute4 kernel: [9001.000096] eth0: link state changed 96
+      Feb 10 05:00:01 compute4 kernel: [9001.000097] eth0: link state changed 97
+      Feb 10 05:00:01 compute4 kernel: [9001.000098] eth0: link state changed 98
+      Feb 10 05:00:02 compute4 kernel: [9002.000001] Call Trace:
+      Feb 10 05:00:02 compute4 kernel: [9002.000002]  <TASK>
+raised-issues:
+  KernelError:
+    - >-
+      1 reports of RCU CPU stall warnings ('detected stalls on CPUs/tasks' or
+      'self-detected stall on CPU') in the kernel log on Feb 9. Please check
+      the stall details and call traces (if any) that follow each warning
+      and, on virtual machines, check the hypervisor host for CPU
+      contention.
+    - >-
+      1 reports of soft lockups ('BUG: soft lockup - CPU#N stuck') in the
+      kernel log on Feb 10. Please check the call trace that follows each
+      report and, on virtual machines, check the hypervisor host for CPU
+      contention.
+    - >-
+      1 reports of NETDEV WATCHDOG transmit queue timeouts for eth2 (ixgbe)
+      in the kernel log on Feb 9. Please check the driver and firmware of
+      those interfaces ('ethtool -i <interface>') and make sure they are at
+      the latest version and, on virtual machines, check the hypervisor host.
+    - >-
+      2 call traces in the kernel log on Feb 9, Feb 10 were not
+      attributed to a soft lockup, RCU stall, bad page state, page
+      allocation failure or NETDEV WATCHDOG report, or to an OOM kill,
+      hung task, bcache or fanotify deadlock that hotsos counted. Please
+      check the WARNING, BUG, oops, panic, 'invoked oom-killer' or
+      'blocked for more than' line before each call trace to identify the
+      cause.

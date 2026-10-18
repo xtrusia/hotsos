@@ -1,0 +1,38 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # A hung task, a soft lockup and an unrelated WARNING. The hung task call
+    # trace is part of the hung task report, so only the WARNING call trace
+    # is reported by 'other_stacktraces'.
+    var/log/kern.log: |
+      Feb 10 07:00:00 compute4 kernel: [9600.000010] INFO: task nova-compute:4242 blocked for more than 120 seconds.
+      Feb 10 07:00:00 compute4 kernel: [9600.000011]       Not tainted 5.15.0-91-generic #101-Ubuntu
+      Feb 10 07:00:00 compute4 kernel: [9600.000012] task:nova-compute    state:D stack:    0 pid: 4242 ppid:     1 flags:0x00004000
+      Feb 10 07:00:00 compute4 kernel: [9600.000013] Call Trace:
+      Feb 10 07:00:00 compute4 kernel: [9600.000014]  <TASK>
+      Feb 10 07:00:00 compute4 kernel: [9600.000015]  __schedule+0x2cd/0x890
+      Feb 10 07:00:00 compute4 kernel: [9600.000016]  do_syscall_64+0x5c/0xc0
+      Feb 10 07:00:00 compute4 kernel: [9600.000017]  </TASK>
+      Feb 10 07:00:00 compute4 kernel: [9600.000031] watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      Feb 10 07:00:00 compute4 kernel: [9600.000032] Call Trace:
+      Feb 10 07:00:00 compute4 kernel: [9600.000033]  <IRQ>
+      Feb 10 07:00:00 compute4 kernel: [9600.000040] ------------[ cut here ]------------
+      Feb 10 07:00:00 compute4 kernel: [9600.000041] WARNING: CPU: 2 PID: 4242 at fs/ext4/inode.c:3800 ext4_set_page_dirty+0x40/0x60
+      Feb 10 07:00:00 compute4 kernel: [9600.000042] Call Trace:
+      Feb 10 07:00:00 compute4 kernel: [9600.000043]  <TASK>
+raised-issues:
+  KernelError:
+    - >-
+      1 reports of soft lockups ('BUG: soft lockup - CPU#N stuck') in the
+      kernel log on Feb 10. Please check the call trace that follows each
+      report and, on virtual machines, check the hypervisor host for CPU
+      contention.
+    - >-
+      1 reports of hung tasks in kern.log - please check.
+    - >-
+      1 call traces in the kernel log on Feb 10 were not attributed to a
+      soft lockup, RCU stall, bad page state, page allocation failure or
+      NETDEV WATCHDOG report, or to an OOM kill, hung task, bcache or
+      fanotify deadlock that hotsos counted. Please check the WARNING,
+      BUG, oops, panic, 'invoked oom-killer' or 'blocked for more than'
+      line before each call trace to identify the cause.

@@ -1,0 +1,33 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # A soft lockup and a hung kernel thread (no do_syscall_ frame), which
+    # the hung task type does not count: the hung task call trace is
+    # reported by 'other_stacktraces'.
+    var/log/kern.log: |
+      Feb 10 08:00:00 compute4 kernel: [9700.000001] watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      Feb 10 08:00:00 compute4 kernel: [9700.000002] Call Trace:
+      Feb 10 08:00:00 compute4 kernel: [9700.000003]  <IRQ>
+      Feb 10 08:00:00 compute4 kernel: [9700.000010] INFO: task kworker/0:1:77 blocked for more than 120 seconds.
+      Feb 10 08:00:00 compute4 kernel: [9700.000011]       Not tainted 5.15.0-91-generic #101-Ubuntu
+      Feb 10 08:00:00 compute4 kernel: [9700.000012] task:kworker/0:1     state:D stack:    0 pid:   77 ppid:     2 flags:0x00004000
+      Feb 10 08:00:00 compute4 kernel: [9700.000013] Call Trace:
+      Feb 10 08:00:00 compute4 kernel: [9700.000014]  <TASK>
+      Feb 10 08:00:00 compute4 kernel: [9700.000015]  __schedule+0x2cd/0x890
+      Feb 10 08:00:00 compute4 kernel: [9700.000016]  kthread+0x127/0x150
+      Feb 10 08:00:00 compute4 kernel: [9700.000017]  ret_from_fork+0x1f/0x30
+      Feb 10 08:00:00 compute4 kernel: [9700.000018]  </TASK>
+raised-issues:
+  KernelError:
+    - >-
+      1 reports of soft lockups ('BUG: soft lockup - CPU#N stuck') in the
+      kernel log on Feb 10. Please check the call trace that follows each
+      report and, on virtual machines, check the hypervisor host for CPU
+      contention.
+    - >-
+      1 call traces in the kernel log on Feb 10 were not attributed to a
+      soft lockup, RCU stall, bad page state, page allocation failure or
+      NETDEV WATCHDOG report, or to an OOM kill, hung task, bcache or
+      fanotify deadlock that hotsos counted. Please check the WARNING,
+      BUG, oops, panic, 'invoked oom-killer' or 'blocked for more than'
+      line before each call trace to identify the cause.

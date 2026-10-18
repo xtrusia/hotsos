@@ -1,0 +1,27 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # A hard LOCKUP after a soft lockup: its call trace is not part of the
+    # soft lockup report.
+    var/log/kern.log: |
+      Feb 10 06:00:00 compute4 kernel: [9500.000001] watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      Feb 10 06:00:00 compute4 kernel: [9500.000002] Call Trace:
+      Feb 10 06:00:00 compute4 kernel: [9500.000003]  <IRQ>
+      Feb 10 06:00:00 compute4 kernel: [9500.000010] NMI watchdog: Watchdog detected hard LOCKUP on cpu 2
+      Feb 10 06:00:00 compute4 kernel: [9500.000011] CPU: 2 PID: 0 Comm: swapper/2 Not tainted 5.15.0-91-generic #101-Ubuntu
+      Feb 10 06:00:00 compute4 kernel: [9500.000012] Call Trace:
+      Feb 10 06:00:00 compute4 kernel: [9500.000013]  <NMI>
+raised-issues:
+  KernelError:
+    - >-
+      1 reports of soft lockups ('BUG: soft lockup - CPU#N stuck') in the
+      kernel log on Feb 10. Please check the call trace that follows each
+      report and, on virtual machines, check the hypervisor host for CPU
+      contention.
+    - >-
+      1 call traces in the kernel log on Feb 10 were not attributed to a
+      soft lockup, RCU stall, bad page state, page allocation failure or
+      NETDEV WATCHDOG report, or to an OOM kill, hung task, bcache or
+      fanotify deadlock that hotsos counted. Please check the WARNING,
+      BUG, oops, panic, 'invoked oom-killer' or 'blocked for more than'
+      line before each call trace to identify the cause.

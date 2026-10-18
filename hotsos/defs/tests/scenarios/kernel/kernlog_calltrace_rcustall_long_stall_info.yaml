@@ -1,0 +1,170 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # An RCU stall with more than 100 per-CPU stall lines before the first
+    # call trace: the call traces are still part of the RCU stall report.
+    var/log/kern.log: |
+      Feb 10 02:00:00 compute4 kernel: [2000.000001] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
+      Feb 10 02:00:00 compute4 kernel: [2000.000002] rcu:     0-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000003] rcu:     1-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000004] rcu:     2-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000005] rcu:     3-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000006] rcu:     4-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000007] rcu:     5-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000008] rcu:     6-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000009] rcu:     7-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000010] rcu:     8-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000011] rcu:     9-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000012] rcu:     10-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000013] rcu:     11-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000014] rcu:     12-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000015] rcu:     13-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000016] rcu:     14-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000017] rcu:     15-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000018] rcu:     16-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000019] rcu:     17-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000020] rcu:     18-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000021] rcu:     19-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000022] rcu:     20-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000023] rcu:     21-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000024] rcu:     22-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000025] rcu:     23-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000026] rcu:     24-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000027] rcu:     25-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000028] rcu:     26-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000029] rcu:     27-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000030] rcu:     28-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000031] rcu:     29-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000032] rcu:     30-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000033] rcu:     31-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000034] rcu:     32-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000035] rcu:     33-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000036] rcu:     34-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000037] rcu:     35-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000038] rcu:     36-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000039] rcu:     37-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000040] rcu:     38-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000041] rcu:     39-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000042] rcu:     40-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000043] rcu:     41-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000044] rcu:     42-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000045] rcu:     43-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000046] rcu:     44-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000047] rcu:     45-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000048] rcu:     46-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000049] rcu:     47-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000050] rcu:     48-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000051] rcu:     49-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000052] rcu:     50-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000053] rcu:     51-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000054] rcu:     52-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000055] rcu:     53-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000056] rcu:     54-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000057] rcu:     55-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000058] rcu:     56-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000059] rcu:     57-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000060] rcu:     58-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000061] rcu:     59-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000062] rcu:     60-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000063] rcu:     61-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000064] rcu:     62-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000065] rcu:     63-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000066] rcu:     64-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000067] rcu:     65-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000068] rcu:     66-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000069] rcu:     67-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000070] rcu:     68-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000071] rcu:     69-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000072] rcu:     70-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000073] rcu:     71-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000074] rcu:     72-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000075] rcu:     73-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000076] rcu:     74-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000077] rcu:     75-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000078] rcu:     76-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000079] rcu:     77-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000080] rcu:     78-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000081] rcu:     79-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000082] rcu:     80-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000083] rcu:     81-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000084] rcu:     82-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000085] rcu:     83-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000086] rcu:     84-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000087] rcu:     85-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000088] rcu:     86-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000089] rcu:     87-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000090] rcu:     88-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000091] rcu:     89-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000092] rcu:     90-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000093] rcu:     91-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000094] rcu:     92-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000095] rcu:     93-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000096] rcu:     94-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000097] rcu:     95-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000098] rcu:     96-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000099] rcu:     97-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000100] rcu:     98-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000101] rcu:     99-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000102] rcu:     100-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000103] rcu:     101-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000104] rcu:     102-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000105] rcu:     103-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000106] rcu:     104-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000107] rcu:     105-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000108] rcu:     106-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000109] rcu:     107-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000110] rcu:     108-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000111] rcu:     109-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000112] rcu:     110-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000113] rcu:     111-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000114] rcu:     112-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000115] rcu:     113-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000116] rcu:     114-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000117] rcu:     115-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000118] rcu:     116-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000119] rcu:     117-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000120] rcu:     118-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000121] rcu:     119-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000122] rcu:     120-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000123] rcu:     121-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000124] rcu:     122-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000125] rcu:     123-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000126] rcu:     124-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000127] rcu:     125-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000128] rcu:     126-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000129] rcu:     127-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000130] rcu:     128-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000131] rcu:     129-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000132] rcu:     130-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000133] rcu:     131-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000134] rcu:     132-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000135] rcu:     133-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000136] rcu:     134-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000137] rcu:     135-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000138] rcu:     136-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000139] rcu:     137-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000140] rcu:     138-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000141] rcu:     139-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000142] rcu:     140-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000143] rcu:     141-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000144] rcu:     142-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000145] rcu:     143-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000146] rcu:     144-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000147] rcu:     145-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000148] rcu:     146-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000149] rcu:     147-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000150] rcu:     148-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000151] rcu:     149-...!: (1 GPs behind) idle=b2c/0/0x1 softirq=1/1 fqs=0
+      Feb 10 02:00:00 compute4 kernel: [2000.000200] (detected by 151, t=15002 jiffies, g=1234, q=10 ncpus=160)
+      Feb 10 02:00:00 compute4 kernel: [2000.000300] NMI backtrace for cpu 0
+      Feb 10 02:00:00 compute4 kernel: [2000.000301] Call Trace:
+      Feb 10 02:00:00 compute4 kernel: [2000.000302]  <IRQ>
+      Feb 10 02:00:00 compute4 kernel: [2000.000310] NMI backtrace for cpu 1
+      Feb 10 02:00:00 compute4 kernel: [2000.000311] Call Trace:
+      Feb 10 02:00:00 compute4 kernel: [2000.000312]  <IRQ>
+raised-issues:
+  KernelError: >-
+    1 reports of RCU CPU stall warnings ('detected stalls on CPUs/tasks' or
+    'self-detected stall on CPU') in the kernel log on Feb 10. Please check
+    the stall details and call traces (if any) that follow each warning
+    and, on virtual machines, check the hypervisor host for CPU contention.

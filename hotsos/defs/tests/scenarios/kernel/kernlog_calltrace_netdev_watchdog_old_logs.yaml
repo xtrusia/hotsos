@@ -1,0 +1,13 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Jan 31 10:48:13 compute4 kernel: [1694413.621694] ixgbe 0000:03:00.0 eth2: NETDEV WATCHDOG: CPU: 4: transmit queue 1 timed out 5012 ms
+      Jan 31 10:48:13 compute4 kernel: [1694413.621720] ixgbe 0000:03:00.0 eth2: initiating reset due to tx timeout
+      2022-01-31T11:02:45.380154+00:00 compute4 kernel: virtio_net virtio1 ens3: NETDEV WATCHDOG: CPU: 0: transmit queue 0 timed out 5440 ms
+      2022-01-31T11:02:45.380190+00:00 compute4 kernel: virtio_net virtio1 ens3: TX timeout on queue: 0, sq: output.0, vq: 0x1, name: output.0, 5440 usecs ago
+      Jan 31 11:30:13 compute4 kernel: [1696913.621694] eth5: NETDEV WATCHDOG: CPU: 2: transmit queue 0 timed out 6000 ms
+      Jan 31 12:10:13 compute4 kernel: [1699313.621694] NETDEV WATCHDOG: enp1s0f0 (i40e): transmit queue 7 timed out 5120 ms
+      Jan 31 12:20:13 compute4 kernel: [1699913.621694] ixgbe 0000:03:00.1 eth3 (unregistering): NETDEV WATCHDOG: CPU: 1: transmit queue 2 timed out 5004 ms
+      Jan 31 12:30:13 compute4 kernel: [1700513.621694] NETDEV WATCHDOG: eth6 (): transmit queue 0 timed out
+raised-issues:

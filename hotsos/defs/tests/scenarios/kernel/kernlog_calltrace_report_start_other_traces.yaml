@@ -1,0 +1,88 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    # Each soft lockup call trace is followed by a line that starts another
+    # report (RFC3339 format without uptime, so the OOM killer type does not
+    # match the oom-killer line) and that report's call trace, which is not
+    # part of the soft lockup report.
+    var/log/kern.log: |
+      2022-02-10T01:00:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T01:00:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:00:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T01:00:00.000000+00:00 compute4 kernel: ------------[ cut here ]------------
+      2022-02-10T01:00:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:00:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T01:10:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T01:10:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:10:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T01:10:00.000000+00:00 compute4 kernel: kworker/0:0 invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+      2022-02-10T01:10:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:10:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T01:20:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T01:20:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:20:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T01:20:00.000000+00:00 compute4 kernel: BUG: unable to handle page fault for address: ffffa0b2c0000000
+      2022-02-10T01:20:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:20:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T01:30:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T01:30:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:30:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T01:30:00.000000+00:00 compute4 kernel: BUG: kernel NULL pointer dereference, address: 0000000000000000
+      2022-02-10T01:30:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:30:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T01:40:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T01:40:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:40:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T01:40:00.000000+00:00 compute4 kernel: general protection fault, probably for non-canonical address 0xdead000000000100: 0000 [#1] SMP NOPTI
+      2022-02-10T01:40:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:40:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T01:50:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T01:50:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:50:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T01:50:00.000000+00:00 compute4 kernel: Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+      2022-02-10T01:50:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T01:50:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T02:00:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T02:00:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:00:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T02:00:00.000000+00:00 compute4 kernel: Internal error: Oops: 0000000096000005 [#1] SMP
+      2022-02-10T02:00:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:00:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T02:10:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T02:10:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:10:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T02:10:00.000000+00:00 compute4 kernel: NMI watchdog: Watchdog detected hard LOCKUP on cpu 2
+      2022-02-10T02:10:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:10:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T02:20:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T02:20:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:20:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T02:20:00.000000+00:00 compute4 kernel: Kernel panic - not syncing: Fatal exception in interrupt
+      2022-02-10T02:20:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:20:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T02:30:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T02:30:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:30:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T02:30:00.000000+00:00 compute4 kernel: BUG: scheduling while atomic: swapper/0/0/0x00000002
+      2022-02-10T02:30:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:30:00.000000+00:00 compute4 kernel:  <TASK>
+      2022-02-10T02:40:00.000000+00:00 compute4 kernel: watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [kworker/3:1:12345]
+      2022-02-10T02:40:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:40:00.000000+00:00 compute4 kernel:  <IRQ>
+      2022-02-10T02:40:00.000000+00:00 compute4 kernel: BUG: sleeping function called from invalid context at include/linux/sched/mm.h:274
+      2022-02-10T02:40:00.000000+00:00 compute4 kernel: Call Trace:
+      2022-02-10T02:40:00.000000+00:00 compute4 kernel:  <TASK>
+raised-issues:
+  KernelError:
+    - >-
+      11 reports of soft lockups ('BUG: soft lockup - CPU#N stuck') in the
+      kernel log on 2022-02-10. Please check the call trace that follows each
+      report and, on virtual machines, check the hypervisor host for CPU
+      contention.
+    - >-
+      11 call traces in the kernel log on 2022-02-10 were not attributed
+      to a soft lockup, RCU stall, bad page state, page allocation
+      failure or NETDEV WATCHDOG report, or to an OOM kill, hung task,
+      bcache or fanotify deadlock that hotsos counted. Please check the
+      WARNING, BUG, oops, panic, 'invoked oom-killer' or 'blocked for
+      more than' line before each call trace to identify the cause.

@@ -1,0 +1,27 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621690] ------------[ cut here ]------------
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] NETDEV WATCHDOG: eth1 (ixgbe): transmit queue 3 timed out
+      Feb 10 10:48:13 compute4 kernel: [1694413.621741] WARNING: CPU: 4 PID: 0 at net/sched/sch_generic.c:477 dev_watchdog+0x21f/0x230
+      Feb 10 10:48:13 compute4 kernel: [1694413.621742] Modules linked in: openvswitch nsh nf_conncount nf_nat ixgbe mdio
+      Feb 10 10:48:13 compute4 kernel: [1694413.621800] CPU: 4 PID: 0 Comm: swapper/4 Not tainted 5.15.0-91-generic #101-Ubuntu
+      Feb 10 10:48:13 compute4 kernel: [1694413.621802] Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.11.2 04/21/2021
+      Feb 10 10:48:13 compute4 kernel: [1694413.621804] RIP: 0010:dev_watchdog+0x21f/0x230
+      Feb 10 10:48:13 compute4 kernel: [1694413.621820] Call Trace:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621822]  <IRQ>
+      Feb 10 10:48:13 compute4 kernel: [1694413.621840]  ? pfifo_fast_enqueue+0x150/0x150
+      Feb 10 10:48:13 compute4 kernel: [1694413.621850]  call_timer_fn+0x2c/0x120
+      Feb 10 10:48:13 compute4 kernel: [1694413.621852]  __run_timers.part.0+0x1e1/0x270
+      Feb 10 10:48:13 compute4 kernel: [1694413.621854]  run_timer_softirq+0x2a/0x50
+      Feb 10 10:48:13 compute4 kernel: [1694413.621856]  __do_softirq+0xd9/0x2e7
+      Feb 10 10:48:13 compute4 kernel: [1694413.621860]  </IRQ>
+      Feb 10 10:48:13 compute4 kernel: [1694413.621870] ---[ end trace 1a2b3c4d5e6f7a8b ]---
+      Feb 10 10:48:13 compute4 kernel: [1694413.621900] ixgbe 0000:03:00.1 eth1: initiating reset due to tx timeout
+raised-issues:
+  KernelError: >-
+    1 reports of NETDEV WATCHDOG transmit queue timeouts for eth1 (ixgbe)
+    in the kernel log on Feb 10. Please check the driver and firmware of
+    those interfaces ('ethtool -i <interface>') and make sure they are at
+    the latest version and, on virtual machines, check the hypervisor host.

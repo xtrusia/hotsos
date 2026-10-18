@@ -1,0 +1,20 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] ixgbe 0000:03:00.0 eth2: NETDEV WATCHDOG: CPU: 4: transmit queue 1 timed out 5012 ms
+      Feb 10 10:48:13 compute4 kernel: [1694413.621720] ixgbe 0000:03:00.0 eth2: initiating reset due to tx timeout
+      2022-02-10T11:02:45.380154+00:00 compute4 kernel: virtio_net virtio1 ens3: NETDEV WATCHDOG: CPU: 0: transmit queue 0 timed out 5440 ms
+      2022-02-10T11:02:45.380190+00:00 compute4 kernel: virtio_net virtio1 ens3: TX timeout on queue: 0, sq: output.0, vq: 0x1, name: output.0, 5440 usecs ago
+      Feb 10 11:30:13 compute4 kernel: [1696913.621694] eth5: NETDEV WATCHDOG: CPU: 2: transmit queue 0 timed out 6000 ms
+      Feb 10 12:10:13 compute4 kernel: [1699313.621694] NETDEV WATCHDOG: enp1s0f0 (i40e): transmit queue 7 timed out 5120 ms
+      Feb 10 12:20:13 compute4 kernel: [1699913.621694] ixgbe 0000:03:00.1 eth3 (unregistering): NETDEV WATCHDOG: CPU: 1: transmit queue 2 timed out 5004 ms
+      Feb 10 12:30:13 compute4 kernel: [1700513.621694] NETDEV WATCHDOG: eth6 (): transmit queue 0 timed out
+raised-issues:
+  KernelError: >-
+    6 reports of NETDEV WATCHDOG transmit queue timeouts for enp1s0f0
+    (i40e), ens3 (virtio_net), eth2 (ixgbe), eth3 (ixgbe), eth5, eth6 in
+    the kernel log on Feb 10, 2022-02-10. Please check the driver and
+    firmware of those interfaces ('ethtool -i <interface>') and make sure
+    they are at the latest version and, on virtual machines, check the
+    hypervisor host.

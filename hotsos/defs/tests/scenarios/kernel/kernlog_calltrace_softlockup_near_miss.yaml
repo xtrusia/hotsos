@@ -1,0 +1,8 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 00:07:13 compute4 kernel: [  567.622415] NMI watchdog: Watchdog detected hard LOCKUP on cpu 2
+      Feb 10 00:07:14 compute4 kernel: [  568.000000] Failed to initialize soft lockup detector threads
+      2022-02-10T12:00:01.123456+00:00 compute4 kernel: Kernel panic - not syncing: softlockup: hung tasks
+raised-issues:
