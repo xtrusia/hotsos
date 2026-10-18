@@ -1,0 +1,28 @@
+target-name: ata_exception.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:50:01 compute4 kernel: [1694521.100000] ata9: exception Emask 0x10 SAct 0x0 SErr 0x4050000 action 0xe frozen
+      Feb 10 10:50:01 compute4 kernel: [1694521.100005] ata9: irq_stat 0x00400040, connection status changed
+      Feb 10 10:50:01 compute4 kernel: [1694521.100008] ata9: SError: { PHYRdyChg CommWake DevExch }
+      Feb 10 10:50:01 compute4 kernel: [1694521.100015] ata9: hard resetting link
+      Feb 10 10:50:02 compute4 kernel: [1694521.900000] ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+      Feb 10 10:50:02 compute4 kernel: [1694521.910000] ata9.00: ATA-10: ST8000NM0055-1RM112, SN04, max UDMA/133
+      Feb 10 10:50:02 compute4 kernel: [1694521.920000] ata9.00: configured for UDMA/133
+      Feb 10 11:10:01 compute4 kernel: [1695721.100000] ata9: exception Emask 0x10 SAct 0x0 SErr 0x4050002 action 0xe frozen t4
+      Feb 10 11:10:01 compute4 kernel: [1695721.100005] ata9: irq_stat 0x00400040, connection status changed
+      Feb 10 11:10:01 compute4 kernel: [1695721.100008] ata9: SError: { RecovComm PHYRdyChg CommWake DevExch }
+      2022-02-10T11:20:01.123456+00:00 compute4 kernel: ata10: exception Emask 0x10 SAct 0x0 SErr 0x4010000 action 0xe frozen
+      2022-02-10T11:20:01.123460+00:00 compute4 kernel: ata10: irq_stat 0x00400000, PHY RDY changed
+      2022-02-10T11:20:01.123470+00:00 compute4 kernel: ata10: SError: { PHYRdyChg DevExch }
+      2022-02-10T11:20:01.123480+00:00 compute4 kernel: ata10: hard resetting link
+      2022-02-10T11:20:02.123456+00:00 compute4 kernel: ata10: SATA link down (SStatus 0 SControl 300)
+      Feb 10 11:30:00 compute4 kernel: [1696521.100000] ata11: exception Emask 0x10 SAct 0x0 SErr 0x50000 action 0xe frozen
+      Feb 10 11:30:00 compute4 kernel: [1696521.100005] ata11: irq_stat 0x00400000, PHY RDY changed
+      Feb 10 11:30:00 compute4 kernel: [1696521.100008] ata11: SError: { PHYRdyChg CommWake }
+      Feb 10 11:40:00 compute4 kernel: [1697121.100000] ata12: exception Emask 0x10 SAct 0x0 SErr 0x4000000 action 0xe frozen
+      Feb 10 11:40:00 compute4 kernel: [1697121.100005] ata12: irq_stat 0x00000040, connection status changed
+      Feb 10 11:40:00 compute4 kernel: [1697121.100008] ata12: SError: { DevExch }
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

@@ -1,0 +1,38 @@
+target-name: ata_exception.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
+      Feb 10 10:48:13 compute4 kernel: [1694413.621700] ata1.00: failed command: READ DMA EXT
+      Feb 10 10:48:13 compute4 kernel: [1694413.621705] ata1.00: cmd 25/00:08:00:a8:e0/00:00:3a:00:00/e0 tag 0 dma 4096 in
+      Feb 10 10:48:13 compute4 kernel: [1694413.621706]          res 40/00:00:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+      Feb 10 10:48:13 compute4 kernel: [1694413.621710] ata1.00: status: { DRDY }
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] ata1: hard resetting link
+      Feb 10 10:48:24 compute4 kernel: [1694424.621694] ata3: exception Emask 0x10 SAct 0x0 SErr 0x400100 action 0x6 frozen
+      Feb 10 10:48:24 compute4 kernel: [1694424.621700] ata3: irq_stat 0x08000000, interface fatal error
+      Feb 10 10:48:24 compute4 kernel: [1694424.621702] ata3: SError: { UnrecovData Handshk }
+      Feb 10 10:48:24 compute4 kernel: [1694424.621705] ata3.00: failed command: WRITE FPDMA QUEUED
+      Feb 10 10:48:25 compute4 kernel: [1694425.621694] ata3: hard resetting link
+      Feb 10 10:55:02 compute4 kernel: [1694842.100000] ata4: exception Emask 0x10 SAct 0x0 SErr 0x2000000 action 0x6 frozen
+      Feb 10 10:55:02 compute4 kernel: [1694842.100005] ata4: SError: { UnrecFIS }
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: ata2.00: exception Emask 0x0 SAct 0x1000 SErr 0x0 action 0x0
+      2022-02-10T11:02:44.123470+00:00 compute4 kernel: ata2.00: irq_stat 0x40000008
+      2022-02-10T11:02:44.123480+00:00 compute4 kernel: ata2.00: failed command: READ FPDMA QUEUED
+      2022-02-10T11:02:44.123490+00:00 compute4 kernel: ata2.00: cmd 60/08:60:10:a8:e0/00:00:3a:00:00/40 tag 12 ncq dma 4096 in
+      2022-02-10T11:02:44.123491+00:00 compute4 kernel:          res 41/40:00:10:a8:e0/00:00:3a:00:00/40 Emask 0x409 (media error) <F>
+      2022-02-10T11:02:44.123500+00:00 compute4 kernel: ata2.00: status: { DRDY ERR }
+      2022-02-10T11:02:44.123510+00:00 compute4 kernel: ata2.00: error: { UNC }
+      2022-02-10T11:02:44.223456+00:00 compute4 kernel: ata2.00: configured for UDMA/133
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    The kernel logged 4 libata exception(s) for ata1.00, ata2.00, ata3,
+    ata4 on 2022-02-10, Feb 10 (exceptions with the PHYRdyChg or DevExch
+    SError bit set, usually hotplug, are not counted). libata ran error
+    handling for these ports or devices, for example after a command
+    timeout, a device error or an interface error, and may have recovered
+    since. Please check the failed command and error lines that follow each
+    exception, find the disk on each port ('ls -l /sys/block' shows the
+    ataN port in each disk's path), run 'smartctl -a' on it and check its
+    cable and controller.

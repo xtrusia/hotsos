@@ -1,0 +1,43 @@
+vars:
+  # libata 'exception Emask ... SAct ... SErr ... action ...' line from
+  # ata_eh_link_report() in drivers/ata/libata-eh.c, e.g.
+  #   ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
+  # kern.log lines start with the legacy syslog timestamp or the RFC3339
+  # one used by rsyslog on Ubuntu 24.04 and later, where the kernel uptime
+  # may be absent. Group 1 is the date, group 2 the time and group 3 the
+  # ata port or device.
+  # Exceptions whose SErr has PHYRdyChg (bit 16) or DevExch (bit 26) set
+  # are not matched: libata normally handles these as hotplug, for example
+  # when a disk is inserted or removed. This is conservative, not a full
+  # hotplug check: libata ignores these bits under link power management,
+  # and ahci and ACPI can report hotplug without them.
+  expr_ata_exception: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?(ata\d+(?:\.\d+)?): exception Emask 0x[0-9a-f]+ SAct 0x[0-9a-f]+ SErr 0x(?![0-9a-f]*[4-7c-f][0-9a-f]{6} )(?![0-9a-f]*[13579bdf][0-9a-f]{4} )[0-9a-f]+ action 0x[0-9a-f]+'
+checks:
+  ata_exception:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_ata_exception
+      hint: 'exception Emask'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  kernel-ata-exception:
+    decision: ata_exception
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel logged {count} libata exception(s) for {ports} on
+        {dates} (exceptions with the PHYRdyChg or DevExch SError bit set,
+        usually hotplug, are not counted). libata ran error handling for
+        these ports or devices, for example after a command timeout, a
+        device error or an interface error, and may have recovered since.
+        Please check the failed command and error lines that follow each
+        exception, find the disk on each port ('ls -l /sys/block' shows
+        the ataN port in each disk's path), run 'smartctl -a' on it and
+        check its cable and controller.
+      format-dict:
+        count: '@checks.ata_exception.search.num_results'
+        ports: '@checks.ata_exception.search.results_group_3:unique_comma_join'
+        dates: '@checks.ata_exception.search.results_group_1:unique_comma_join'
