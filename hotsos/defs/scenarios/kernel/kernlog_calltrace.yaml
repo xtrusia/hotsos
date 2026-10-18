@@ -19,6 +19,26 @@ checks:
     property:
       path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-fanotify
       ops: [[length_hint]]
+  has_softlockups:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-softlockup
+      ops: [[length_hint]]
+  has_rcu_stalls:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-rcustall
+      ops: [[length_hint]]
+  has_bad_page_state:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-badpagestate
+      ops: [[length_hint]]
+  has_page_alloc_failures:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-pageallocfailure
+      ops: [[length_hint]]
+  has_netdev_watchdog_timeouts:
+    property:
+      path: hotsos.core.plugins.kernel.CallTraceManager.calltrace-netdevwatchdog
+      ops: [[length_hint]]
 conclusions:
   stacktraces:
     # Give this one lowest priority so that if any other call trace types match they
@@ -71,3 +91,62 @@ conclusions:
         be related to antivirus software running in the system.
       format-dict:
         numreports: '@checks.has_fanotify_hang.requires.value_actual:len'
+  softlockups:
+    priority: 2
+    decision: has_softlockups
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of soft lockups ('BUG: soft lockup - CPU#N stuck')
+        in kern.log. Please check the call trace that follows each report and,
+        on virtual machines, check the hypervisor host for CPU contention.
+      format-dict:
+        numreports: '@checks.has_softlockups.requires.value_actual:len'
+  rcu_stalls:
+    priority: 2
+    decision: has_rcu_stalls
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of RCU CPU stall warnings ('detected stalls on
+        CPUs/tasks' or 'self-detected stall on CPU') in kern.log. Please check
+        the stall details and call trace that follow each warning and, on
+        virtual machines, check the hypervisor host for CPU contention.
+      format-dict:
+        numreports: '@checks.has_rcu_stalls.requires.value_actual:len'
+  bad_page_state:
+    priority: 2
+    decision: has_bad_page_state
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of 'BUG: Bad page state' in kern.log, which
+        indicates memory corruption by a kernel or driver bug or by faulty RAM.
+        Please check the 'page dumped because' reason and call trace that
+        follow each report, check for EDAC or MCE errors and run a memory test.
+      format-dict:
+        numreports: '@checks.has_bad_page_state.requires.value_actual:len'
+  page_allocation_failures:
+    priority: 2
+    decision: has_page_alloc_failures
+    raises:
+      type: MemoryWarning
+      message: >-
+        {numreports} reports of kernel page allocation failures in kern.log.
+        Please check the order and mode flags on each failure line and the call
+        trace that follows to identify the subsystem or driver, and check
+        memory fragmentation in /proc/buddyinfo.
+      format-dict:
+        numreports: '@checks.has_page_alloc_failures.requires.value_actual:len'
+  netdev_watchdog_timeouts:
+    priority: 2
+    decision: has_netdev_watchdog_timeouts
+    raises:
+      type: KernelError
+      message: >-
+        {numreports} reports of NETDEV WATCHDOG transmit queue timeouts in
+        kern.log. Please check which interface and driver timed out and make
+        sure the NIC driver and firmware (see 'ethtool -i') are at the latest
+        version.
+      format-dict:
+        numreports: '@checks.has_netdev_watchdog_timeouts.requires.value_actual:len'

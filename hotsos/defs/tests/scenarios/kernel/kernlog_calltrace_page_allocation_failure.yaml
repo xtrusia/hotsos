@@ -1,0 +1,33 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] ovs-vswitchd: page allocation failure: order:3, mode:0xa20(GFP_ATOMIC), nodemask=(null),cpuset=/,mems_allowed=0-1
+      Feb 10 10:48:13 compute4 kernel: [1694413.621700] CPU: 7 PID: 2311 Comm: ovs-vswitchd Not tainted 5.15.0-91-generic #101-Ubuntu
+      Feb 10 10:48:13 compute4 kernel: [1694413.621701] Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.11.2 04/21/2021
+      Feb 10 10:48:13 compute4 kernel: [1694413.621702] Call Trace:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621703]  <TASK>
+      Feb 10 10:48:13 compute4 kernel: [1694413.621705]  show_stack+0x52/0x5c
+      Feb 10 10:48:13 compute4 kernel: [1694413.621708]  dump_stack_lvl+0x4a/0x63
+      Feb 10 10:48:13 compute4 kernel: [1694413.621710]  dump_stack+0x10/0x16
+      Feb 10 10:48:13 compute4 kernel: [1694413.621712]  warn_alloc+0x138/0x160
+      Feb 10 10:48:13 compute4 kernel: [1694413.621715]  __alloc_pages_slowpath.constprop.0+0xa8e/0xae0
+      Feb 10 10:48:13 compute4 kernel: [1694413.621718]  __alloc_pages+0x311/0x330
+      Feb 10 10:48:13 compute4 kernel: [1694413.621740]  </TASK>
+      Feb 10 10:48:13 compute4 kernel: [1694413.621741] Mem-Info:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621745] active_anon:416825 inactive_anon:1538 isolated_anon:0
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: kworker/u8:2: page allocation failure: order:0, mode:0x820(GFP_ATOMIC), nodemask=(null),cpuset=/,mems_allowed=0
+      2022-02-10T11:02:44.123470+00:00 compute4 kernel: CPU: 1 PID: 4211 Comm: kworker/u8:2 Not tainted 6.8.0-45-generic #45-Ubuntu
+      2022-02-10T11:02:44.123480+00:00 compute4 kernel: Call Trace:
+      2022-02-10T11:02:44.123481+00:00 compute4 kernel:  <TASK>
+      2022-02-10T11:02:44.123482+00:00 compute4 kernel:  dump_stack_lvl+0x76/0xa0
+      2022-02-10T11:02:44.123483+00:00 compute4 kernel:  dump_stack+0x10/0x20
+      2022-02-10T11:02:44.123484+00:00 compute4 kernel:  warn_alloc+0x174/0x1f0
+      2022-02-10T11:02:44.123490+00:00 compute4 kernel:  </TASK>
+      2022-02-10T11:02:44.123491+00:00 compute4 kernel: Mem-Info:
+raised-issues:
+  MemoryWarning: >-
+    2 reports of kernel page allocation failures in kern.log. Please check the
+    order and mode flags on each failure line and the call trace that follows
+    to identify the subsystem or driver, and check memory fragmentation in
+    /proc/buddyinfo.

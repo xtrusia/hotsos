@@ -1,0 +1,13 @@
+target-name: kernlog_calltrace.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] ixgbe 0000:03:00.0 eth2: NETDEV WATCHDOG: CPU: 4: transmit queue 1 timed out 5012 ms
+      Feb 10 10:48:13 compute4 kernel: [1694413.621720] ixgbe 0000:03:00.0 eth2: initiating reset due to tx timeout
+      2022-02-10T11:02:45.380154+00:00 compute4 kernel: virtio_net virtio1 ens3: NETDEV WATCHDOG: CPU: 0: transmit queue 0 timed out 5440 ms
+      2022-02-10T11:02:45.380190+00:00 compute4 kernel: virtio_net virtio1 ens3: TX timeout on queue: 0, sq: output.0, vq: 0x1, name: output.0, 5440 usecs ago
+raised-issues:
+  KernelError: >-
+    2 reports of NETDEV WATCHDOG transmit queue timeouts in kern.log. Please
+    check which interface and driver timed out and make sure the NIC driver and
+    firmware (see 'ethtool -i') are at the latest version.
