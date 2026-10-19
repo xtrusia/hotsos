@@ -1,0 +1,11 @@
+target-name: dm_thin_pool_mode_degraded.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Jan  1 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (queue IO) mode
+      2022-01-02T10:48:13.123456+00:00 compute4 kernel: device-mapper: thin: 253:7: switching pool to read-only mode
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:2: reached low water mark for data device: sending event.
+      Feb 10 10:55:14 compute4 kernel: [1694834.621694] device-mapper: thin: 253:2: switching pool to write mode
+      Feb 10 10:56:14 compute4 kernel: [1694894.621694] device-mapper: thin: 253:2: reached low water mark for metadata device: sending event.
+  copy-from-original:
+    - sos_commands/date/date

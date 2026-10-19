@@ -1,0 +1,41 @@
+checks:
+  thin_pool_mode:
+    input:
+      path: 'var/log/kern.log'
+    expr: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[.*\] )?device-mapper: thin: (\S+): switching pool to (out-of-data-space \((?:queue|error) IO\)|read-only|fail(?:ure)?) mode'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  kernel-dm-thin-pool-mode-degraded:
+    decision: thin_pool_mode
+    raises:
+      type: KernelError
+      message: >-
+        kern.log has {count} device-mapper thin 'switching pool to
+        <mode> mode' line(s) from the last 24 hours with a mode
+        other than write (pools: {pools}; modes: {modes}). In
+        out-of-data-space mode the pool's data device is full: with
+        queue IO, writes that need new blocks are held until space
+        is added or the no_space_timeout of the dm-thin-pool module
+        expires (60 seconds by default), and during an uninterrupted
+        out-of-data-space episode queue IO changes to error IO when
+        that timeout expires; with error IO such writes fail.
+        read-only mode is entered after metadata errors, including
+        running out of metadata space, or when the pool was
+        activated read-only, and makes writes that need new or
+        unshared blocks fail; in fail mode ('failure' in older
+        kernels) all I/O fails. Thin volumes on the pool (for
+        example LVM thin volumes used by Cinder or LXD) can then
+        report I/O errors and filesystems on them can be remounted
+        read-only. This may no longer be occurring; a later
+        'switching pool to write mode' line shows that the pool went
+        back to normal. Map the pool device (major:minor) to its LV
+        with 'dmsetup info -c', check 'lvs -a' (Data% and Meta%) and
+        extend the data or metadata device or free space; read-only
+        or fail mode can also need a metadata check (thin_check /
+        lvconvert --repair).
+      format-dict:
+        count: '@checks.thin_pool_mode.search.num_results'
+        pools: '@checks.thin_pool_mode.search.results_group_2:unique_comma_join'
+        modes: '@checks.thin_pool_mode.search.results_group_3:unique_comma_join'

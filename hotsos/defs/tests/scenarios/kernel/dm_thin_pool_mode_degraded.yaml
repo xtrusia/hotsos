@@ -1,0 +1,39 @@
+target-name: dm_thin_pool_mode_degraded.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:9: switching pool to fail mode
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:2: reached low water mark for data device: sending event.
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (queue IO) mode
+      Feb 10 10:49:14 compute4 kernel: [1694474.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (error IO) mode
+      Feb 10 10:55:14 compute4 kernel: [1694834.621694] device-mapper: thin: 253:2: switching pool to write mode
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: device-mapper: thin: 253:7: switching pool to read-only mode
+      Feb 10 11:05:14 compute4 kernel: [1695434.621694] device-mapper: thin: 253:9: switching pool to fail mode
+      Feb 10 11:06:14 compute4 kernel: [1695494.621694] device-mapper: thin: 253:11: switching pool to failure mode
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    kern.log has 5 device-mapper thin 'switching pool to <mode>
+    mode' line(s) from the last 24 hours with a mode other than
+    write (pools: 253:11, 253:2, 253:7, 253:9; modes: fail, failure,
+    out-of-data-space (error IO), out-of-data-space (queue IO),
+    read-only). In out-of-data-space mode the pool's data device is
+    full: with queue IO, writes that need new blocks are held until
+    space is added or the no_space_timeout of the dm-thin-pool
+    module expires (60 seconds by default), and during an
+    uninterrupted out-of-data-space episode queue IO changes to
+    error IO when that timeout expires; with error IO such writes
+    fail. read-only mode is entered after metadata errors, including
+    running out of metadata space, or when the pool was activated
+    read-only, and makes writes that need new or unshared blocks
+    fail; in fail mode ('failure' in older kernels) all I/O fails.
+    Thin volumes on the pool (for example LVM thin volumes used by
+    Cinder or LXD) can then report I/O errors and filesystems on
+    them can be remounted read-only. This may no longer be
+    occurring; a later 'switching pool to write mode' line shows
+    that the pool went back to normal. Map the pool device
+    (major:minor) to its LV with 'dmsetup info -c', check 'lvs -a'
+    (Data% and Meta%) and extend the data or metadata device or free
+    space; read-only or fail mode can also need a metadata check
+    (thin_check / lvconvert --repair).
