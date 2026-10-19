@@ -1,0 +1,32 @@
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  9 18:20:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:9: switching pool to fail mode
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:2: reached low water mark for data device: sending event.
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (queue IO) mode
+      Feb 10 10:49:14 compute4 kernel: [1694474.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (error IO) mode
+      Feb 10 10:55:14 compute4 kernel: [1694834.621694] device-mapper: thin: 253:2: switching pool to write mode
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: device-mapper: thin: 253:7: switching pool to read-only mode
+      Feb 10 11:06:14 compute4 kernel: [1695494.621694] device-mapper: thin: 253:11: switching pool to failure mode
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    kern.log has device-mapper thin pool(s) 253:11, 253:2, 253:7, 253:9
+    switching to fail, failure, out-of-data-space (error IO),
+    out-of-data-space (queue IO), read-only mode on 2022-02-10, Feb  9, Feb
+    10. In out-of-data-space mode the data device of the pool is full:
+    with queue IO, writes that need new blocks wait until space is added
+    or until the no_space_timeout of the dm-thin-pool module (60 seconds
+    by default, 0 waits forever) expires, when the kernel logs the error
+    IO mode; with error IO those writes fail. read-only mode is entered
+    after metadata errors, when the metadata device runs out of space, or
+    when the pool was activated with the read_only feature; writes that
+    need a new block or go to a shared block then fail. In fail mode
+    ('failure' in v4.15) all I/O to the pool fails. Thin volumes on the
+    pool can then report I/O errors. A later 'switching pool to write
+    mode' line for the same pool shows that it went back to normal. Please
+    map the pool device (major:minor) to its LV with 'dmsetup info -c',
+    check 'lvs -a' (Data% and Meta%) and extend the data or metadata
+    device if it is full; after metadata errors the pool can also need a
+    metadata check (thin_check or lvconvert --repair).

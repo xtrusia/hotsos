@@ -1,0 +1,11 @@
+target-name: dm_thin_pool_mode_degraded.yaml
+data-root:
+  files:
+    # Thin pool lines that are not a switch away from write mode.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:2: reached low water mark for data device: sending event.
+      Feb 10 10:55:14 compute4 kernel: [1694834.621694] device-mapper: thin: 253:2: switching pool to write mode
+      Feb 10 10:56:14 compute4 kernel: [1694894.621694] device-mapper: thin: 253:2: reached low water mark for metadata device: sending event.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

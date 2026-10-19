@@ -1,0 +1,15 @@
+target-name: dm_thin_pool_mode_degraded.yaml
+data-root:
+  files:
+    # The positive test lines, 3 days earlier (outside the 24 hour window).
+    var/log/kern.log: |
+      Feb  6 18:20:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:9: switching pool to fail mode
+      Feb  7 10:48:13 compute4 kernel: [1694413.621694] device-mapper: thin: 253:2: reached low water mark for data device: sending event.
+      Feb  7 10:48:14 compute4 kernel: [1694414.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (queue IO) mode
+      Feb  7 10:49:14 compute4 kernel: [1694474.621694] device-mapper: thin: 253:2: switching pool to out-of-data-space (error IO) mode
+      Feb  7 10:55:14 compute4 kernel: [1694834.621694] device-mapper: thin: 253:2: switching pool to write mode
+      2022-02-07T11:02:44.123456+00:00 compute4 kernel: device-mapper: thin: 253:7: switching pool to read-only mode
+      Feb  7 11:06:14 compute4 kernel: [1695494.621694] device-mapper: thin: 253:11: switching pool to failure mode
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

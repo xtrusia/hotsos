@@ -1,0 +1,50 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the message) and group 2 the time.
+  # drivers/md/dm-thin.c notify_of_pool_mode_change() with DM_MSG_PREFIX
+  # "thin": "%s: switching pool to %s%s mode" (v5.0 to v6.8) or "%s:
+  # switching pool to %s mode" (v4.15, "failure" instead of "fail"). Group 3
+  # is the pool device (major:minor) and group 4 the mode. The switch back
+  # to write mode is not matched.
+  expr_thin_pool_mode: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?device-mapper: thin: (\S+): switching pool to (out-of-data-space \((?:queue|error) IO\)|read-only|fail(?:ure)?) mode'
+checks:
+  thin_pool_mode:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_thin_pool_mode
+      hint: 'switching pool to'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  kernel-dm-thin-pool-mode-degraded:
+    decision: thin_pool_mode
+    raises:
+      type: KernelError
+      message: >-
+        kern.log has device-mapper thin pool(s) {pools} switching to
+        {modes} mode on {dates}. In out-of-data-space mode the data
+        device of the pool is full: with queue IO, writes that need
+        new blocks wait until space is added or until the
+        no_space_timeout of the dm-thin-pool module (60 seconds by
+        default, 0 waits forever) expires, when the kernel logs the
+        error IO mode; with error IO those writes fail. read-only mode
+        is entered after metadata errors, when the metadata device
+        runs out of space, or when the pool was activated with the
+        read_only feature; writes that need a new block or go to a
+        shared block then fail. In fail mode ('failure' in v4.15) all
+        I/O to the pool fails. Thin volumes on the pool can then
+        report I/O errors. A later 'switching pool to write mode' line
+        for the same pool shows that it went back to normal. Please
+        map the pool device (major:minor) to its LV with 'dmsetup info
+        -c', check 'lvs -a' (Data% and Meta%) and extend the data or
+        metadata device if it is full; after metadata errors the pool
+        can also need a metadata check (thin_check or lvconvert
+        --repair).
+      format-dict:
+        pools: '@checks.thin_pool_mode.search.results_group_3:unique_comma_join'
+        modes: '@checks.thin_pool_mode.search.results_group_4:unique_comma_join'
+        dates: '@checks.thin_pool_mode.search.results_group_1:unique_comma_join'
