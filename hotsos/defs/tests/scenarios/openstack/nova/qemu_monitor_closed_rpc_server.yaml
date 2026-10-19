@@ -1,0 +1,25 @@
+target-name: qemu_monitor_closed.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+    var/log/nova/nova-compute.log: |
+      2022-02-10 11:02:03.456 3456 ERROR oslo_messaging.rpc.server [req-aaaa bbbb cccc - - -] Exception during message handling
+      2022-02-10 11:02:03.456 3456 ERROR oslo_messaging.rpc.server libvirt.libvirtError: internal error: qemu unexpectedly closed the monitor: 2022-02-10T11:02:03.001234Z qemu-system-x86_64: cannot set up guest memory 'pc.ram': Cannot allocate memory
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute.log has libvirt 'internal error' messages (qemu
+    unexpectedly closed the monitor) on 2022-02-10. libvirt reports these
+    when the QEMU process of a guest exited while it was starting, or
+    during an incoming live migration. The QEMU output that follows the
+    error, when present, usually names the cause, for example a device
+    that could not be opened or memory that could not be allocated. Please
+    read the full error line and the [instance: <uuid>] tag on it, then
+    check /var/log/libvirt/qemu/<domain>.log (libvirt 9.4.0 and later add
+    vm='<domain>' to the 'closed the monitor' error; otherwise the domain
+    follows instance_name_template, instance-XXXXXXXX by default) and
+    kern.log for OOM kills or segfaults of qemu. For a 'Live Migration
+    failure' line the QEMU process that exited ran on the destination
+    host, so please check the logs there.

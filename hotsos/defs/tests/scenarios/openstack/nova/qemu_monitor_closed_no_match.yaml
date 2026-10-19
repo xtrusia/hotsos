@@ -1,0 +1,12 @@
+target-name: qemu_monitor_closed.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+    var/log/nova/nova-compute.log: |
+      2022-02-10 10:20:30.123 3456 ERROR nova.virt.libvirt.host [-] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 10:25:00.000 3456 INFO nova.compute.manager [req-aaaa bbbb cccc - - -] [instance: 11111111-2222-3333-4444-555555555555] Took 12.05 seconds to build instance.
+      2022-02-10 10:26:00.000 3456 ERROR nova.compute.manager [req-aaaa bbbb cccc - - -] [instance: 11111111-2222-3333-4444-555555555555] libvirt.libvirtError: internal error: unable to execute QEMU command 'query-status': Guest has not been initialized
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

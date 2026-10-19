@@ -1,0 +1,27 @@
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+    var/log/nova/nova-compute.log: |
+      2022-02-09 18:20:30.123 3456 ERROR nova.compute.manager [req-aaaa bbbb cccc - - -] [instance: 11111111-2222-3333-4444-555555555555] Instance failed to spawn
+      2022-02-09 18:20:30.123 3456 ERROR nova.compute.manager [instance: 11111111-2222-3333-4444-555555555555] libvirt.libvirtError: internal error: process exited while connecting to monitor: 2022-02-09T18:20:29.123456Z qemu-system-x86_64: -device vfio-pci,host=0000:3b:00.0,id=hostdev0,bus=pci.0,addr=0x5: vfio 0000:3b:00.0: failed to open /dev/vfio/12: Device or resource busy
+      2022-02-09 18:25:00.000 3456 INFO nova.compute.manager [req-dddd eeee ffff - - -] [instance: 11111111-2222-3333-4444-555555555555] Took 12.05 seconds to build instance.
+      2022-02-10 08:30:30.123 3456 ERROR nova.virt.libvirt.driver [-] [instance: 66666666-7777-8888-9999-000000000000] Live Migration failure: internal error: QEMU unexpectedly closed the monitor (vm='instance-0000002a'): 2022-02-10T08:30:29.123456Z qemu-system-x86_64: load of migration failed: Input/output error
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute.log has libvirt 'internal error' messages (QEMU
+    unexpectedly closed the monitor, process exited while connecting to
+    monitor) on 2022-02-09, 2022-02-10. libvirt reports these when the
+    QEMU process of a guest exited while it was starting, or during an
+    incoming live migration. The QEMU output that follows the error, when
+    present, usually names the cause, for example a device that could not
+    be opened or memory that could not be allocated. Please read the full
+    error line and the [instance: <uuid>] tag on it, then check
+    /var/log/libvirt/qemu/<domain>.log (libvirt 9.4.0 and later add
+    vm='<domain>' to the 'closed the monitor' error; otherwise the domain
+    follows instance_name_template, instance-XXXXXXXX by default) and
+    kern.log for OOM kills or segfaults of qemu. For a 'Live Migration
+    failure' line the QEMU process that exited ran on the destination
+    host, so please check the logs there.

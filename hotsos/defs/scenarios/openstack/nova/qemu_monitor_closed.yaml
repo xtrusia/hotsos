@@ -1,0 +1,43 @@
+vars:
+  # libvirt src/qemu/qemu_process.c qemuProcessReportLogError() reports
+  # VIR_ERR_INTERNAL_ERROR "<prefix>: <qemu log>" with one of these prefixes
+  # (qemu_monitor.c qemuMonitorIO(): 'qemu unexpectedly closed the monitor',
+  # "QEMU unexpectedly closed the monitor (vm='...')" since 9.4.0;
+  # qemu_process.c qemuProcessWaitForMonitor(): 'process exited while connecting
+  # to monitor'). Nova logs it in the 'Instance failed to spawn' traceback,
+  # in 'Live Migration failure: ...' and in oslo_messaging.rpc.server
+  # tracebacks.
+  expr_qemu_exited: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR \S+ .*internal error: ((?i:qemu) unexpectedly closed the monitor|process exited while connecting to monitor)'
+checks:
+  qemu_monitor_closed:
+    input:
+      path: 'var/log/nova/nova-compute.log'
+    search:
+      expr: $expr_qemu_exited
+      hint: 'internal error: '
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  openstack-nova-qemu-monitor-closed:
+    decision: qemu_monitor_closed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute.log has libvirt 'internal error' messages
+        ({reasons}) on {dates}. libvirt reports these when the QEMU
+        process of a guest exited while it was starting, or during an
+        incoming live migration. The QEMU output that follows the
+        error, when present, usually names the cause, for example a
+        device that could not be opened or memory that could not be
+        allocated. Please read the full error line and the [instance:
+        <uuid>] tag on it, then check
+        /var/log/libvirt/qemu/<domain>.log (libvirt 9.4.0 and later
+        add vm='<domain>' to the 'closed the monitor' error; otherwise
+        the domain follows instance_name_template, instance-XXXXXXXX
+        by default) and kern.log for OOM kills or segfaults of qemu.
+        For a 'Live Migration failure' line the QEMU process that
+        exited ran on the destination host, so please check the logs
+        there.
+      format-dict:
+        dates: '@checks.qemu_monitor_closed.search.results_group_1:unique_comma_join'
+        reasons: '@checks.qemu_monitor_closed.search.results_group_3:unique_comma_join'
