@@ -1,0 +1,18 @@
+target-name: store_add_disabled.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    # The positive test lines, 3 days earlier (outside the 24 hour window).
+    var/log/glance/glance-api.log: |
+      2022-02-06 18:20:30.123 3456 WARNING glance_store.driver [-] Failed to configure store correctly: Store filesystem could not be configured correctly. Reason: Unable to create datadir: /var/lib/glance/images/ Disabling add method.
+      2022-02-07 10:20:30.123 3456 WARNING glance_store.driver [-] Failed to configure store correctly: Store filesystem could not be configured correctly. Reason: Unable to create datadir: /var/lib/glance/images/ Disabling add method.
+      2022-02-07 10:20:30.223 3457 WARNING glance_store.driver [-] Failed to configure store correctly: Store filesystem could not be configured correctly. Reason: Unable to create datadir: /var/lib/glance/images/ Disabling add method.
+      2022-02-07 10:21:30.123 3456 INFO glance.common.wsgi [-] Started child 3460
+      2022-02-07 10:30:30.123 3458 WARNING glance_store.driver [-] Failed to configure store correctly: Store rbd could not be configured correctly. Reason: The required libraries(rbd and rados) are not available Disabling add method.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

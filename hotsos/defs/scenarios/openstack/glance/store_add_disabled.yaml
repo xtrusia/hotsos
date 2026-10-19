@@ -1,0 +1,39 @@
+vars:
+  # glance_store/driver.py Store.configure(): on BadStoreConfiguration
+  # ("Store %(store_name)s could not be configured correctly. Reason:
+  # %(reason)s") it unsets WRITE_ACCESS and logs "Failed to configure store
+  # correctly: %s Disabling add method." (same string in 1.0.0, 2.0.0,
+  # 4.1.0 and master). Group 1 is the date, group 2 the time and group 3
+  # the store.
+  expr_store_add_disabled: '([\d-]+) ([\d:]+)[\.,]\d{3,6} \d+ WARNING \S+ .*Failed to configure store correctly: Store (\S+) could not be configured correctly\. Reason: .*Disabling add method'
+checks:
+  store_add_disabled:
+    input:
+      path: 'var/log/glance/glance-api.log'
+    search:
+      expr: $expr_store_add_disabled
+      hint: 'Disabling add method'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  openstack-glance-store-add-disabled:
+    decision: store_add_disabled
+    raises:
+      type: OpenstackWarning
+      message: >-
+        glance-api.log has 'Failed to configure store correctly ...
+        Disabling add method' warnings for the store(s) {stores} on
+        {dates}. glance_store logs this when configuring a store for
+        writing fails with a configuration error, and removes the
+        write capability of that store instance, so new images cannot
+        be uploaded or imported to it until the store is configured
+        again, for example when glance-api restarts. Please read the
+        reason in the matching lines (for example a
+        filesystem_store_datadir that cannot be created or written, a
+        missing client library, or missing or wrong store options),
+        fix it, restart glance-api and check that image uploads to
+        that store work. A warning for a store that is configured but
+        not used for uploads can be ignored.
+      format-dict:
+        stores: '@checks.store_add_disabled.search.results_group_3:unique_comma_join'
+        dates: '@checks.store_add_disabled.search.results_group_1:unique_comma_join'
