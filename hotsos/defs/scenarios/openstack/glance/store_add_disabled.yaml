@@ -1,0 +1,34 @@
+checks:
+  store_add_disabled:
+    input:
+      path: 'var/log/glance/glance-api.log'
+    expr: '([\d-]+) ([\d:]+)[\.,]\d{3,6} \d+ WARNING \S+ .*Failed to configure store correctly: Store (\S+) could not be configured correctly\. Reason: .*Disabling add method'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  openstack-glance-store-add-disabled:
+    decision: store_add_disabled
+    raises:
+      type: OpenstackWarning
+      message: >-
+        glance-api.log contains {count} 'Failed to configure store
+        correctly ... Disabling add method' warning(s) from the last
+        24 hours for the store(s) {stores}. glance_store logs this
+        when configuring a store for writing fails with a
+        configuration error and removes the write capability of that
+        store instance, so new images cannot be uploaded or imported
+        to it. Depending on the driver and the cause, writing may
+        work again once the cause is fixed (some drivers configure a
+        new store instance when it is used) or only after glance-api
+        is restarted, and the underlying problem can also break
+        reads. Each glance-api worker configures its stores, so one
+        restart can log several lines. This may no longer be
+        occurring; read the reason in the matching lines (for
+        example a missing or unwritable filesystem_store_datadir, a
+        missing client library, or missing or wrong store options),
+        fix it and check whether image uploads to that store work,
+        restarting glance-api if needed.
+      format-dict:
+        count: '@checks.store_add_disabled.search.num_results'
+        stores: '@checks.store_add_disabled.search.results_group_3:unique_comma_join'

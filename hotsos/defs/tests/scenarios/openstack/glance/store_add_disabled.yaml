@@ -1,0 +1,34 @@
+target-name: store_add_disabled.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  keystone                             2:21.0.0-0ubuntu1~cloud0                             all          OpenStack identity service - Django web application
+      ii  nova-common                          3:25.2.1-0ubuntu2.7~cloud0                           all          OpenStack Compute - common files
+      ii  neutron-common                       2:20.3.0-0ubuntu1~cloud0                             all          Neutron is a virtual network service for Openstack - common
+      ii  cinder-common                        2:20.3.0-0ubuntu1~cloud0                             all          Cinder storage service - common files
+    var/log/glance/glance-api.log: |
+      2022-02-01 10:20:30.123 3456 WARNING glance_store.driver [-] Failed to configure store correctly: Store filesystem could not be configured correctly. Reason: old failure Disabling add method.
+      2022-02-10 10:20:30.123 3456 WARNING glance_store.driver [-] Failed to configure store correctly: Store filesystem could not be configured correctly. Reason: Directory to write image files does not exist (/var/lib/glance/images/). Disabling add method.
+      2022-02-10 10:20:30.223 3457 WARNING glance_store.driver [-] Failed to configure store correctly: Store filesystem could not be configured correctly. Reason: Directory to write image files does not exist (/var/lib/glance/images/). Disabling add method.
+      2022-02-10 10:21:30.123 3456 INFO glance.common.wsgi [-] Started child 3460
+      2022-02-10 10:30:30.123 3458 WARNING glance_store.driver [-] Failed to configure store correctly: Store rbd could not be configured correctly. Reason: Error in store configuration: some reason Disabling add method.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  OpenstackWarning: >-
+    glance-api.log contains 3 'Failed to configure store correctly
+    ... Disabling add method' warning(s) from the last 24 hours for
+    the store(s) filesystem, rbd. glance_store logs this when
+    configuring a store for writing fails with a configuration error
+    and removes the write capability of that store instance, so new
+    images cannot be uploaded or imported to it. Depending on the
+    driver and the cause, writing may work again once the cause is
+    fixed (some drivers configure a new store instance when it is
+    used) or only after glance-api is restarted, and the underlying
+    problem can also break reads. Each glance-api worker configures
+    its stores, so one restart can log several lines. This may no
+    longer be occurring; read the reason in the matching lines (for
+    example a missing or unwritable filesystem_store_datadir, a
+    missing client library, or missing or wrong store options), fix
+    it and check whether image uploads to that store work,
+    restarting glance-api if needed.
