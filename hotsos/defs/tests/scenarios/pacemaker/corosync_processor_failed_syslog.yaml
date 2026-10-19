@@ -1,0 +1,20 @@
+target-name: corosync_processor_failed.yaml
+data-root:
+  files:
+    # syslog only, traditional and RFC3339 (rsyslog default on Ubuntu
+    # 24.04+) timestamps.
+    var/log/syslog: |
+      Feb 10 10:14:12 node1 corosync[8124]:   [TOTEM ] A processor failed, forming new configuration.
+      2022-02-10T10:40:12.123456+00:00 node1 corosync[8124]:   [TOTEM ] A processor failed, forming new configuration: token timed out (3000ms), waiting 3600ms for consensus.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  PacemakerWarning: >-
+    corosync logged 2 'A processor failed, forming new configuration' notice(s)
+    in syslog on 2022-02-10, Feb 10, so corosync treated the totem token as
+    lost and started forming a new membership, which can lead to resources
+    being moved or a node being fenced. Please check the corosync log lines
+    around those times for the members that left, packet loss or latency on the
+    corosync network and pauses or CPU starvation of the cluster nodes, and
+    please check with 'crm status' and 'corosync-quorumtool -s' whether all
+    nodes are members again.

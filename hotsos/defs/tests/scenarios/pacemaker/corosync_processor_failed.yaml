@@ -1,0 +1,24 @@
+data-root:
+  files:
+    # corosync.log (2.4/3.0 and 3.1+ formats). The same event in syslog is
+    # not reported because the corosync.log conclusion has the higher
+    # priority.
+    var/log/corosync/corosync.log: |
+      Feb 09 20:15:01 [8124] node1 corosync notice  [TOTEM ] A processor failed, forming new configuration.
+      Feb 10 10:14:12.123 [8124] node1 corosync notice  [TOTEM ] A processor failed, forming new configuration: token timed out (3000ms), waiting 3600ms for consensus.
+      Feb 10 10:14:15.456 [8124] node1 corosync notice  [TOTEM ] A new membership (1.1234) was formed. Members left: 2
+      Feb 10 10:14:15.460 [8124] node1 corosync notice  [QUORUM] Members[2]: 1 3
+    var/log/syslog: |
+      2022-02-10T10:14:12.123456+00:00 node1 corosync[8124]:   [TOTEM ] A processor failed, forming new configuration: token timed out (3000ms), waiting 3600ms for consensus.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  PacemakerWarning: >-
+    corosync logged 2 'A processor failed, forming new configuration' notice(s)
+    in corosync.log on Feb 09, Feb 10, so corosync treated the totem token as
+    lost and started forming a new membership, which can lead to resources
+    being moved or a node being fenced. Please check the corosync log lines
+    around those times for the members that left, packet loss or latency on the
+    corosync network and pauses or CPU starvation of the cluster nodes, and
+    please check with 'crm status' and 'corosync-quorumtool -s' whether all
+    nodes are members again.

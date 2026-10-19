@@ -1,0 +1,67 @@
+vars:
+  # timer_function_orf_token_timeout() in corosync exec/totemsrp.c logs this
+  # at notice level when the token is treated as lost in the OPERATIONAL
+  # state (token timeout, heartbeat timeout or totemsrp_force_gather()) and
+  # corosync starts forming a new membership e.g.
+  #   A processor failed, forming new configuration.  (2.4, 3.0)
+  #   A processor failed, forming new configuration: token timed out (3000ms), waiting 3600ms for consensus.  (3.1+)
+  # It is logged to corosync.log ('<ts> [<pid>] <host> corosync notice
+  # [TOTEM ] ...') and to syslog ('<ts> <host> corosync[<pid>]:  [TOTEM ] ...')
+  # with a syslog or RFC3339 timestamp.
+  expr: '^(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* (?:.*corosync notice +|\S+ corosync\[\d+\]: +)\[TOTEM +\] A processor failed, forming new configuration'
+checks:
+  processor_failed_corosync_log:
+    input:
+      path: 'var/log/corosync/corosync.log'
+    search:
+      expr: $expr
+      hint: 'A processor failed'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  processor_failed_syslog:
+    input:
+      path: 'var/log/syslog'
+    search:
+      expr: $expr
+      hint: 'A processor failed'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+# The same event is usually logged to both corosync.log and syslog, so syslog
+# is only used when corosync.log has none.
+conclusions:
+  corosync-processor-failed:
+    priority: 2
+    decision: processor_failed_corosync_log
+    raises:
+      type: PacemakerWarning
+      message: >-
+        corosync logged {count} 'A processor failed, forming new configuration'
+        notice(s) in corosync.log on {dates}, so corosync treated the totem
+        token as lost and started forming a new membership, which can lead to
+        resources being moved or a node being fenced. Please check the corosync
+        log lines around those times for the members that left, packet loss or
+        latency on the corosync network and pauses or CPU starvation of the
+        cluster nodes, and please check with 'crm status' and
+        'corosync-quorumtool -s' whether all nodes are members again.
+      format-dict:
+        count: '@checks.processor_failed_corosync_log.search.num_results'
+        dates: '@checks.processor_failed_corosync_log.search.results_group_1:unique_comma_join'
+  corosync-processor-failed-syslog:
+    priority: 1
+    decision: processor_failed_syslog
+    raises:
+      type: PacemakerWarning
+      message: >-
+        corosync logged {count} 'A processor failed, forming new configuration'
+        notice(s) in syslog on {dates}, so corosync treated the totem token as
+        lost and started forming a new membership, which can lead to resources
+        being moved or a node being fenced. Please check the corosync log lines
+        around those times for the members that left, packet loss or latency on
+        the corosync network and pauses or CPU starvation of the cluster nodes,
+        and please check with 'crm status' and 'corosync-quorumtool -s' whether
+        all nodes are members again.
+      format-dict:
+        count: '@checks.processor_failed_syslog.search.num_results'
+        dates: '@checks.processor_failed_syslog.search.results_group_1:unique_comma_join'

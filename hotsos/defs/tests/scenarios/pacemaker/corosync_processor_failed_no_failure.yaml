@@ -1,0 +1,13 @@
+target-name: corosync_processor_failed.yaml
+data-root:
+  files:
+    # Recent membership and token lines without a processor failure.
+    var/log/corosync/corosync.log: |
+      Feb 10 10:14:10.100 [8124] node1 corosync warning [TOTEM ] Token has not been received in 2250 ms
+      Feb 10 10:14:15.456 [8124] node1 corosync notice  [TOTEM ] A new membership (1.1236) was formed. Members joined: 2
+      Feb 10 10:14:15.460 [8124] node1 corosync notice  [QUORUM] Members[3]: 1 2 3
+    var/log/syslog: |
+      Feb 10 10:14:10 node1 corosync[8124]:   [TOTEM ] Token has not been received in 2250 ms
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
