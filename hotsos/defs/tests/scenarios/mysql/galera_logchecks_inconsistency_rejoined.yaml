@@ -1,0 +1,24 @@
+target-name: galera_logchecks.yaml
+data-root:
+  files:
+    # The node rejoined, which after an inconsistency needs a full SST. It is
+    # still reported because the cause can come back.
+    sos_commands/dpkg/dpkg_-l: |
+      ii  percona-xtradb-cluster-server     5.7.20-29.24-0ubuntu2.1 all          Percona XtraDB Cluster database server
+      ii  percona-xtradb-cluster-server-5.7 5.7.20-29.24-0ubuntu2.1 amd64        Percona XtraDB Cluster database server binaries
+    var/log/mysql/error.log: |
+      2022-02-09T20:15:01.123510Z 2 [ERROR] WSREP: Node consistency compromized, aborting...
+      2022-02-09T20:45:01.123456Z 0 [Note] WSREP: Shifting JOINED -> SYNCED (TO: 2411)
+      2022-02-09T20:45:01.123500Z 2 [Note] WSREP: Synchronized with group, ready for connections
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  MySQLWarning: >-
+    This Percona XtraDB Cluster node logged 1 Galera inconsistency
+    message(s) on 2022-02-09 in /var/log/mysql/error.log, so it failed to
+    apply a write-set and mysqld aborted (PXC 5.7) or the node left the
+    cluster (PXC 8.0) to protect the data. Please check the 'Failed to
+    apply' and 'Could not execute' errors logged just before them to find
+    the cause, please check whether this node is back in the cluster
+    (wsrep_cluster_status, wsrep_local_state_comment) and please rebuild it
+    with a full SST if it stays out of the cluster.

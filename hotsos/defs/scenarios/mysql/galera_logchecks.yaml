@@ -1,0 +1,77 @@
+vars:
+  # This scenario only covers Percona XtraDB Cluster (package
+  # percona-xtradb-cluster-server, e.g. deployed by the percona-cluster
+  # charm). A PXC 8.0 node that left the cluster after an inconsistent
+  # vote on a write-set it applied successfully is not matched.
+  # A node that fails to apply a write-set logs (percona/galera 3.x-5.7 and
+  # 4.x-8.0, galera/src/replicator_smm.cpp)
+  #   [ERROR] WSREP: Node consistency compromized, aborting...  (PXC 5.7)
+  #   [ERROR] [MY-000000] [Galera] Node consistency compromized, leaving cluster...  (PXC 8.0)
+  #   [ERROR] [MY-000000] [Galera] Inconsistency detected: Inconsistent by consensus on ...  (PXC 8.0)
+  # and then aborts (PXC 5.7) or leaves the cluster (PXC 8.0). The reason
+  # is on the same line for 'Inconsistency detected' and in the 'Failed to
+  # apply' lines just before the others.
+  expr_inconsistency: '^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* .*(?:WSREP: |\[Galera\] )(?:Inconsistency detected|Node consistency compromi[sz]ed)'
+  # gcomm/src/evs_proto.cpp logs this when the group communication thread
+  # did not run for longer than 3*evs.inactive_check_period e.g.
+  #   [Warning] WSREP: last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT7.06839S), skipping check
+  # Only gaps of 5 seconds (the default evs.suspect_timeout) or more are
+  # matched; a custom evs.suspect_timeout is not taken into account.
+  expr_inactive: '^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* .*last inactive check more than \S+ (?:\(3\*evs\.inactive_check_period\) )?ago \((P(?:\d+[YMD])+\S*|PT(?:\d+H|\d+M|[5-9]|\d{2,})\S*)\), skipping check'
+checks:
+  using_percona_cluster:
+    apt: percona-xtradb-cluster-server
+  galera_inconsistency:
+    input:
+      path: 'var/log/mysql/error.log'
+    search:
+      expr: $expr_inconsistency
+      hint: 'consistency'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  galera_inactive_check_skipped:
+    input:
+      path: 'var/log/mysql/error.log'
+    search:
+      expr: $expr_inactive
+      hint: 'last inactive check'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  galera-inconsistency:
+    decision:
+      - using_percona_cluster
+      - galera_inconsistency
+    raises:
+      type: MySQLWarning
+      message: >-
+        This Percona XtraDB Cluster node logged {count} Galera
+        inconsistency message(s) on {dates} in /var/log/mysql/error.log, so
+        it failed to apply a write-set and mysqld aborted (PXC 5.7) or the
+        node left the cluster (PXC 8.0) to protect the data. Please check
+        the 'Failed to apply' and 'Could not execute' errors logged just
+        before them to find the cause, please check whether this node is
+        back in the cluster (wsrep_cluster_status,
+        wsrep_local_state_comment) and please rebuild it with a full SST if
+        it stays out of the cluster.
+      format-dict:
+        count: '@checks.galera_inconsistency.search.num_results'
+        dates: '@checks.galera_inconsistency.search.results_group_1:unique_comma_join'
+  galera-inactive-check-skipped:
+    decision:
+      - using_percona_cluster
+      - galera_inactive_check_skipped
+    raises:
+      type: MySQLWarning
+      message: >-
+        This Percona XtraDB Cluster node logged {count} Galera 'last
+        inactive check ... skipping check' warning(s) with gaps of 5
+        seconds or more on {dates} in /var/log/mysql/error.log, so its
+        group communication stalled and other nodes may have suspected it.
+        Please check CPU steal, swap and disk latency on this host at the
+        times of those warnings.
+      format-dict:
+        count: '@checks.galera_inactive_check_skipped.search.num_results'
+        dates: '@checks.galera_inactive_check_skipped.search.results_group_1:unique_comma_join'
