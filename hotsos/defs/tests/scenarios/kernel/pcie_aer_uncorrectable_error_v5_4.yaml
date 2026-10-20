@@ -1,0 +1,25 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # 5.4 format: every line has the 'AER: ' prefix. A successful recovery
+    # is not reported.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621690] pcieport 0000:3a:00.0: AER: Uncorrected (Non-Fatal) error received: 0000:3b:00.0
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] nvme 0000:3b:00.0: AER: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] nvme 0000:3b:00.0: AER:   device [8086:0a54] error status/mask=00004000/00400000
+      Feb 10 10:48:13 compute4 kernel: [1694413.621696] nvme 0000:3b:00.0: AER:    [14] CmpltTO                (First)
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] pcieport 0000:3a:00.0: AER: Device recovery successful
+      Feb 10 10:50:13 compute4 kernel: [1694533.621694] pcieport 0000:00:1c.0: AER: PCIe Bus Error: severity=Uncorrected (Fatal), type=Inaccessible, (Unregistered Agent ID)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged 1 fatal uncorrectable PCIe AER error(s) for pcieport
+    0000:00:1c.0 in the last 24 hours and tried to recover by resetting the
+    link or device. Please check the AER lines in kern.log, 'lspci -vv' and the
+    device, slot and firmware for hardware faults.
+  KernelWarning: >-
+    The kernel logged 1 non-fatal uncorrectable PCIe AER error(s) for nvme
+    0000:3b:00.0 in the last 24 hours, so PCIe transactions to these devices
+    failed. Please check the AER status lines in kern.log, 'lspci -vv' and the
+    device, slot and firmware for hardware faults.
