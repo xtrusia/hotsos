@@ -1,0 +1,38 @@
+vars:
+  # Lines start with either a legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent.
+  # Rate limited message from neigh_alloc() in net/core/neighbour.c,
+  # logged when a table has reached gc_thresh3 and forced GC could not free
+  # an entry, e.g.
+  #   neighbour: arp_cache: neighbor table overflow!
+  # Group 2 is the table name.
+  expr: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?neighbour: (\S+): neighbor table overflow!'
+checks:
+  neigh_overflow:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  neighbour-table-overflow:
+    decision: neigh_overflow
+    raises:
+      type: NetworkWarning
+      message: >-
+        The kernel logged {count} 'neighbor table overflow!'
+        message(s) for {tables} in the last 24 hours, so new neighbour
+        entries could not be created and traffic to some hosts may have
+        been dropped. Please check table_fulls and entries of those
+        tables in 'ip -s ntable show', which cover all network
+        namespaces, and please raise
+        net.ipv4.neigh.default.gc_thresh1/2/3 (arp_cache) or
+        net.ipv6.neigh.default.gc_thresh1/2/3 (ndisc_cache) if the
+        workload needs more neighbours than gc_thresh3.
+      format-dict:
+        count: '@checks.neigh_overflow.search.num_results'
+        tables: '@checks.neigh_overflow.search.results_group_2:unique_comma_join'
