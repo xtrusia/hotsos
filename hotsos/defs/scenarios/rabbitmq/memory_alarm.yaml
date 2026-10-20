@@ -1,0 +1,75 @@
+vars:
+  # rabbit_alarm.erl handle_set_resource_alarm() e.g.
+  #   2022-02-10 08:48:13.123 [warning] <0.217.0> memory resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-5'.
+  # The time has microseconds and an offset on 3.9+ and the node is quoted
+  # when its name needs quoting. Group 3 is the node. RabbitMQ 3.6 logs in a
+  # different format and is not covered.
+  expr_logged: '^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* \[\w+\] (?:<[^>]+> )?memory resource limit alarm set on node ''?([^''\s]+)''?\.'
+  # Alarms section of 'rabbitmqctl report' (3.8+, alarm_lines() in
+  # rabbitmq_cli), either one line per alarm or '(none)'. This is the state
+  # when the report was taken, so it has no timestamp.
+  expr_active: '^Memory alarm on node (\S+)$'
+  # In the cluster status part of the report the Alarms section is followed
+  # by Network Partitions, so a report with this heading has a complete
+  # Alarms section. The heading may be wrapped in bold escape codes.
+  expr_partitions_heading: '^(?:\x1b\[1m)?Network Partitions(?:\x1b\[0m)?$'
+checks:
+  alarm_logged:
+    input: 'var/log/rabbitmq/rabbit@*.log'
+    search:
+      expr: $expr_logged
+      hint: 'resource limit alarm set'
+      constraints:
+        search-result-age-hours: 24
+  alarm_active:
+    input:
+      command: rabbitmqctl_report
+    search: $expr_active
+  report_alarms_complete:
+    input:
+      command: rabbitmqctl_report
+    search: $expr_partitions_heading
+# An alarm that is still set was also logged when it was set. A complete
+# Alarms section in the report tells whether a logged alarm had cleared.
+conclusions:
+  rabbitmq-memory-alarm-active:
+    priority: 3
+    decision: alarm_active
+    raises:
+      type: RabbitMQWarning
+      message: >-
+        rabbitmqctl report showed a memory alarm on node(s) {nodes} when it
+        was collected, so publishers on all nodes of the cluster were
+        blocked. Please check memory use on those nodes with
+        'rabbitmq-diagnostics memory_breakdown' and please drain or limit
+        large queue backlogs.
+      format-dict:
+        nodes: '@checks.alarm_active.search.results_group_1:unique_comma_join'
+  rabbitmq-memory-alarm-cleared:
+    priority: 2
+    decision:
+      - alarm_logged
+      - report_alarms_complete
+    raises:
+      type: RabbitMQWarning
+      message: >-
+        RabbitMQ logged a memory alarm on node(s) {nodes} on {dates}, which
+        blocked publishers on all nodes of the cluster until it cleared.
+        Please check the queue backlogs and the RabbitMQ log around that
+        time to find what used the memory.
+      format-dict:
+        nodes: '@checks.alarm_logged.search.results_group_3:unique_comma_join'
+        dates: '@checks.alarm_logged.search.results_group_1:unique_comma_join'
+  rabbitmq-memory-alarm-logged:
+    priority: 1
+    decision: alarm_logged
+    raises:
+      type: RabbitMQWarning
+      message: >-
+        RabbitMQ logged a memory alarm on node(s) {nodes} on {dates}, which
+        blocks publishers on all nodes of the cluster while set. Please check
+        with 'rabbitmq-diagnostics alarms' whether it is still set and please
+        check memory use with 'rabbitmq-diagnostics memory_breakdown'.
+      format-dict:
+        nodes: '@checks.alarm_logged.search.results_group_3:unique_comma_join'
+        dates: '@checks.alarm_logged.search.results_group_1:unique_comma_join'

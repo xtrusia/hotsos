@@ -1,0 +1,22 @@
+data-root:
+  files:
+    # 3.8 (lager) and 3.9+ (logger) formats and a node name with dots. A
+    # disk alarm is not counted. No report, so it is not known whether the
+    # alarms are still set.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-09 20:15:01.123 [warning] <0.217.0> memory resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-5'.
+
+      **********************************************************
+      *** Publishers will be blocked until this alarm clears ***
+      **********************************************************
+      2022-02-10 08:48:13.621690+00:00 [warning] <0.218.0> disk resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-6'.
+      2022-02-10 08:50:13.621690+00:00 [warning] <0.218.0> memory resource limit alarm set on node 'rabbit@mq-1.maas'.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  RabbitMQWarning: >-
+    RabbitMQ logged a memory alarm on node(s) rabbit@juju-04f1e3-1-lxd-5,
+    rabbit@mq-1.maas on 2022-02-09, 2022-02-10, which blocks publishers on
+    all nodes of the cluster while set. Please check with
+    'rabbitmq-diagnostics alarms' whether it is still set and please check
+    memory use with 'rabbitmq-diagnostics memory_breakdown'.

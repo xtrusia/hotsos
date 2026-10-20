@@ -1,0 +1,21 @@
+target-name: memory_alarm.yaml
+data-root:
+  files:
+    # No memory alarm set in the log and none in the report.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-10 08:58:13.621690+00:00 [warning] <0.218.0> memory resource limit alarm cleared on node 'rabbit@juju-04f1e3-1-lxd-5'
+      2022-02-10 08:58:13.621695+00:00 [warning] <0.218.0> memory resource limit alarm cleared across the cluster
+    sos_commands/rabbitmq/rabbitmqctl_report: |
+      Status of node rabbit@juju-04f1e3-1-lxd-5 ...
+
+      Alarms
+
+      (none)
+
+      Network Partitions
+
+      (none)
+
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
