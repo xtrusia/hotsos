@@ -1,0 +1,24 @@
+data-root:
+  files:
+    # 3.8 (lager) and 3.9+ (logger, [warning] or [warn]) formats. A memory
+    # alarm is not counted. No report, so it is not known whether the
+    # alarms are still set.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-09 20:15:01.123 [warning] <0.217.0> memory resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-5'.
+      2022-02-09 20:16:01.123 [warning] <0.218.0> disk resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-5'.
+
+      **********************************************************
+      *** Publishers will be blocked until this alarm clears ***
+      **********************************************************
+      2022-02-10 08:48:13.621600+00:00 [info] <0.218.0> Free disk space is insufficient. Free bytes: 41943040. Limit: 50000000
+      2022-02-10 08:48:13.621690+00:00 [warn] <0.218.0> disk resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-6'.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  RabbitMQWarning: >-
+    RabbitMQ logged a free disk space alarm on node(s)
+    rabbit@juju-04f1e3-1-lxd-5, rabbit@juju-04f1e3-1-lxd-6 on 2022-02-09,
+    2022-02-10, which blocks publishers on all nodes of the cluster while
+    set. Please check with 'rabbitmq-diagnostics alarms' whether it is
+    still set and please free space on the filesystem holding the RabbitMQ
+    data directory.

@@ -1,0 +1,30 @@
+target-name: memory_alarm.yaml
+data-root:
+  files:
+    # The report shows the alarm is still set.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-09 20:15:01.123 [warning] <0.217.0> memory resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-5'.
+
+      **********************************************************
+      *** Publishers will be blocked until this alarm clears ***
+      **********************************************************
+    sos_commands/rabbitmq/rabbitmqctl_report: |
+      Cluster status of node rabbit@juju-04f1e3-1-lxd-5 ...
+
+      Alarms
+
+      Memory alarm on node rabbit@juju-04f1e3-1-lxd-5
+
+      Network Partitions
+
+      (none)
+
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  RabbitMQWarning: >-
+    rabbitmqctl report showed a memory alarm on node(s)
+    rabbit@juju-04f1e3-1-lxd-5 when it was collected, so publishers on all
+    nodes of the cluster were blocked. Please check memory use on those
+    nodes with 'rabbitmq-diagnostics memory_breakdown' and please drain or
+    limit large queue backlogs.
