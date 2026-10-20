@@ -1,0 +1,10 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621690] pcieport 0000:00:1c.0: AER: Uncorrected (Fatal) error received: 0000:3b:00.0
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] nvme 0000:3b:00.0: AER: PCIe Bus Error: severity=Uncorrected (Fatal), type=Inaccessible, (Unregistered Agent ID)
+      Feb  1 10:48:15 compute4 kernel: [1694415.621694] pcieport 0000:00:1c.0: AER: device recovery failed
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

@@ -1,0 +1,24 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # Recovery failed below port 0000:00:1c.0 after a fatal error.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621690] pcieport 0000:00:1c.0: AER: Uncorrected (Fatal) error received: 0000:3b:00.0
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] nvme 0000:3b:00.0: AER: PCIe Bus Error: severity=Uncorrected (Fatal), type=Inaccessible, (Unregistered Agent ID)
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] pcieport 0000:00:1c.0: AER: device recovery failed
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError:
+    - >-
+      The kernel logged 1 fatal PCIe AER error(s) in the last 24 hours for
+      nvme 0000:3b:00.0. A fatal error makes the PCIe link unreliable and
+      the kernel resets the link or the device to recover. Please check the
+      full AER lines and 'lspci -vv' output for these devices, and the
+      device, slot and firmware for hardware faults.
+    - >-
+      PCIe error recovery failed for 0000:00:1c.0 in the last 24 hours, so
+      these devices and any devices below them may no longer be usable.
+      Please check the PCIe or hardware error lines logged before the
+      failure, 'lspci -vv' for these devices and the devices below them,
+      and the device, slot and firmware for hardware faults.

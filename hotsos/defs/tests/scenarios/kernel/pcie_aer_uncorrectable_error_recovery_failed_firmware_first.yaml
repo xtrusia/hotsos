@@ -1,0 +1,19 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # Firmware-first (GHES) error with no "PCIe Bus Error" line; the
+    # recovery failure is still reported.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621690] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 3
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] nvme 0000:3b:00.0: AER: aer_status: 0x00004000, aer_mask: 0x00000000
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] nvme 0000:3b:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] pcieport 0000:3a:00.0: AER: device recovery failed
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    PCIe error recovery failed for 0000:3a:00.0 in the last 24 hours, so
+    these devices and any devices below them may no longer be usable.
+    Please check the PCIe or hardware error lines logged before the
+    failure, 'lspci -vv' for these devices and the devices below them, and
+    the device, slot and firmware for hardware faults.
