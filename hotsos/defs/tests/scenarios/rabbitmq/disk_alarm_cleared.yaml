@@ -1,0 +1,29 @@
+target-name: disk_alarm.yaml
+data-root:
+  files:
+    # The alarm cleared and the report shows none. Publishers were still
+    # blocked for 10 minutes, so the cleared alarm is reported.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-10 08:48:13.621690+00:00 [warning] <0.218.0> disk resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-6'.
+      2022-02-10 08:58:13.621690+00:00 [warning] <0.218.0> disk resource limit alarm cleared on node 'rabbit@juju-04f1e3-1-lxd-6'
+      2022-02-10 08:58:13.621695+00:00 [warning] <0.218.0> disk resource limit alarm cleared across the cluster
+    sos_commands/rabbitmq/rabbitmqctl_report: |
+      Status of node rabbit@juju-04f1e3-1-lxd-5 ...
+
+      Alarms
+
+      (none)
+
+      Network Partitions
+
+      (none)
+
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  RabbitMQWarning: >-
+    RabbitMQ logged a free disk space alarm on node(s)
+    rabbit@juju-04f1e3-1-lxd-6 on 2022-02-10, which blocked publishers on
+    all nodes of the cluster until it cleared. Please check what filled the
+    filesystem holding the RabbitMQ data directory to stop it from
+    happening again.

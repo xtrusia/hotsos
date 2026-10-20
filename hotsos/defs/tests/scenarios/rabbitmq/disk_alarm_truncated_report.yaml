@@ -1,0 +1,21 @@
+target-name: disk_alarm.yaml
+data-root:
+  files:
+    # The report is cut off after the Alarms heading, so it is not known
+    # whether the alarm is still set.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-10 08:48:13.621690+00:00 [warning] <0.218.0> disk resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-6'.
+    sos_commands/rabbitmq/rabbitmqctl_report: |
+      Cluster status of node rabbit@juju-04f1e3-1-lxd-5 ...
+
+      Alarms
+
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  RabbitMQWarning: >-
+    RabbitMQ logged a free disk space alarm on node(s)
+    rabbit@juju-04f1e3-1-lxd-6 on 2022-02-10, which blocks publishers on
+    all nodes of the cluster while set. Please check with
+    'rabbitmq-diagnostics alarms' whether it is still set and please free
+    space on the filesystem holding the RabbitMQ data directory.

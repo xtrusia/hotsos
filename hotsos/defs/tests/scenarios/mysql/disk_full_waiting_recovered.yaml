@@ -1,0 +1,17 @@
+target-name: disk_full_waiting.yaml
+data-root:
+  files:
+    # mysqld was restarted after the disk full error. Recovery is not logged,
+    # so it is still reported.
+    var/log/mysql/error.log: |
+      2022-02-10T08:40:30.123456Z 5 [ERROR] Disk is full writing './relay-bin.000003' (Errcode: 28 - No space left on device). Waiting for someone to free space...
+      2022-02-10T08:45:30.123456Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.28-0ubuntu0.20.04.3'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  (Ubuntu).
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  MySQLWarning: >-
+    MySQL logged 'Disk is full writing' errors (No space left on device) on
+    2022-02-10 for ./relay-bin.000003, so writes to these files were blocked
+    waiting for free space. Please check free space, inodes and the mysql
+    user's quota there and please free space, purging only binary logs that
+    replicas and backups no longer need.
