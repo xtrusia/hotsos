@@ -1,0 +1,32 @@
+checks:
+  clocksource_unstable:
+    input:
+      path: 'var/log/kern.log'
+    expr: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[.*\] )?clocksource: timekeeping watchdog on CPU\d+: Marking clocksource \x27(\S+)\x27 as unstable because the skew is too large'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  kernel-clocksource-unstable:
+    decision: clocksource_unstable
+    raises:
+      type: KernelWarning
+      message: >-
+        kern.log reports {count} time(s) in the last 24 hours that
+        the kernel clocksource watchdog marked a clocksource as
+        unstable because its skew against the watchdog clocksource
+        was too large (clocksources: {clocks}). The kernel stops
+        using an unstable clocksource until the next reboot and
+        switches to another one (look for 'Switched to clocksource'
+        after it), which for 'tsc' usually means a slower
+        clocksource such as hpet or acpi_pm and more overhead for
+        every time read. On virtual machines and busy hosts the skew
+        can also come from delays in the watchdog itself rather than
+        from a broken clock. This may no longer be occurring, but
+        the switch lasts until reboot; check the current clocksource
+        (the current_clocksource file of clocksource0 in sysfs), the
+        lines that follow the message for the measured skew, and the
+        host or hypervisor load and firmware settings.
+      format-dict:
+        count: '@checks.clocksource_unstable.search.num_results'
+        clocks: '@checks.clocksource_unstable.search.results_group_2:unique_comma_join'

@@ -1,0 +1,29 @@
+target-name: clocksource_unstable.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] clocksource: timekeeping watchdog on CPU5: Marking clocksource 'tsc' as unstable because the skew is too large:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] clocksource: timekeeping watchdog on CPU5: Marking clocksource 'tsc' as unstable because the skew is too large:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] clocksource:                       'hpet' wd_now: 6b2d8a4c wd_last: 6a1f3e10 mask: ffffffff
+      Feb 10 10:48:13 compute4 kernel: [1694413.621696] tsc: Marking TSC unstable due to clocksource watchdog
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] clocksource: Switched to clocksource hpet
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: clocksource: timekeeping watchdog on CPU0: Marking clocksource 'kvm-clock' as unstable because the skew is too large:
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    kern.log reports 2 time(s) in the last 24 hours that the kernel
+    clocksource watchdog marked a clocksource as unstable because
+    its skew against the watchdog clocksource was too large
+    (clocksources: kvm-clock, tsc). The kernel stops using an
+    unstable clocksource until the next reboot and switches to
+    another one (look for 'Switched to clocksource' after it), which
+    for 'tsc' usually means a slower clocksource such as hpet or
+    acpi_pm and more overhead for every time read. On virtual
+    machines and busy hosts the skew can also come from delays in
+    the watchdog itself rather than from a broken clock. This may no
+    longer be occurring, but the switch lasts until reboot; check
+    the current clocksource (the current_clocksource file of
+    clocksource0 in sysfs), the lines that follow the message for
+    the measured skew, and the host or hypervisor load and firmware
+    settings.

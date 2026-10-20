@@ -1,0 +1,11 @@
+target-name: clocksource_unstable.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Jan  1 10:48:13 compute4 kernel: [1694413.621694] clocksource: timekeeping watchdog on CPU5: Marking clocksource 'tsc' as unstable because the skew is too large:
+      2022-01-02T10:48:13.123456+00:00 compute4 kernel: clocksource: timekeeping watchdog on CPU0: Marking clocksource 'kvm-clock' as unstable because the skew is too large:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621696] tsc: Marking TSC unstable due to clocksource watchdog
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] clocksource: Switched to clocksource hpet
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x2b3e8b4d6d1, max_idle_ns: 440795301357 ns
+  copy-from-original:
+    - sos_commands/date/date
