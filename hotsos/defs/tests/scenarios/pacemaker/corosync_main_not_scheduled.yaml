@@ -1,0 +1,22 @@
+data-root:
+  files:
+    # corosync.log (2.4 and 3.0.4+ formats). The same event in syslog
+    # (RFC3339) is not counted again.
+    var/log/corosync/corosync.log: |
+      Feb 09 20:15:01 [1234] juju-04f1e3-1-lxd-5 corosync warning [MAIN  ] Corosync main process was not scheduled for 2652.4536 ms (threshold is 2400.0000 ms). Consider token timeout increase.
+      Feb 10 08:48:13.621 [1234] juju-04f1e3-1-lxd-5 corosync warning [MAIN  ] Corosync main process was not scheduled (@1644482893621) for 3203.1230 ms (threshold is 2400.0000 ms). Consider token timeout increase.
+      Feb 10 08:48:13.700 [1234] juju-04f1e3-1-lxd-5 corosync notice  [TOTEM ] Token has not been received in 2250 ms
+    var/log/syslog: |
+      2022-02-10T08:48:13.621690+00:00 juju-04f1e3-1-lxd-5 corosync[1234]:   [MAIN  ] Corosync main process was not scheduled (@1644482893621) for 3203.1230 ms (threshold is 2400.0000 ms). Consider token timeout increase.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  PacemakerWarning: >-
+    corosync logged 2 'Corosync main process was not scheduled' warning(s)
+    in corosync.log on Feb 09, Feb 10, so its main process was not
+    scheduled for more than 2400.0000 ms (80% of the token timeout) and it
+    may have handled totem messages late, which can lead to a membership
+    change or a resource failover. Please check CPU load, steal time and
+    memory pressure on this node and its hypervisor at the times of those
+    warnings, and please increase the corosync token timeout if such pauses
+    are expected.
