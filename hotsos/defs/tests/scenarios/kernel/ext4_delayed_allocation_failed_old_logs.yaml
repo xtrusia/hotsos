@@ -1,0 +1,11 @@
+target-name: ext4_delayed_allocation_failed.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Jan  1 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs (dm-3): Delayed block allocation failed for inode 524301 at logical offset 2048 with max blocks 256 with error 28
+      2022-01-02T10:48:13.123456+00:00 compute4 kernel: EXT4-fs (sdb1): Delayed block allocation failed for inode 1234 at logical offset 10 with max blocks 2 with error 5
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] EXT4-fs (dm-3): This should not happen!! Data will be lost
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] EXT4-fs (dm-3): mounted filesystem with ordered data mode. Opts: (null)
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] EXT4-fs warning (device dm-3): ext4_dx_add_entry:2351: inode #524301: comm rsync: Directory index full!
+  copy-from-original:
+    - sos_commands/date/date

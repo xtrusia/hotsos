@@ -1,0 +1,28 @@
+target-name: ext4_delayed_allocation_failed.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs (sdc1): Delayed block allocation failed for inode 11 at logical offset 0 with max blocks 1 with error 28
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs (dm-3): Delayed block allocation failed for inode 524301 at logical offset 2048 with max blocks 256 with error 28
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] EXT4-fs (dm-3): This should not happen!! Data will be lost
+      Feb 10 10:48:13 compute4 kernel: [1694413.621696] EXT4-fs (dm-3): Total free blocks count 0
+      Feb 10 10:50:13 compute4 kernel: [1694533.621694] EXT4-fs (dm-3): Delayed block allocation failed for inode 524302 at logical offset 0 with max blocks 16 with error 28
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: EXT4-fs (sdb1): Delayed block allocation failed for inode 1234 at logical offset 10 with max blocks 2 with error 5
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    kern.log reports 3 time(s) in the last 24 hours that ext4 could
+    not allocate blocks for delayed-allocation data during writeback
+    on dm-3, sdb1 ('Delayed block allocation failed for inode ...
+    with error N', errors: 28, 5), followed by 'This should not
+    happen!! Data will be lost'. The data that the application had
+    already written into the page cache could not be written to disk
+    and was discarded, so files on that filesystem can be missing
+    data even though the write calls succeeded. Error 28 (ENOSPC)
+    means the filesystem was full, other errors such as 5 (EIO) or
+    117 (EFSCORRUPTED) point at an I/O error or filesystem
+    corruption. This may no longer be occurring; check free space
+    and inodes on the filesystem (df -h, df -i), look for I/O or
+    EXT4-fs errors around the same time, and check the files written
+    then by the affected applications.

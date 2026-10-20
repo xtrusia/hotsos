@@ -1,0 +1,33 @@
+checks:
+  ext4_delalloc_failed:
+    input:
+      path: 'var/log/kern.log'
+    expr: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[.*\] )?EXT4-fs \(([^)]+)\): Delayed block allocation failed for inode \d+ at logical offset \d+ with max blocks \d+ with error (\d+)'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  kernel-ext4-delayed-allocation-failed:
+    decision: ext4_delalloc_failed
+    raises:
+      type: KernelError
+      message: >-
+        kern.log reports {count} time(s) in the last 24 hours that
+        ext4 could not allocate blocks for delayed-allocation data
+        during writeback on {devs} ('Delayed block allocation failed
+        for inode ... with error N', errors: {errnos}), followed by
+        'This should not happen!! Data will be lost'. The data that
+        the application had already written into the page cache
+        could not be written to disk and was discarded, so files on
+        that filesystem can be missing data even though the write
+        calls succeeded. Error 28 (ENOSPC) means the filesystem was
+        full, other errors such as 5 (EIO) or 117 (EFSCORRUPTED)
+        point at an I/O error or filesystem corruption. This may no
+        longer be occurring; check free space and inodes on the
+        filesystem (df -h, df -i), look for I/O or EXT4-fs errors
+        around the same time, and check the files written then by
+        the affected applications.
+      format-dict:
+        count: '@checks.ext4_delalloc_failed.search.num_results'
+        devs: '@checks.ext4_delalloc_failed.search.results_group_2:unique_comma_join'
+        errnos: '@checks.ext4_delalloc_failed.search.results_group_3:unique_comma_join'
