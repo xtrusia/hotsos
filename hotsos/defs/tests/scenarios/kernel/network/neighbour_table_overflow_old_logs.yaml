@@ -1,0 +1,10 @@
+target-name: neighbour_table_overflow.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      2022-02-01T20:15:01.654321+00:00 compute4 kernel: [1700000.000001] neighbour: arp_cache: neighbor table overflow!
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] neighbour: arp_cache: neighbor table overflow!
+      2022-02-01T11:02:45.123456+00:00 compute4 kernel: neighbour: ndisc_cache: neighbor table overflow!
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

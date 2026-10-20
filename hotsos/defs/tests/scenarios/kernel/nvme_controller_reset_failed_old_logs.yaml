@@ -1,0 +1,10 @@
+target-name: nvme_controller_reset.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:28:35 host1 kernel: [1694413.621694] nvme nvme0: I/O tag 12 (000c) opcode 0x2 (I/O Cmd) QID 3 timeout, reset controller
+      2022-02-01T10:30:35.123456+00:00 host1 kernel: nvme nvme1: controller is down; will reset: CSTS=0xffffffff, PCI_STATUS=0xffff
+      2022-02-01T10:31:37.123456+00:00 host1 kernel: nvme nvme1: Disabling device after reset failure: -19
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

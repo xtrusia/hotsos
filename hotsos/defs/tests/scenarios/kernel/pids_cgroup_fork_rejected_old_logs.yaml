@@ -1,0 +1,11 @@
+target-name: pids_cgroup_fork_rejected.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] cgroup: fork rejected by pids controller in /system.slice/containerd.service
+      Feb  1 10:48:14 compute4 kernel: [1694414.621694] cgroup: cgroup2: unknown option "nsdelegate2"
+      2022-02-01T11:02:44.123456+00:00 compute4 kernel: cgroup: fork rejected by pids controller in /system.slice/docker.service
+      2022-02-01T11:05:01.123456+00:00 compute4 kernel: cgroup: fork rejected by pids controller in /batch jobs/worker
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

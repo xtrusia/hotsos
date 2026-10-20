@@ -1,0 +1,15 @@
+data-root:
+  files:
+    var/log/kern.log: |
+      2022-02-09T20:15:01.654321+00:00 compute4 kernel: [1700000.000001] neighbour: arp_cache: neighbor table overflow!
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] neighbour: arp_cache: neighbor table overflow!
+      2022-02-10T11:02:45.123456+00:00 compute4 kernel: neighbour: ndisc_cache: neighbor table overflow!
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  NetworkWarning: >-
+    The kernel logged 3 'neighbor table overflow!' message(s) for arp_cache,
+    ndisc_cache in the last 24 hours, so new neighbour entries were not created
+    and traffic to some hosts may have been dropped. Please check table_fulls
+    in 'ip -s ntable show' and please raise the
+    net.ipv4/ipv6.neigh.default.gc_thresh* sysctls if needed.
