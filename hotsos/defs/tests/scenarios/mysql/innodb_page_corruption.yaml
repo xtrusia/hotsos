@@ -1,0 +1,21 @@
+data-root:
+  files:
+    # 5.7 and 8.0 formats.
+    var/log/mysql/error.log: |
+      2022-02-09T20:15:01.123456Z 0 [ERROR] InnoDB: Database page corruption on disk or a failed file read of page [page id: space=12, page number=345]. You may have to recover from a backup.
+      2022-02-10T08:48:13.621690Z 9 [ERROR] [MY-011906] [InnoDB] Database page corruption on disk or a failed file read of page [page id: space=15, page number=346]. You may have to recover from a backup.
+      2022-02-10T08:48:13.621700Z 9 [Note] [MY-011907] [InnoDB] It is also possible that your operating system has corrupted its own file cache and rebooting your computer removes the error. If the corrupt page is an index page. You can also try to fix the corruption by dumping, dropping, and reimporting the corrupt table. You can use CHECK TABLE to scan your table for corruption.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  MySQLWarning: >-
+    MySQL logged 2 InnoDB 'Database page corruption on disk or a failed
+    file read' error(s) for tablespace id(s) 12, 15 on 2022-02-09,
+    2022-02-10, so the affected tables may be unreadable. Please check the
+    kernel log for I/O errors on the device holding the MySQL data
+    directory, please find the tables with those SPACE ids in
+    INFORMATION_SCHEMA.INNODB_TABLES (8.0) or INNODB_SYS_TABLES (5.7),
+    please check them with innochecksum on a stopped server or a copy of
+    the data directory (CHECK TABLE can make mysqld exit on a corrupt page)
+    and please restore them from a backup or rebuild the node from a
+    healthy peer if they are still corrupted.
