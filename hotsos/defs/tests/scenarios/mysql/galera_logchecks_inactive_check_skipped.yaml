@@ -1,0 +1,23 @@
+target-name: galera_logchecks.yaml
+data-root:
+  files:
+    # Gaps under 5 seconds are not counted. The last line has no
+    # (3*evs.inactive_check_period) as logged by Codership Galera.
+    sos_commands/dpkg/dpkg_-l: |
+      ii  percona-xtradb-cluster-server     5.7.20-29.24-0ubuntu2.1 all          Percona XtraDB Cluster database server
+      ii  percona-xtradb-cluster-server-5.7 5.7.20-29.24-0ubuntu2.1 amd64        Percona XtraDB Cluster database server binaries
+    var/log/mysql/error.log: |
+      2022-02-09T20:15:01.123456Z 0 [Warning] WSREP: last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT7.06839S), skipping check
+      2022-02-10T08:48:13.621690Z 0 [Warning] [MY-000000] [Galera] last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT1M5.30501S), skipping check
+      2022-02-10T08:49:13.621690Z 0 [Warning] [MY-000000] [Galera] last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT2.54159S), skipping check
+      2022-02-10T08:50:13.621690Z 0 [Warning] [MY-000000] [Galera] last inactive check more than PT1.5S ago (PT5S), skipping check
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  MySQLWarning: >-
+    This Percona XtraDB Cluster node logged 3 Galera 'last inactive check
+    ... skipping check' warning(s) with gaps of 5 seconds or more on
+    2022-02-09, 2022-02-10 in /var/log/mysql/error.log, so its group
+    communication stalled and other nodes may have suspected it. Please
+    check CPU steal, swap and disk latency on this host at the times of
+    those warnings.
