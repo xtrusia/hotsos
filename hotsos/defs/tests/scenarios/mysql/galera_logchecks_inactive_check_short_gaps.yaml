@@ -1,0 +1,14 @@
+target-name: galera_logchecks.yaml
+data-root:
+  files:
+    # Only gaps under 5 seconds and no inconsistency.
+    sos_commands/dpkg/dpkg_-l: |
+      ii  percona-xtradb-cluster-server     5.7.20-29.24-0ubuntu2.1 all          Percona XtraDB Cluster database server
+      ii  percona-xtradb-cluster-server-5.7 5.7.20-29.24-0ubuntu2.1 amd64        Percona XtraDB Cluster database server binaries
+    var/log/mysql/error.log: |
+      2022-02-10T08:49:13.621690Z 0 [Warning] [MY-000000] [Galera] last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT2.54159S), skipping check
+      2022-02-10T08:50:13.621690Z 0 [Warning] WSREP: last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT4.99S), skipping check
+      2022-02-10T08:51:13.621690Z 0 [Note] WSREP: Member 1.0 (juju-04f1e3-1-lxd-6) synced with group.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

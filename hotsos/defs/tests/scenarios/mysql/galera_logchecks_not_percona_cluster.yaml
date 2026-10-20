@@ -1,0 +1,16 @@
+target-name: galera_logchecks.yaml
+data-root:
+  files:
+    # Not Percona XtraDB Cluster, so nothing is raised.
+    sos_commands/dpkg/dpkg_-l: |
+      ii  mysql-server-8.0                  8.0.28-0ubuntu0.20.04.3 amd64        MySQL database server binaries and system database setup
+    var/log/mysql/error.log: |
+      2022-02-09T20:15:01.123456Z 2 [ERROR] Slave SQL: Could not execute Write_rows event on table test.t1; Duplicate entry '1' for key 'PRIMARY', Error_code: 1062; handler error HA_ERR_FOUND_DUPP_KEY; the event's master log FIRST, end_log_pos 140, Error_code: 1062
+      2022-02-09T20:15:01.123500Z 2 [ERROR] WSREP: Failed to apply trx 2410 4 times
+      2022-02-09T20:15:01.123510Z 2 [ERROR] WSREP: Node consistency compromized, aborting...
+      2022-02-10T06:12:44.101200Z 14 [ERROR] [MY-000000] [Galera] Node consistency compromized, leaving cluster...
+      2022-02-10T08:48:13.621690Z 11 [ERROR] [MY-000000] [Galera] Inconsistency detected: Inconsistent by consensus on 8a4e6b2c-8a1f-11ec-a0c4-1e2f3a4b5c6d:2411
+      2022-02-10T08:50:13.621690Z 0 [Warning] WSREP: last inactive check more than PT1.5S (3*evs.inactive_check_period) ago (PT7.06839S), skipping check
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
