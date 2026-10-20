@@ -1,0 +1,42 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the message) and group 2 the time.
+  # fs/ext4/inode.c mpage_map_and_submit_extent() (same string in v4.15,
+  # v5.4, v5.15 and v6.8), with the ext4_msg() prefix "EXT4-fs (<dev>): ".
+  # Group 3 is the device and group 4 the error number.
+  expr_ext4_delalloc_failed: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?EXT4-fs \(([^)]+)\): Delayed block allocation failed for inode \d+ at logical offset \d+ with max blocks \d+ with error (\d+)'
+checks:
+  ext4_delalloc_failed:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_ext4_delalloc_failed
+      hint: 'Delayed block allocation failed'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  kernel-ext4-delayed-allocation-failed:
+    decision: ext4_delalloc_failed
+    raises:
+      type: KernelError
+      message: >-
+        kern.log has ext4 'Delayed block allocation failed for inode
+        ... with error N' messages for {devs} (errors: {errnos}) on
+        {dates}. ext4 logs this, followed by 'This should not happen!!
+        Data will be lost', when it cannot allocate blocks during
+        writeback for data that applications had already written to
+        the page cache, and it then discards that data, so files on
+        that filesystem can be missing data even though the writes
+        succeeded. Error 28 (ENOSPC) means the filesystem had no free
+        blocks left (ext4 retries ENOSPC while free clusters remain);
+        other errors such as 5 (EIO) or 117 (EFSCORRUPTED) point at an
+        I/O error or filesystem corruption. Please check free space on
+        the filesystem (df -h), I/O or EXT4-fs errors around the same
+        time, and the files that applications wrote then.
+      format-dict:
+        devs: '@checks.ext4_delalloc_failed.search.results_group_3:unique_comma_join'
+        errnos: '@checks.ext4_delalloc_failed.search.results_group_4:unique_comma_join'
+        dates: '@checks.ext4_delalloc_failed.search.results_group_1:unique_comma_join'

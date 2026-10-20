@@ -1,0 +1,11 @@
+target-name: ext4_delayed_allocation_failed.yaml
+data-root:
+  files:
+    # ext4 lines that are not a delayed allocation failure.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] EXT4-fs (dm-3): This should not happen!! Data will be lost
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] EXT4-fs (dm-3): mounted filesystem with ordered data mode. Opts: (null)
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] EXT4-fs warning (device dm-3): ext4_dx_add_entry:2351: inode #524301: comm rsync: Directory index full!
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

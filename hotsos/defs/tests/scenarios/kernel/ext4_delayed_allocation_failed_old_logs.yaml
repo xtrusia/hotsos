@@ -1,0 +1,15 @@
+target-name: ext4_delayed_allocation_failed.yaml
+data-root:
+  files:
+    # The positive test lines, 3 days earlier (outside the 24 hour window).
+    var/log/kern.log: |
+      Feb  6 18:20:13 compute4 kernel: [1694413.621694] EXT4-fs (sdc1): Delayed block allocation failed for inode 11 at logical offset 0 with max blocks 1 with error 117
+      Feb  6 18:20:13 compute4 kernel: [1694413.621695] EXT4-fs (sdc1): This should not happen!! Data will be lost
+      Feb  7 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs (dm-3): Delayed block allocation failed for inode 524301 at logical offset 2048 with max blocks 256 with error 28
+      Feb  7 10:48:13 compute4 kernel: [1694413.621695] EXT4-fs (dm-3): This should not happen!! Data will be lost
+      Feb  7 10:48:13 compute4 kernel: [1694413.621696] EXT4-fs (dm-3): Total free blocks count 0
+      Feb  7 10:50:13 compute4 kernel: [1694533.621694] EXT4-fs (dm-3): Delayed block allocation failed for inode 524302 at logical offset 0 with max blocks 16 with error 28
+      2022-02-07T11:02:44.123456+00:00 compute4 kernel: EXT4-fs (sdb1): Delayed block allocation failed for inode 1234 at logical offset 10 with max blocks 2 with error 5
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
