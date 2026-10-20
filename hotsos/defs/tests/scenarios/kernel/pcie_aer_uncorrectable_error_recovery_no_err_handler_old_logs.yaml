@@ -1,0 +1,11 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      2022-02-01T10:48:13.621690+00:00 compute4 kernel: pcieport 0000:3a:00.0: AER: Uncorrectable (Non-Fatal) error message received from 0000:3b:00.0
+      2022-02-01T10:48:13.621694+00:00 compute4 kernel: ahci 0000:3b:00.0: PCIe Bus Error: severity=Uncorrectable (Non-Fatal), type=Transaction Layer, (Requester ID)
+      2022-02-01T10:48:13.621700+00:00 compute4 kernel: ahci 0000:3b:00.0: AER: can't recover (no error_detected callback)
+      2022-02-01T10:48:13.621710+00:00 compute4 kernel: pcieport 0000:3a:00.0: AER: device recovery failed
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

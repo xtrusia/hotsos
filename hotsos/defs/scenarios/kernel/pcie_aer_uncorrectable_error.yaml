@@ -1,0 +1,108 @@
+vars:
+  # Lines start with either a legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent.
+  # Uncorrectable errors from aer_print_error() in drivers/pci/pcie/aer.c e.g.
+  #   nvme 0000:3b:00.0: PCIe Bus Error: severity=Uncorrectable (Non-Fatal), type=Transaction Layer, (Requester ID)
+  #   pcieport 0000:00:1c.0: AER: PCIe Bus Error: severity=Uncorrected (Fatal), type=Inaccessible, (Unregistered Agent ID)
+  # The 'PCIe Bus Error' line has the 'AER: ' prefix only when it is
+  # printed with pci_err() (every line on 5.4, only the Inaccessible line
+  # on 5.15+). 6.8 renamed 'Uncorrected' to 'Uncorrectable' and 7.3
+  # prints 'PCIe Bus Error: severity=%s' or
+  # '... severity=%s (Inaccessible)'.
+  # 'CXL Bus Error' lines for CXL devices are out of scope.
+  # Corrected/Correctable errors are not matched. Group 2 is
+  # '<driver> <address>'.
+  expr_fatal: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?(\S+ [0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.\d): (?:AER: )?PCIe Bus Error: severity=Uncorrect(?:ed|able) \(Fatal\)'
+  expr_non_fatal: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?(\S+ [0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.\d): (?:AER: )?PCIe Bus Error: severity=Uncorrect(?:ed|able) \(Non-Fatal\)'
+  # End of pcie_do_recovery() in drivers/pci/pcie/err.c when recovery
+  # failed, logged for the port (or for an RCiEP itself) e.g.
+  #   pcieport 0000:00:1c.0: AER: device recovery failed
+  # (5.4 prints 'Device recovery failed'). Group 2 is the PCI address.
+  # This is also logged on firmware-first (APEI/GHES) platforms, which
+  # print the error with cper_print_aer() (pci_print_aer() since 6.7)
+  # instead of a 'PCIe Bus Error' line.
+  expr_recovery_failed: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?\S+ ([0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.\d): AER: [Dd]evice recovery failed'
+  # Since 5.6 report_error_detected() logs this for a device with no
+  # driver or whose driver has no error_detected callback (before 6.0 also
+  # for an invalid error state transition). Recovery then fails, after the
+  # link reset for a fatal error. Group 2 is '<driver> <address>'.
+  expr_no_err_handler: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?(\S+ [0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.\d): AER: can''t recover \(no error_detected callback\)'
+checks:
+  aer_fatal:
+    input: 'var/log/kern.log'
+    search:
+      expr: $expr_fatal
+      constraints:
+        search-result-age-hours: 24
+  aer_non_fatal:
+    input: 'var/log/kern.log'
+    search:
+      expr: $expr_non_fatal
+      constraints:
+        search-result-age-hours: 24
+  aer_recovery_failed:
+    input: 'var/log/kern.log'
+    search:
+      expr: $expr_recovery_failed
+      constraints:
+        search-result-age-hours: 24
+  aer_no_err_handler:
+    input: 'var/log/kern.log'
+    search:
+      expr: $expr_no_err_handler
+      constraints:
+        search-result-age-hours: 24
+# All conclusions have the same priority so every one that is reached is
+# raised and no device is left out of the report.
+conclusions:
+  pcie-aer-fatal-error:
+    decision: aer_fatal
+    raises:
+      type: KernelError
+      message: >-
+        The kernel logged {count} fatal uncorrectable PCIe AER error(s)
+        for {devices} in the last 24 hours and tried to recover by
+        resetting the link or device. Please check the AER lines in
+        kern.log, 'lspci -vv' and the device, slot and firmware for
+        hardware faults.
+      format-dict:
+        count: '@checks.aer_fatal.search.num_results'
+        devices: '@checks.aer_fatal.search.results_group_2:unique_comma_join'
+  pcie-aer-non-fatal-error:
+    decision: aer_non_fatal
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel logged {count} non-fatal uncorrectable PCIe AER
+        error(s) for {devices} in the last 24 hours, so PCIe
+        transactions to these devices failed. Please check the AER
+        status lines in kern.log, 'lspci -vv' and the device, slot and
+        firmware for hardware faults.
+      format-dict:
+        count: '@checks.aer_non_fatal.search.num_results'
+        devices: '@checks.aer_non_fatal.search.results_group_2:unique_comma_join'
+  pcie-aer-recovery-failed:
+    decision: aer_recovery_failed
+    raises:
+      type: KernelError
+      message: >-
+        PCIe error recovery failed for {ports} in the last 24 hours, so
+        these devices and the devices below them may no longer be
+        usable. Please check the error lines logged before the failure,
+        'lspci -vv' and the device, slot and firmware for hardware
+        faults.
+      format-dict:
+        ports: '@checks.aer_recovery_failed.search.results_group_2:unique_comma_join'
+  pcie-aer-recovery-no-err-handler:
+    decision: aer_no_err_handler
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel logged 'can't recover (no error_detected callback)'
+        for {devices} in the last 24 hours, usually because they have no
+        driver or one without AER error recovery support, so PCIe error
+        recovery failed. Please check that these devices still work.
+      format-dict:
+        devices: '@checks.aer_no_err_handler.search.results_group_2:unique_comma_join'
