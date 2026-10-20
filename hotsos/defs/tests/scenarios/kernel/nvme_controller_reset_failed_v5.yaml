@@ -1,0 +1,21 @@
+target-name: nvme_controller_reset.yaml
+data-root:
+  files:
+    # Format before 6.2.
+    var/log/kern.log: |
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] nvme nvme0: I/O 7 QID 0 timeout, reset controller
+      Feb 10 10:29:36 host1 kernel: [1694474.621694] nvme nvme0: Removing after probe failure status: -19
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    NVMe controller(s) nvme0 failed to initialise or to recover from a
+    reset on Feb 10 and were removed or disabled by the kernel. Please
+    check whether they are still listed by 'nvme list' and please check the
+    drive, slot and firmware for hardware faults.
+  KernelWarning: >-
+    The nvme driver logged 1 controller reset request(s) for nvme0 on Feb
+    10 because a controller was down or a command timed out, which stalls
+    I/O to that controller. Please check 'nvme smart-log
+    /dev/<controller>', the drive firmware and the surrounding kernel
+    messages for I/O errors.

@@ -1,0 +1,11 @@
+target-name: nvme_controller_reset.yaml
+data-root:
+  files:
+    # First stage timeouts that did not escalate to a reset.
+    var/log/kern.log: |
+      Feb 10 10:31:35 host1 kernel: [1694533.600000] nvme nvme0: I/O tag 12 (000c) opcode 0x2 (I/O Cmd) QID 3 timeout, aborting req_op:READ(0) size:4096
+      Feb 10 10:32:35 host1 kernel: [1694534.600000] nvme nvme0: I/O 7 QID 3 timeout, aborting
+      Feb 10 10:33:35 host1 kernel: [1694535.600000] nvme nvme0: I/O tag 12 (000c) QID 3 timeout, completion polled
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected
