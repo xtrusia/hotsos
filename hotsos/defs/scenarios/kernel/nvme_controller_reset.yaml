@@ -1,0 +1,60 @@
+vars:
+  # Lines start with either a legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent.
+  # Reset requests from nvme_warn_reset() and nvme_timeout() in
+  # drivers/nvme/host/pci.c e.g.
+  #   nvme nvme0: controller is down; will reset: CSTS=0xffffffff, PCI_STATUS=0xffff
+  #   nvme nvme0: I/O 7 QID 0 timeout, reset controller  (before 6.8)
+  #   nvme nvme0: I/O tag 12 (000c) opcode 0x2 (I/O Cmd) QID 3 timeout, reset controller  (6.8+)
+  # The opcode name depends on CONFIG_NVME_VERBOSE_ERRORS (e.g. '(Read)').
+  # First stage 'timeout, aborting' lines and 'timeout, disable controller'
+  # (a timeout while connecting, followed by a failure line that is
+  # matched below) are not matched. Group 2 is the controller.
+  expr_reset: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?nvme (nvme\d+): (?:controller is down; will reset|I/O (?:tag )?\d+ (?:\(\w+\) )?(?:opcode \S+ \([^)]*\) )?QID \d+ timeout, reset controller)'
+  # Failure path of nvme_reset_work(), which before 6.2 also runs the
+  # initial probe, e.g.
+  #   nvme nvme0: Removing after probe failure status: -19  (before 6.2)
+  #   nvme nvme0: Disabling device after reset failure: -19  (6.2+)
+  expr_reset_failed: '(\w{3,5}\s+\d{1,2}\s+[\d:]+|\d{4}-\d{2}-\d{2}T[\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?nvme (nvme\d+): (?:Removing after probe failure status|Disabling device after reset failure): -?\d+'
+checks:
+  nvme_reset:
+    input: 'var/log/kern.log'
+    search:
+      expr: $expr_reset
+      constraints:
+        search-result-age-hours: 24
+  nvme_reset_failed:
+    input: 'var/log/kern.log'
+    search:
+      expr: $expr_reset_failed
+      constraints:
+        search-result-age-hours: 24
+# Both conclusions have the same priority so resets of other controllers
+# are still reported when one controller failed.
+conclusions:
+  nvme-controller-reset-failed:
+    decision: nvme_reset_failed
+    raises:
+      type: KernelError
+      message: >-
+        NVMe controller(s) {ctrls} failed to initialise or to recover
+        from a reset in the last 24 hours and were removed or disabled
+        by the kernel. Please check 'nvme list' and the drive, slot and
+        firmware for hardware faults.
+      format-dict:
+        ctrls: '@checks.nvme_reset_failed.search.results_group_2:unique_comma_join'
+  nvme-controller-reset:
+    decision: nvme_reset
+    raises:
+      type: KernelWarning
+      message: >-
+        The nvme driver requested {count} controller reset(s) for
+        {ctrls} in the last 24 hours because a controller was down or a
+        command timed out, which stalls I/O to that controller. Please
+        check 'nvme smart-log', the drive firmware and kern.log for I/O
+        errors.
+      format-dict:
+        count: '@checks.nvme_reset.search.num_results'
+        ctrls: '@checks.nvme_reset.search.results_group_2:unique_comma_join'
