@@ -1,0 +1,22 @@
+data-root:
+  files:
+    # 8.0 and 5.7 formats, a relative and an absolute path, and a quota
+    # error.
+    var/log/mysql/error.log: |
+      2022-02-09T20:15:01.123456Z 12 [ERROR] [MY-000035] [Server] Disk is full writing './binlog.000012' (OS errno 28 - No space left on device). Waiting for someone to free space... Retry in 60 secs. Message reprinted in 600 secs.
+      2022-02-09T20:25:01.123456Z 12 [ERROR] [MY-000035] [Server] Disk is full writing './binlog.000012' (OS errno 28 - No space left on device). Waiting for someone to free space... Retry in 60 secs. Message reprinted in 600 secs.
+      2022-02-10T08:40:30.123456Z 5 [ERROR] Disk is full writing './relay-bin.000003' (Errcode: 28 - No space left on device). Waiting for someone to free space...
+      2022-02-10T08:40:30.123470Z 5 [ERROR] Retry in 60 secs. Message reprinted in 600 secs
+      2022-02-10T08:41:30.123456Z 0 [Note] InnoDB: Buffer pool(s) load completed at 220210  8:41:30
+      2022-02-10T08:42:30.123456Z 7 [ERROR] Disk is full writing '/var/log/mysql/mysql-bin.000003' (Errcode: 122 - Disk quota exceeded). Waiting for someone to free space...
+      2022-02-10T08:42:30.123470Z 7 [ERROR] Retry in 60 secs. Message reprinted in 600 secs
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  MySQLWarning: >-
+    MySQL logged 'Disk is full writing' errors (Disk quota exceeded, No
+    space left on device) on 2022-02-09, 2022-02-10 for ./binlog.000012,
+    ./relay-bin.000003, /var/log/mysql/mysql-bin.000003, so writes to these
+    files were blocked waiting for free space. Please check free space,
+    inodes and the mysql user's quota there and please free space, purging
+    only binary logs that replicas and backups no longer need.
