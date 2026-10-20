@@ -1,0 +1,13 @@
+target-name: innodb_page_corruption.yaml
+data-root:
+  files:
+    # Recent error.log with only a page recovered from the doublewrite buffer
+    # after a crash.
+    var/log/mysql/error.log: |
+      2022-02-10T08:47:13.621690Z 0 [Warning] InnoDB: Database page corruption or a failed file read of page [page id: space=12, page number=345]. Trying to recover it from the doublewrite buffer.
+      2022-02-10T08:47:13.631690Z 0 [Note] InnoDB: Recovered page [page id: space=12, page number=345] from the doublewrite buffer.
+      2022-02-10T08:48:13.621690Z 0 [Warning] [MY-012111] [InnoDB] Trying to access missing tablespace 4294967294
+      2022-02-10T08:49:13.621690Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.28-0ubuntu0.20.04.3'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  (Ubuntu).
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

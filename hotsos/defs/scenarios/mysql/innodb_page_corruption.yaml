@@ -1,0 +1,40 @@
+vars:
+  # buf_page_io_complete() in storage/innobase/buf/buf0buf.cc logs this when
+  # a page read from disk is corrupted or could not be read e.g.
+  #   [ERROR] [MY-011906] [InnoDB] Database page corruption on disk or a failed file read of page [page id: space=12, page number=345]. You may have to recover from a backup.  (8.0)
+  #   [ERROR] InnoDB: Database page corruption on disk or a failed file read of page [page id: space=12, page number=345]. You may have to recover from a backup.  (5.7)
+  # Group 3 is the tablespace id. The doublewrite recovery warning after a
+  # crash ('Database page corruption or a failed file read ... Trying to
+  # recover it from the doublewrite buffer' on 5.7, 'doublewrite file' on
+  # 8.0) is not matched.
+  expr: '^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* .*\[ERROR\] (?:\[MY-\d+\] \[InnoDB\] |InnoDB: )Database page corruption on disk or a failed file read of page \[page id: space=(\d+)'
+checks:
+  innodb_corruption:
+    input:
+      path: 'var/log/mysql/error.log'
+    search:
+      expr: $expr
+      hint: 'Database page corruption'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  mysql-innodb-page-corruption:
+    decision: innodb_corruption
+    raises:
+      type: MySQLWarning
+      message: >-
+        MySQL logged {count} InnoDB 'Database page corruption on disk or a
+        failed file read' error(s) for tablespace id(s) {spaces} on
+        {dates}, so the affected tables may be unreadable. Please check the
+        kernel log for I/O errors on the device holding the MySQL data
+        directory, please find the tables with those SPACE ids in
+        INFORMATION_SCHEMA.INNODB_TABLES (8.0) or INNODB_SYS_TABLES (5.7),
+        please check them with innochecksum on a stopped server or a copy
+        of the data directory (CHECK TABLE can make mysqld exit on a
+        corrupt page) and please restore them from a backup or rebuild the
+        node from a healthy peer if they are still corrupted.
+      format-dict:
+        count: '@checks.innodb_corruption.search.num_results'
+        spaces: '@checks.innodb_corruption.search.results_group_3:unique_comma_join'
+        dates: '@checks.innodb_corruption.search.results_group_1:unique_comma_join'
