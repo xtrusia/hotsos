@@ -1,0 +1,21 @@
+target-name: resource_limit_alarm.yaml
+data-root:
+  files:
+    # Same as _cleared with the report from a real sosreport, which has
+    # bold escape codes around the Alarms heading.
+    var/log/rabbitmq/rabbit@juju-04f1e3-1-lxd-5.log: |
+      2022-02-10 08:48:13.621690+00:00 [warning] <0.218.0> disk resource limit alarm set on node 'rabbit@juju-04f1e3-1-lxd-6'.
+      2022-02-10 08:58:13.621690+00:00 [warning] <0.218.0> disk resource limit alarm cleared on node 'rabbit@juju-04f1e3-1-lxd-6'
+      2022-02-10 08:58:13.621695+00:00 [warning] <0.218.0> disk resource limit alarm cleared across the cluster
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/rabbitmq/rabbitmqctl_report
+raised-issues:
+  RabbitMQWarning: >-
+    RabbitMQ logged a free disk space alarm on node(s)
+    rabbit@juju-04f1e3-1-lxd-6 on 2022-02-10, which blocks publishers on
+    all nodes of the cluster while it is set. rabbitmqctl report listed no
+    free disk space alarm when it was collected, so it had probably cleared
+    (a node that did not answer the report query is also listed without
+    alarms). Please check what filled the filesystem holding the RabbitMQ
+    data directory on those nodes to prevent it from happening again.
