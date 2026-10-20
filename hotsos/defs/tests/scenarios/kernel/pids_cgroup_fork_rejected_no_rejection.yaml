@@ -1,0 +1,10 @@
+target-name: pids_cgroup_fork_rejected.yaml
+data-root:
+  files:
+    # Recent cgroup messages without a fork rejection.
+    var/log/kern.log: |
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] cgroup: cgroup2: unknown option "nsdelegate2"
+      2022-02-10T11:02:44.123456+00:00 compute4 kernel: cgroup: Unknown subsys name 'net_prio'
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

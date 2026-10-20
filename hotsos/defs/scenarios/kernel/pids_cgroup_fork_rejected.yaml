@@ -1,0 +1,42 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the messages) and group 2 the time.
+  # Message from pids_can_fork() (pids_event() since 6.11) in
+  # kernel/cgroup/pids.c, logged only the first time a fork in a cgroup is
+  # rejected because the cgroup or a parent reached pids.max, e.g.
+  #   cgroup: fork rejected by pids controller in /system.slice/docker.service
+  # Group 3 is the cgroup path, which may contain spaces. It is printed
+  # with pr_cont() so in rare cases another message can split it onto its
+  # own line and it is missed. The 'max' count in pids.events counts
+  # rejected forks in the forking cgroup, except on cgroup v2 since 6.11
+  # without the pids_localevents mount option, where it is counted in the
+  # cgroup whose limit was hit and its ancestors.
+  expr: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?cgroup: fork rejected by pids controller in (\S.*?)\s*$'
+checks:
+  pids_fork_rejected:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  pids-cgroup-fork-rejected:
+    decision: pids_fork_rejected
+    raises:
+      type: KernelWarning
+      message: >-
+        The pids controller rejected new processes or threads in
+        {cgroups} on {dates} because pids.max of the cgroup or a parent
+        was reached, so fork/clone failed with EAGAIN. The
+        kernel logs this only once per cgroup. Please compare
+        pids.current with pids.max of these cgroups and their parents to
+        find the limit that was hit, and please raise TasksMax or the
+        container pids limit if needed.
+      format-dict:
+        cgroups: '@checks.pids_fork_rejected.search.results_group_3:unique_comma_join'
+        dates: '@checks.pids_fork_rejected.search.results_group_1:unique_comma_join'
