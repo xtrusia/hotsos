@@ -1,0 +1,23 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # 7.3+ format without type and agent (commit 9247e45c00cb).
+    var/log/kern.log: |
+      2022-02-10T10:48:13.621694+00:00 compute4 kernel: nvme 0000:3b:00.0: PCIe Bus Error: severity=Uncorrectable (Non-Fatal)
+      2022-02-10T10:48:13.621695+00:00 compute4 kernel: nvme 0000:3b:00.0:   device [8086:0a54] error status/mask=00004000/00400000
+      2022-02-10T10:50:13.621694+00:00 compute4 kernel: mlx5_core 0000:5e:00.0: AER: PCIe Bus Error: severity=Uncorrectable (Fatal) (Inaccessible)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged 1 fatal PCIe AER error(s) for mlx5_core 0000:5e:00.0
+    on 2022-02-10. A fatal error makes the PCIe link unreliable and the
+    kernel resets the link or the device to recover. Please check the full
+    AER lines and 'lspci -vv' output for these devices, and the device,
+    slot and firmware for hardware faults.
+  KernelWarning: >-
+    The kernel logged 1 non-fatal uncorrectable PCIe AER error(s) for nvme
+    0000:3b:00.0 on 2022-02-10. A PCIe transaction failed (see the status
+    lines that follow each error) and this can come back if the hardware is
+    faulty. Please check the full AER lines and 'lspci -vv' output for
+    these devices, and the device, slot and firmware for hardware faults.

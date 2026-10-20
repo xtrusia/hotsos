@@ -1,0 +1,31 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # 5.15 format: 'Uncorrected' wording, typed lines without the 'AER: '
+    # prefix. A fatal error on an endpoint is logged as Inaccessible because
+    # its status is not read.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621690] pcieport 0000:3a:00.0: AER: Uncorrected (Fatal) error received: 0000:3a:00.0
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] pcieport 0000:3a:00.0: PCIe Bus Error: severity=Uncorrected (Fatal), type=Data Link Layer, (Receiver ID)
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] pcieport 0000:3a:00.0:   device [8086:2030] error status/mask=00000010/00000000
+      Feb 10 10:48:13 compute4 kernel: [1694413.621696] pcieport 0000:3a:00.0:    [ 4] DLP                    (First)
+      Feb 10 10:49:13 compute4 kernel: [1694473.621690] pcieport 0000:00:1c.0: AER: Uncorrected (Fatal) error received: 0000:3b:00.0
+      Feb 10 10:49:13 compute4 kernel: [1694473.621694] nvme 0000:3b:00.0: AER: PCIe Bus Error: severity=Uncorrected (Fatal), type=Inaccessible, (Unregistered Agent ID)
+      Feb 10 10:50:13 compute4 kernel: [1694533.621690] pcieport 0000:5d:00.0: AER: Uncorrected (Non-Fatal) error received: 0000:5e:00.1
+      Feb 10 10:50:13 compute4 kernel: [1694533.621694] i40e 0000:5e:00.1: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+      Feb 10 10:50:13 compute4 kernel: [1694533.621695] i40e 0000:5e:00.1:   device [8086:1572] error status/mask=00100000/00000000
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged 2 fatal PCIe AER error(s) for nvme 0000:3b:00.0,
+    pcieport 0000:3a:00.0 on Feb 10. A fatal error makes the PCIe link
+    unreliable and the kernel resets the link or the device to recover.
+    Please check the full AER lines and 'lspci -vv' output for these
+    devices, and the device, slot and firmware for hardware faults.
+  KernelWarning: >-
+    The kernel logged 1 non-fatal uncorrectable PCIe AER error(s) for i40e
+    0000:5e:00.1 on Feb 10. A PCIe transaction failed (see the status lines
+    that follow each error) and this can come back if the hardware is
+    faulty. Please check the full AER lines and 'lspci -vv' output for
+    these devices, and the device, slot and firmware for hardware faults.

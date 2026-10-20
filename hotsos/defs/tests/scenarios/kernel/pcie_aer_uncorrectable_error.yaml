@@ -1,0 +1,26 @@
+data-root:
+  files:
+    # 6.8+ format: typed line without and Inaccessible line with the
+    # 'AER: ' prefix. Both severities are reported.
+    var/log/kern.log: |
+      2022-02-10T10:48:13.621690+00:00 compute4 kernel: pcieport 0000:3a:00.0: AER: Uncorrectable (Non-Fatal) error message received from 0000:3b:00.0
+      2022-02-10T10:48:13.621694+00:00 compute4 kernel: nvme 0000:3b:00.0: PCIe Bus Error: severity=Uncorrectable (Non-Fatal), type=Transaction Layer, (Requester ID)
+      2022-02-10T10:48:13.621695+00:00 compute4 kernel: nvme 0000:3b:00.0:   device [8086:0a54] error status/mask=00004000/00400000
+      2022-02-10T10:48:13.621696+00:00 compute4 kernel: nvme 0000:3b:00.0:    [14] CmpltTO                (First)
+      Feb 10 10:50:13 compute4 kernel: [1694533.621690] pcieport 0000:5d:00.0: AER: Uncorrectable (Fatal) error message received from 0000:5e:00.0
+      Feb 10 10:50:13 compute4 kernel: [1694533.621694] mlx5_core 0000:5e:00.0: AER: PCIe Bus Error: severity=Uncorrectable (Fatal), type=Inaccessible, (Unregistered Agent ID)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged 1 fatal PCIe AER error(s) for mlx5_core 0000:5e:00.0
+    on Feb 10. A fatal error makes the PCIe link unreliable and the kernel
+    resets the link or the device to recover. Please check the full AER
+    lines and 'lspci -vv' output for these devices, and the device, slot
+    and firmware for hardware faults.
+  KernelWarning: >-
+    The kernel logged 1 non-fatal uncorrectable PCIe AER error(s) for nvme
+    0000:3b:00.0 on 2022-02-10. A PCIe transaction failed (see the status
+    lines that follow each error) and this can come back if the hardware is
+    faulty. Please check the full AER lines and 'lspci -vv' output for
+    these devices, and the device, slot and firmware for hardware faults.

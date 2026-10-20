@@ -1,0 +1,34 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # Recovery fails because ahci has no error_detected callback. The
+    # failure is still an error and the device is named in a warning.
+    var/log/kern.log: |
+      2022-02-10T10:48:13.621690+00:00 compute4 kernel: pcieport 0000:3a:00.0: AER: Uncorrectable (Non-Fatal) error message received from 0000:3b:00.0
+      2022-02-10T10:48:13.621694+00:00 compute4 kernel: ahci 0000:3b:00.0: PCIe Bus Error: severity=Uncorrectable (Non-Fatal), type=Transaction Layer, (Requester ID)
+      2022-02-10T10:48:13.621700+00:00 compute4 kernel: ahci 0000:3b:00.0: AER: can't recover (no error_detected callback)
+      2022-02-10T10:48:13.621710+00:00 compute4 kernel: pcieport 0000:3a:00.0: AER: device recovery failed
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning:
+    - >-
+      The kernel logged 1 non-fatal uncorrectable PCIe AER error(s) for
+      ahci 0000:3b:00.0 on 2022-02-10. A PCIe transaction failed (see the
+      status lines that follow each error) and this can come back if the
+      hardware is faulty. Please check the full AER lines and 'lspci -vv'
+      output for these devices, and the device, slot and firmware for
+      hardware faults.
+    - >-
+      The kernel logged 'can't recover (no error_detected callback)' for
+      ahci 0000:3b:00.0 on 2022-02-10, so these devices did not take part
+      in PCIe error recovery, usually because they have no driver or a
+      driver without AER error recovery support. Please check that these
+      devices still work and whether their drivers support AER error
+      recovery.
+  KernelError: >-
+    PCIe error recovery failed for 0000:3a:00.0 on 2022-02-10, so these
+    devices and any devices below them may no longer be usable. Please
+    check the PCIe or hardware error lines logged before the failure,
+    'lspci -vv' for these devices and the devices below them, and the
+    device, slot and firmware for hardware faults.

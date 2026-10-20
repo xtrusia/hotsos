@@ -1,0 +1,14 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+# Same lines as pcie_aer_uncorrectable_error_recovery_failed.yaml, 3
+# days earlier: older than the 24 hour constraint but inside the 7 day
+# log window of the unit tests, so this fails if the constraint is
+# removed.
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  7 10:48:13 compute4 kernel: [1694413.621690] pcieport 0000:00:1c.0: AER: Uncorrected (Fatal) error received: 0000:3b:00.0
+      Feb  7 10:48:13 compute4 kernel: [1694413.621694] nvme 0000:3b:00.0: AER: PCIe Bus Error: severity=Uncorrected (Fatal), type=Inaccessible, (Unregistered Agent ID)
+      Feb  7 10:48:15 compute4 kernel: [1694415.621694] pcieport 0000:00:1c.0: AER: device recovery failed
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected

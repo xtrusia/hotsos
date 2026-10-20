@@ -1,0 +1,13 @@
+target-name: pcie_aer_uncorrectable_error.yaml
+data-root:
+  files:
+    # Corrected/Correctable errors in all formats are not reported.
+    var/log/kern.log: |
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] pcieport 0000:3a:00.0: AER: Corrected error received: 0000:3b:00.0
+      Feb 10 10:48:15 compute4 kernel: [1694415.621694] nvme 0000:3b:00.0: AER: PCIe Bus Error: severity=Corrected, type=Physical Layer, (Receiver ID)
+      Feb 10 10:48:16 compute4 kernel: [1694416.621694] nvme 0000:3b:00.0: PCIe Bus Error: severity=Corrected, type=Physical Layer, (Receiver ID)
+      2022-02-10T10:48:17.123456+00:00 compute4 kernel: nvme 0000:3b:00.0: PCIe Bus Error: severity=Correctable, type=Data Link Layer, (Transmitter ID)
+      2022-02-10T10:48:18.123456+00:00 compute4 kernel: nvme 0000:3b:00.0: PCIe Bus Error: severity=Correctable
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected
