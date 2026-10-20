@@ -1,0 +1,15 @@
+target-name: corosync_main_not_scheduled.yaml
+data-root:
+  files:
+    # syslog only (traditional timestamp).
+    var/log/syslog: |
+      Feb 10 08:48:13 juju-04f1e3-1-lxd-5 corosync[1234]:   [MAIN  ] Corosync main process was not scheduled for 2652.4536 ms (threshold is 800.0000 ms). Consider token timeout increase.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  PacemakerWarning: >-
+    corosync logged 1 'main process was not scheduled' warning(s) in syslog
+    on Feb 10 (threshold 800.0000 ms, 80% of the token timeout), which can
+    cause a membership change and resource failover. Please check CPU load
+    and steal time at those times, or please increase the token timeout if
+    pauses are expected.
