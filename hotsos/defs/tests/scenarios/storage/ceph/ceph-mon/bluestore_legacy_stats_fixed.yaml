@@ -1,0 +1,54 @@
+target-name: bluestore_legacy_stats.yaml
+data-root:
+  files:
+    sos_commands/ceph_mon/json_output/ceph_status_--format_json-pretty: |
+      {
+          "fsid": "eccf3d48-859f-11ec-9de2-d72b3e8a3058",
+          "health": {
+              "status": "HEALTH_WARN"
+          }
+      }
+    sos_commands/ceph_mon/json_output/ceph_health_detail_--format_json-pretty: |
+      {
+          "status": "HEALTH_WARN",
+          "checks": {
+              "BLUESTORE_LEGACY_STATFS": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "3 OSD(s) reporting legacy (not per-pool) BlueStore stats",
+                      "count": 3
+                  },
+                  "muted": false
+              },
+              "BLUESTORE_NO_PER_POOL_OMAP": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "3 OSD(s) reporting legacy (not per-pool) BlueStore omap usage stats",
+                      "count": 3
+                  },
+                  "muted": false
+              }
+          },
+          "mutes": []
+      }
+    sos_commands/ceph_mon/ceph_versions: |
+      {
+          "mon": {
+              "ceph version 16.2.7 (dd0603118f56ab514f133c8d2e3adfc983942503) pacific (stable)": 3
+          },
+          "mgr": {
+              "ceph version 16.2.7 (dd0603118f56ab514f133c8d2e3adfc983942503) pacific (stable)": 3
+          },
+          "osd": {
+              "ceph version 16.2.7 (dd0603118f56ab514f133c8d2e3adfc983942503) pacific (stable)": 3
+          },
+          "mds": {},
+          "overall": {
+              "ceph version 16.2.7 (dd0603118f56ab514f133c8d2e3adfc983942503) pacific (stable)": 9
+          }
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-bugs:  # none expected

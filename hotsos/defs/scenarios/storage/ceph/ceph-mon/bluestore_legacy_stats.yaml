@@ -1,0 +1,45 @@
+vars:
+  osds_affected: '@hotsos.core.plugins.storage.ceph.CephCluster.osd_versions_affected_by_omap_conversion_bug'
+checks:
+  # Unmuted codes in 'ceph health detail' for OSDs whose on-disk stats or
+  # omap are still in a pre-Nautilus/pre-Octopus/pre-Pacific format. The
+  # documented fix for each is ceph-bluestore-tool repair, which converts
+  # omap to the per-pg format.
+  legacy_statfs:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, BLUESTORE_LEGACY_STATFS]]
+  no_per_pool_omap:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, BLUESTORE_NO_PER_POOL_OMAP]]
+  no_per_pg_omap:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[contains, BLUESTORE_NO_PER_PG_OMAP]]
+  # OSD daemon versions from 'ceph versions' (cluster wide, not the local
+  # packages) that are Pacific older than 16.2.7.
+  osds_have_omap_conversion_bug:
+    varops: [[$osds_affected], [length_hint], [gt, 0]]
+conclusions:
+  bluestore-legacy-stats-omap-conversion-bug:
+    decision:
+      - or:
+          - legacy_statfs
+          - no_per_pool_omap
+          - no_per_pg_omap
+      - osds_have_omap_conversion_bug
+    raises:
+      type: CephTrackerBug
+      bug-id: 53062
+      message: >-
+        Ceph health detail reports one or more of BLUESTORE_LEGACY_STATFS,
+        BLUESTORE_NO_PER_POOL_OMAP and BLUESTORE_NO_PER_PG_OMAP and 'ceph
+        versions' shows OSDs running {versions}. On Pacific before 16.2.7,
+        converting those OSDs with 'ceph-bluestore-tool repair' or quick-fix,
+        or with bluestore_fsck_quick_fix_on_mount set to true, can corrupt
+        their OMAP data. Please keep bluestore_fsck_quick_fix_on_mount set to
+        false and please upgrade the OSDs to the latest version before
+        converting them.
+      format-dict:
+        versions: $osds_affected:comma_join

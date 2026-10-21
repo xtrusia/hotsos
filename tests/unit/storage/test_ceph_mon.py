@@ -285,6 +285,12 @@ class TestCoreCephCluster(  # pylint: disable=too-many-public-methods
         versions = ceph.CephCluster().daemon_versions('osd')
         self.assertEqual(versions, {'15.2.14': 3})
 
+    def test_osd_versions_affected_by_omap_conversion_bug(self):
+        """Test that Octopus OSDs are not listed as affected."""
+        versions = ceph.CephCluster(
+            ).osd_versions_affected_by_omap_conversion_bug
+        self.assertEqual(versions, [])
+
     def test_mon_versions(self):
         """Test mon daemon versions are reported correctly."""
         versions = ceph.CephCluster().daemon_versions('mon')

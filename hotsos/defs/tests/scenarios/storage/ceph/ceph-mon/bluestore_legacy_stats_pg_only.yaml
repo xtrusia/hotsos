@@ -1,0 +1,54 @@
+target-name: bluestore_legacy_stats.yaml
+data-root:
+  files:
+    sos_commands/ceph_mon/json_output/ceph_status_--format_json-pretty: |
+      {
+          "fsid": "eccf3d48-859f-11ec-9de2-d72b3e8a3058",
+          "health": {
+              "status": "HEALTH_WARN"
+          }
+      }
+    sos_commands/ceph_mon/json_output/ceph_health_detail_--format_json-pretty: |
+      {
+          "status": "HEALTH_WARN",
+          "checks": {
+              "BLUESTORE_NO_PER_PG_OMAP": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "3 OSD(s) reporting legacy (not per-pg) BlueStore omap",
+                      "count": 3
+                  },
+                  "muted": false
+              }
+          },
+          "mutes": []
+      }
+    sos_commands/ceph_mon/ceph_versions: |
+      {
+          "mon": {
+              "ceph version 16.2.6 (ee28fb57e47e9f88813e24bbf4c14496ca299d31) pacific (stable)": 3
+          },
+          "mgr": {
+              "ceph version 16.2.6 (ee28fb57e47e9f88813e24bbf4c14496ca299d31) pacific (stable)": 3
+          },
+          "osd": {
+              "ceph version 16.2.6 (ee28fb57e47e9f88813e24bbf4c14496ca299d31) pacific (stable)": 3
+          },
+          "mds": {},
+          "overall": {
+              "ceph version 16.2.6 (ee28fb57e47e9f88813e24bbf4c14496ca299d31) pacific (stable)": 9
+          }
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-bugs:
+  https://tracker.ceph.com/issues/53062: >-
+    Ceph health detail reports one or more of BLUESTORE_LEGACY_STATFS,
+    BLUESTORE_NO_PER_POOL_OMAP and BLUESTORE_NO_PER_PG_OMAP and 'ceph
+    versions' shows OSDs running 16.2.6. On Pacific before 16.2.7, converting
+    those OSDs with 'ceph-bluestore-tool repair' or quick-fix, or with
+    bluestore_fsck_quick_fix_on_mount set to true, can corrupt their OMAP
+    data. Please keep bluestore_fsck_quick_fix_on_mount set to false and
+    please upgrade the OSDs to the latest version before converting them.

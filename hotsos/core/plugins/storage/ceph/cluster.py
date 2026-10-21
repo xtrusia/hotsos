@@ -5,6 +5,7 @@ from functools import cached_property
 from hotsos.core.host_helpers import (
     CLIHelper,
     CLIHelperFile,
+    DPKGVersion,
 )
 from hotsos.core.search import (
     FileSearcher,
@@ -361,6 +362,18 @@ class CephCluster():  # pylint: disable=too-many-public-methods
         Same as versions property but with release names instead of versions.
         """
         return self.daemon_release_names('osd')
+
+    @cached_property
+    def osd_versions_affected_by_omap_conversion_bug(self):
+        """
+        Return a sorted list of the OSD daemon versions in 'ceph versions'
+        that are Pacific releases older than 16.2.7. On those releases
+        BlueStore repair/quick-fix can corrupt OMAP data while converting it
+        to the per-pg format (https://tracker.ceph.com/issues/53062).
+        """
+        return sorted(ver for ver in self.daemon_versions('osd')
+                      if DPKGVersion(ver) >= '16.0.0' and
+                      DPKGVersion(ver) < '16.2.7')
 
     @cached_property
     def require_osd_release(self):
