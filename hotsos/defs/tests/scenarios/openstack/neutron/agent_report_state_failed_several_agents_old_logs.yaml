@@ -1,0 +1,26 @@
+target-name: agent_report_state_failed.yaml
+data-root:
+  files:
+    var/log/neutron/neutron-l3-agent.log: |
+      2022-02-01 10:42:21.308 222935 ERROR neutron.agent.l3.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID d8f475473c3c45bcbb1dcd9a8e6767fb
+      2022-02-01 10:43:21.318 222935 ERROR neutron.agent.l3.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 775e3fa669774b00835839d2f82846d9
+      2022-02-01 10:44:21.328 222935 ERROR neutron.agent.l3.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 76bf033ff501483c936d5743043bed3e
+      2022-02-01 10:45:21.338 222935 ERROR neutron.agent.l3.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID de76fc589fc041569a07ccee2bb787db
+      2022-02-01 10:46:21.348 222935 ERROR neutron.agent.l3.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 6a046f66730740bd99292dbbf75fc29e
+      2022-02-01 10:47:21.358 222935 ERROR neutron.agent.l3.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 1535070fefc6404f91d8b9323a7df9d3
+    var/log/neutron/neutron-metadata-agent.log: |
+      2022-02-01 10:42:16.703 183926 ERROR neutron.agent.metadata.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID de76fc589fc041569a07ccee2bb787db
+      2022-02-01 10:43:16.713 183926 ERROR neutron.agent.metadata.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 76bf033ff501483c936d5743043bed3e
+      2022-02-01 10:44:16.723 183926 ERROR neutron.agent.metadata.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 775e3fa669774b00835839d2f82846d9
+      2022-02-01 10:45:16.733 183926 ERROR neutron.agent.metadata.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID d8f475473c3c45bcbb1dcd9a8e6767fb
+      2022-02-01 10:46:16.743 183926 ERROR neutron.agent.metadata.agent [-] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 75996128056d4031922524845d1793a3
+    var/log/neutron/neutron-openvswitch-agent.log: |
+      2022-02-01 10:50:05.601 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-9e1f0a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 4f3e2d1c0b9a4807a6b5c4d3e2f1a0b9
+      2022-02-01 10:51:05.611 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-9e1f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 4f3e2d1c0b9a4817a6b5c4d3e2f1a0b9
+      2022-02-01 10:52:05.621 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-9e1f2a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 4f3e2d1c0b9a4827a6b5c4d3e2f1a0b9
+      2022-02-01 10:53:05.631 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-9e1f3a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 4f3e2d1c0b9a4837a6b5c4d3e2f1a0b9
+      2022-02-01 10:54:05.641 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-9e1f4a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 4f3e2d1c0b9a4847a6b5c4d3e2f1a0b9
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

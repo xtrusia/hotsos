@@ -1,0 +1,22 @@
+target-name: agent_report_state_failed.yaml
+data-root:
+  files:
+    # Five failures of the OVS agent, the threshold.
+    var/log/neutron/neutron-openvswitch-agent.log: |
+      2022-02-10 10:42:05.601 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-04b4c812-078c-41ed-be56-6f6fd2adaea5 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 76bf033ff501483c936d5743043bed3e
+      2022-02-10 10:43:05.611 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-7687a82a-5c53-40f2-a1be-f76bebb843cd - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID de76fc589fc041569a07ccee2bb787db
+      2022-02-10 10:44:05.621 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-3dc6cce6-852f-46a6-97d2-0ee7d7e779e2 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 6a046f66730740bd99292dbbf75fc29e
+      2022-02-10 10:45:05.631 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-c93fb0f6-2191-4402-9790-2fc5b300570a - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 1535070fefc6404f91d8b9323a7df9d3
+      2022-02-10 10:46:05.641 2201 ERROR neutron.plugins.ml2.drivers.openvswitch.agent.ovs_neutron_agent [req-c848b0d4-a899-403a-9fdd-1f7c979c08ca - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 75996128056d4031922524845d1793a3
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    neutron-openvswitch-agent logged 5 'Failed reporting state!' error(s)
+    on 2022-02-10, so its state reports to neutron-server failed repeatedly
+    and neutron-server may have considered it down at those times (new
+    ports on this host then fail to bind). Please check the exception
+    logged with the errors (often MessagingTimeout) and RabbitMQ and
+    neutron-server health at those times, and please check with 'openstack
+    network agent list' that the agent is up now.
