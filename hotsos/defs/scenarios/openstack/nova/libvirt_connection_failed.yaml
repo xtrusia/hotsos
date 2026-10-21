@@ -1,0 +1,36 @@
+vars:
+  # nova/virt/libvirt/host.py Host.get_connection():
+  #   LOG.exception("Connection to libvirt failed: %s", ex)
+  expr_libvirt_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR nova\.virt\.libvirt\.host .+ Connection to libvirt failed: '
+checks:
+  # At least 5 within the hour before the latest one, to filter out a few
+  # failed calls such as during a short libvirtd restart. This is a noise
+  # filter, not a duration.
+  libvirt_connection_failed:
+    input:
+      path: 'var/log/nova/nova-compute.log'
+    search:
+      expr: $expr_libvirt_failed
+      hint: 'Connection to libvirt failed'
+      constraints:
+        min-results: 5
+        search-period-hours: 1
+        search-result-age-hours: 24
+conclusions:
+  nova-libvirt-connection-failed:
+    decision: libvirt_connection_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute logged {count} 'Connection to libvirt failed'
+        error(s) within one hour on {dates}, so it could not reach the
+        libvirt daemon of its connection URI then and may have disabled
+        this compute service with an 'AUTO: ...' reason. Please check
+        that the libvirt daemon is running (libvirtd, or virtqemud with
+        modular daemons) and that nova-compute can open its socket (the
+        libvirt error follows 'Connection to libvirt failed:'), and
+        please check with 'openstack compute service list' that
+        nova-compute on this host is enabled and up again.
+      format-dict:
+        count: '@checks.libvirt_connection_failed.search.num_results'
+        dates: '@checks.libvirt_connection_failed.search.results_group_1:unique_comma_join'
