@@ -1,0 +1,15 @@
+target-name: volume_driver_init_failed.yaml
+data-root:
+  files:
+    # The uninitialized warnings stopped more than an hour before the logs
+    # were collected.
+    var/log/cinder/cinder-volume.log: |
+      2022-02-10 08:12:01.001 3021 INFO cinder.volume.manager [req-5c1e9a7d-0b8e-4c1f-9d55-3a6f1f2b7c10 - - - - -] Starting volume driver RBDDriver (1.2.0)
+      2022-02-10 08:12:09.123 3021 ERROR cinder.volume.manager [req-5c1e9a7d-0b8e-4c1f-9d55-3a6f1f2b7c10 - - - - -] Failed to initialize driver.: cinder.exception.VolumeBackendAPIException: Bad or unexpected response from the storage volume backend API: Error connecting to ceph cluster.
+      2022-02-10 08:12:09.123 3021 ERROR cinder.volume.manager Traceback (most recent call last):
+      2022-02-10 14:15:41.334 3021 WARNING cinder.volume.manager [req-9f0c2d4e-6a1b-4e7f-8c3d-2b5a9e1f0d22 - - - - -] Update driver status failed: (config name cinder-ceph) is uninitialized.
+      2022-02-10 14:16:41.338 3021 WARNING cinder.volume.manager [req-0a7e3b19-4c2d-4f58-9e61-7d3c2a8b5f44 - - - - -] Update driver status failed:  is uninitialized.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

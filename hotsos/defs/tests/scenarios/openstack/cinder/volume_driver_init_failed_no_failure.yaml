@@ -1,0 +1,10 @@
+target-name: volume_driver_init_failed.yaml
+data-root:
+  files:
+    var/log/cinder/cinder-volume.log: |
+      2022-02-10 08:12:01.001 3021 INFO cinder.volume.manager [req-5c1e9a7d-0b8e-4c1f-9d55-3a6f1f2b7c10 - - - - -] Starting volume driver RBDDriver (1.2.0)
+      2022-02-10 08:12:09.301 3021 INFO cinder.volume.manager [req-5c1e9a7d-0b8e-4c1f-9d55-3a6f1f2b7c10 - - - - -] Driver initialization completed successfully.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

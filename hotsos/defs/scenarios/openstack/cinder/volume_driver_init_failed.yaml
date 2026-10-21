@@ -1,0 +1,88 @@
+vars:
+  # cinder/volume/manager.py _init_host():
+  #   LOG.exception("Failed to initialize driver.", ...)
+  expr_init_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR cinder\.volume\.manager .+ Failed to initialize driver\.'
+  # _report_driver_status(), run by the publish_service_capabilities
+  # periodic task (every backend_stats_polling_interval, default 60s) for as
+  # long as the driver is not initialized. The config group is empty when
+  # config_group is None, which leaves two spaces after the colon.
+  expr_uninitialized: '^([\d-]+) ([\d:]+)\.\d{3} \d+ WARNING cinder\.volume\.manager .+ Update driver status failed:\s+(?:\(config name \S+\)\s+)?is uninitialized\.'
+  expr_init_ok: '^([\d-]+) ([\d:]+)\.\d{3} \d+ INFO cinder\.volume\.manager .+ Driver initialization completed successfully\.'
+checks:
+  driver_init_failed:
+    input:
+      path: 'var/log/cinder/cinder-volume.log'
+    search:
+      expr: $expr_init_failed
+      hint: 'Failed to initialize driver'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  # The warning stops once the driver is initialized (for example after a
+  # restart), so only warnings from the last hour before the logs were
+  # collected are used. A success line in that hour suppresses the issue;
+  # with several backends it may come from a healthy one.
+  driver_still_uninitialized:
+    input:
+      path: 'var/log/cinder/cinder-volume.log'
+    search:
+      expr: $expr_uninitialized
+      hint: 'is uninitialized'
+      constraints:
+        min-results: 2
+        search-result-age-hours: 1
+  driver_init_ok_recently:
+    input:
+      path: 'var/log/cinder/cinder-volume.log'
+    search:
+      expr: $expr_init_ok
+      hint: 'Driver initialization completed'
+      constraints:
+        search-result-age-hours: 1
+# A higher-priority conclusion shows the init failure when it is still in
+# the logs. In a long outage it can be older than 24 hours or rotated away
+# while the warnings continue, so the warnings alone also raise.
+conclusions:
+  cinder-volume-driver-init-failed:
+    priority: 2
+    decision:
+      - driver_init_failed
+      - driver_still_uninitialized
+      - not: driver_init_ok_recently
+    raises:
+      type: OpenstackError
+      message: >-
+        cinder-volume logged 'Failed to initialize driver.' on {init_dates}
+        and {uninit_count} 'Update driver status failed: ... is
+        uninitialized.' warning(s) on {uninit_dates}, so a volume backend
+        on this host may still be uninitialized and unable to serve volume
+        requests. Please check the traceback after 'Failed to initialize
+        driver.' to find the cause (often an unreachable storage backend or
+        wrong credentials), please check with 'openstack volume service
+        list' whether the backend is down and please restart cinder-volume
+        once the cause is fixed.
+      format-dict:
+        init_dates: '@checks.driver_init_failed.search.results_group_1:unique_comma_join'
+        uninit_count: '@checks.driver_still_uninitialized.search.num_results'
+        uninit_dates: '@checks.driver_still_uninitialized.search.results_group_1:unique_comma_join'
+  cinder-volume-driver-uninitialized:
+    priority: 1
+    decision:
+      - driver_still_uninitialized
+      - not: driver_init_failed
+      - not: driver_init_ok_recently
+    raises:
+      type: OpenstackError
+      message: >-
+        cinder-volume logged {uninit_count} 'Update driver status failed:
+        ... is uninitialized.' warning(s) on {uninit_dates}, so a volume
+        backend on this host may still be uninitialized and unable to serve
+        volume requests. Please find the last 'Failed to initialize
+        driver.' traceback in cinder-volume.log or its rotated logs to find
+        the cause (often an unreachable storage backend or wrong
+        credentials), please check with 'openstack volume service list'
+        whether the backend is down and please restart cinder-volume once
+        the cause is fixed.
+      format-dict:
+        uninit_count: '@checks.driver_still_uninitialized.search.num_results'
+        uninit_dates: '@checks.driver_still_uninitialized.search.results_group_1:unique_comma_join'
