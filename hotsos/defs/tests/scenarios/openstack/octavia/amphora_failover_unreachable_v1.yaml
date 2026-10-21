@@ -1,0 +1,24 @@
+target-name: amphora_failover_unreachable.yaml
+data-root:
+  files:
+    # v1 worker (up to 12.0.0): an automatic amphora failover failing with
+    # AmpConnectionRetry, which the v2 worker filters from its log.
+    # Traceback lines are not counted.
+    var/log/octavia/octavia-health-manager.log: |
+      2022-02-10 10:28:35.123 1290 WARNING octavia.amphorae.drivers.haproxy.rest_api_driver [-] Could not connect to instance. Retrying.: requests.exceptions.ConnectionError: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: //
+      2022-02-10 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker [-] Amphora 8a6b0d1c-2e3f-4a5b-8c6d-7e8f9a0b1c2d failover exception: Could not connect to amphora, exception caught: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f3c2a1b4d60>, 'Connection to 172.31.0.27 timed out. (connect timeout=10.0)')): octavia.amphorae.driver_exceptions.exceptions.AmpConnectionRetry: Could not connect to amphora, exception caught: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: //
+      2022-02-10 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker Traceback (most recent call last):
+      2022-02-10 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker octavia.amphorae.driver_exceptions.exceptions.AmpConnectionRetry: Could not connect to amphora, exception caught: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: //
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackError: >-
+    Octavia logged 1 failover failure(s) on 2022-02-10 for Amphora
+    8a6b0d1c-2e3f-4a5b-8c6d-7e8f9a0b1c2d because the controller could not
+    reach an amphora, and it set them to ERROR. Please check that new
+    amphorae boot and are reachable from the controller over the
+    lb-mgmt-net on the amphora agent port (9443 by default), and once that
+    works please fail over the load balancers that are still in ERROR (for
+    an amphora, 'openstack loadbalancer amphora show <id>' shows its load
+    balancer).

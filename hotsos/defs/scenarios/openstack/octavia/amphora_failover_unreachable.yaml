@@ -1,0 +1,46 @@
+vars:
+  # octavia/controller/worker/v2/controller_worker.py failover_amphora() and
+  # failover_loadbalancer() (and the v1 controller worker where it exists)
+  # log
+  #   'Amphora <id> failover exception: <exc>' / 'LB <id> failover exception: <exc>'
+  # and set the amphora and/or load balancer to ERROR. Only failures caused
+  # by AmpConnectionRetry or TimeOutException from the amphora REST driver
+  # (the controller could not reach an amphora) are matched. The v1 worker
+  # (up to 12.0.0) and the v2 worker before 7.0.0 log AmpConnectionRetry;
+  # the v2 worker from 7.0.0 drops records whose exception is
+  # AmpConnectionRetry (retryMaskFilter), so there only TimeOutException
+  # failures are seen.
+  # With [task_flow] jobboard_enabled the flow runs in a conductor and these
+  # lines are not logged. The 'Connection
+  # retries ... exhausted' error is not matched because a failover can log
+  # it while probing the failed amphora, including during failovers that
+  # succeed. Group 3 is 'Amphora <id>' or 'LB <id>'.
+  expr_failover_unreachable: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR octavia\.controller\.worker\.v[12]\.controller_worker .+ ((?:Amphora|LB) \S+) failover exception: .*(?:Could not connect to amphora, exception caught: |contacting the amphora timed out)'
+checks:
+  failover_unreachable:
+    input:
+      # Failovers can be logged by the health manager or the worker.
+      path: 'var/log/octavia/*.log'
+    search:
+      expr: $expr_failover_unreachable
+      hint: 'failover exception'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  octavia-amphora-failover-unreachable:
+    decision: failover_unreachable
+    raises:
+      type: OpenstackError
+      message: >-
+        Octavia logged {count} failover failure(s) on {dates} for {ids}
+        because the controller could not reach an amphora, and it set them
+        to ERROR. Please check that new amphorae boot and are reachable
+        from the controller over the lb-mgmt-net on the amphora agent port
+        (9443 by default), and once that works please fail over the load
+        balancers that are still in ERROR (for an amphora, 'openstack
+        loadbalancer amphora show <id>' shows its load balancer).
+      format-dict:
+        count: '@checks.failover_unreachable.search.num_results'
+        dates: '@checks.failover_unreachable.search.results_group_1:unique_comma_join'
+        ids: '@checks.failover_unreachable.search.results_group_3:unique_comma_join'
