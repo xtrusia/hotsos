@@ -1,0 +1,14 @@
+target-name: placement_allocation_candidates_failed.yaml
+data-root:
+  files:
+    var/log/nova/nova-scheduler.log: |
+      2022-02-01 07:01:50.123 1897 ERROR nova.scheduler.client.report [req-6e8a0c2e-4b6d-4f8a-a0c2-e4b6d8f0a2c4 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] Failed to retrieve allocation candidates from placement API for filters: RequestGroup(aggregates=[],forbidden_aggregates=set([]),forbidden_traits=set([]),in_tree=None,provider_uuids=[],requester_id=None,required_traits=set([]),resources={DISK_GB=20,MEMORY_MB=2048,VCPU=2},use_same_provider=False)
+      Got 503: {"errors": [{"status": 503, "title": "Service Unavailable", "detail": "The server is currently unavailable. Please try again at a later time.\n\n   ", "request_id": "req-2f4a6c8e-0b2d-4f6a-8c0e-2b4d6f8a0c2e"}]}.
+      2022-02-01 07:02:44.871 1897 ERROR nova.scheduler.client.report [req-8a0c2e4b-6d8f-4a0c-b2e4-b6d8f0a2c4e6 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] Failed to retrieve allocation candidates from placement API for filters: RequestGroup(aggregates=[],forbidden_aggregates=set([]),forbidden_traits=set([]),in_tree=None,provider_uuids=[],requester_id=None,required_traits=set([]),resources={DISK_GB=20,MEMORY_MB=2048,VCPU=2},use_same_provider=False)
+      Got 503: {"errors": [{"status": 503, "title": "Service Unavailable", "detail": "The server is currently unavailable. Please try again at a later time.\n\n   ", "request_id": "req-2f4a6c8e-0b2d-4f6a-8c0e-2b4d6f8a0c2e"}]}.
+      2022-02-01 07:03:12.004 1897 ERROR nova.scheduler.client.report [req-a0c2e4b6-d8f0-4a2c-8e6b-d8f0a2c4e6a8 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] Failed to retrieve allocation candidates from placement API for filters: RequestGroup(aggregates=[],forbidden_aggregates=set([]),forbidden_traits=set([]),in_tree=None,provider_uuids=[],requester_id=None,required_traits=set([]),resources={DISK_GB=20,MEMORY_MB=2048,VCPU=2},use_same_provider=False)
+      Got 503: {"errors": [{"status": 503, "title": "Service Unavailable", "detail": "The server is currently unavailable. Please try again at a later time.\n\n   ", "request_id": "req-2f4a6c8e-0b2d-4f6a-8c0e-2b4d6f8a0c2e"}]}.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

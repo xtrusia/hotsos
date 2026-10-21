@@ -1,0 +1,11 @@
+target-name: placement_allocation_candidates_failed.yaml
+data-root:
+  files:
+    # Placement could not be reached at all; that is a different message and
+    # is not matched.
+    var/log/nova/nova-scheduler.log: |
+      2022-02-10 07:02:44.871 1897 WARNING nova.scheduler.client.report [req-8a0c2e4b-6d8f-4a0c-b2e4-b6d8f0a2c4e6 - - - - -] Placement API service is not responding.: keystoneauth1.exceptions.connection.ConnectFailure: Unable to establish connection to http://10.5.0.10:8778/allocation_candidates
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
