@@ -1,0 +1,38 @@
+vars:
+  # src/os/bluestore/BlueStore.cc BlueStore::_verify_csum(). 'got' is the
+  # checksum computed from the data read. Each value is the crc32c (seed -1,
+  # no final xor) of a block of zeroes of that checksum chunk size, from the
+  # 4 KiB block size (the default) to 64 KiB (min_alloc_size or the expected
+  # write size for objects with large-write hints), so the data read back
+  # was most likely all zeroes. Group 3 is the OSD id
+  # from the bluestore(<osd data path>) log prefix.
+  expr_zeroed_read: >-
+    ^([\d-]+)[T ]([\d:]+)\S+ .+ bluestore\(\S+/ceph-(\d+)\) _verify_csum bad
+    crc32c/(?:0x1000 .+ got 0x6706be76|0x2000 .+ got 0x6fbbb9dc|0x4000 .+ got
+    0x6b9bf47a|0x8000 .+ got 0x43bc4552|0x10000 .+ got 0x8d3f3b5b),
+checks:
+  bluestore_zeroed_read:
+    input: 'storage.ceph:ceph-osd*.log'
+    search:
+      expr: $expr_zeroed_read
+      hint: '_verify_csum bad crc32c'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 168
+conclusions:
+  bluestore-zeroed-read:
+    decision: bluestore_zeroed_read
+    raises:
+      type: CephOSDWarning
+      message: >-
+        BlueStore on this host (OSD id(s) {osds}) logged {count} checksum
+        error(s) on {dates} where the checksum computed from the data read
+        back is that of an all-zero block, so the read most likely returned
+        zeroes instead of the stored data, for example from a failing disk or controller, a
+        lost volatile write cache or the kernel I/O path. Please check the
+        kernel log and SMART data of the disks behind those OSDs
+        (https://tracker.ceph.com/issues/22464).
+      format-dict:
+        osds: '@checks.bluestore_zeroed_read.search.results_group_3:unique_comma_join'
+        count: '@checks.bluestore_zeroed_read.search.num_results'
+        dates: '@checks.bluestore_zeroed_read.search.results_group_1:unique_comma_join'

@@ -1,0 +1,11 @@
+target-name: bluestore_zeroed_read.yaml
+data-root:
+  files:
+    var/log/ceph/ceph-osd.1.log: |
+      2022-02-09T04:18:32.791+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x1000 checksum at blob offset 0x0, got 0x591a6ff2, expected 0xc939ea08, device location [0x41822f0000~1000], logical extent 0x200000~1000, object #2:4f94166a:::rbd_data.5e2a6b8b4567.0000000000000a1c:head#
+      2022-02-09T04:20:10.112+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x10000 checksum at blob offset 0x0, got 0x6706be76, expected 0x1b9c0e4d, device location [0x41823a0000~10000], logical extent 0x200000~10000, object #2:9d1e0f22:::rbd_data.5e2a6b8b4567.0000000000000a1c:head#
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:  # none expected

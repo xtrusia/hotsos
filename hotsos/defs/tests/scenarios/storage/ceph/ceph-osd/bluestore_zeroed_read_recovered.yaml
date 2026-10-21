@@ -1,0 +1,20 @@
+target-name: bluestore_zeroed_read.yaml
+data-root:
+  files:
+    var/log/ceph/ceph-osd.1.log: |
+      2022-02-09T04:18:32.791+0000 7faf9d3bb700 -1 bluestore(/var/lib/ceph/osd/ceph-1) _verify_csum bad crc32c/0x1000 checksum at blob offset 0x0, got 0x6706be76, expected 0xc939ea08, device location [0x41822f0000~1000], logical extent 0x200000~1000, object #2:4f94166a:::rbd_data.5e2a6b8b4567.0000000000000a1c:head#
+      2022-02-09T04:18:32.795+0000 7faf9d3bb700 -1 log_channel(cluster) log [ERR] : 2.1f missing primary copy of 2:4f94166a:::rbd_data.5e2a6b8b4567.0000000000000a1c:head, will try copies on 3,7
+      2022-02-09T09:12:44.530+0000 7faf9d3bb700  0 log_channel(cluster) log [DBG] : 2.1f deep-scrub ok
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  CephOSDWarning: >-
+    BlueStore on this host (OSD id(s) 1) logged 1 checksum
+    error(s) on 2022-02-09 where the checksum computed from the data read
+    back is that of an all-zero block, so the read most likely returned
+    zeroes instead of the stored data, for example from a failing disk or controller, a
+    lost volatile write cache or the kernel I/O path. Please check the
+    kernel log and SMART data of the disks behind those OSDs
+    (https://tracker.ceph.com/issues/22464).

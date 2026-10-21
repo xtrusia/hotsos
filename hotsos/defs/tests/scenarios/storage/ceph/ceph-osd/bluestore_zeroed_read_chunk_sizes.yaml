@@ -1,0 +1,20 @@
+target-name: bluestore_zeroed_read.yaml
+data-root:
+  files:
+    var/log/ceph/ceph-osd.2.log: |
+      2022-02-09T06:11:20.310+0000 7f81c6ffd700 -1 bluestore(/var/lib/ceph/osd/ceph-2) _verify_csum bad crc32c/0x2000 checksum at blob offset 0x0, got 0x6fbbb9dc, expected 0x5d2f8a17, device location [0x1d4a210000~2000], logical extent 0x200000~2000, object #2:3c0b77e1:::rbd_data.5e2a6b8b4567.0000000000000a1c:head#
+      2022-02-09T06:11:20.334+0000 7f81c6ffd700 -1 bluestore(/var/lib/ceph/osd/ceph-2) _verify_csum bad crc32c/0x4000 checksum at blob offset 0x4000, got 0x6b9bf47a, expected 0x0e61b2c9, device location [0x1d4a2c4000~4000], logical extent 0x200000~4000, object #2:3c0b77e1:::rbd_data.5e2a6b8b4567.0000000000000a1c:head#
+      2022-02-09T06:11:21.002+0000 7f81c6ffd700 -1 bluestore(/var/lib/ceph/osd/ceph-2) _verify_csum bad crc32c/0x8000 checksum at blob offset 0x8000, got 0x43bc4552, expected 0xa7f3d05e, device location [0x1d4a3d8000~8000], logical extent 0x200000~8000, object #2:b1e94c20:::rbd_data.5e2a6b8b4567.0000000000000a1c:head#
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  CephOSDWarning: >-
+    BlueStore on this host (OSD id(s) 2) logged 3 checksum
+    error(s) on 2022-02-09 where the checksum computed from the data read
+    back is that of an all-zero block, so the read most likely returned
+    zeroes instead of the stored data, for example from a failing disk or controller, a
+    lost volatile write cache or the kernel I/O path. Please check the
+    kernel log and SMART data of the disks behind those OSDs
+    (https://tracker.ceph.com/issues/22464).
