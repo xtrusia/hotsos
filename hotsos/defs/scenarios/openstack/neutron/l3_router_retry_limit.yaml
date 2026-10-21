@@ -1,0 +1,37 @@
+vars:
+  # neutron/agent/l3/agent.py L3NATAgent._resync_router(): logged when a
+  # router update failed and its retries (ResourceUpdate tries=5) are used
+  # up, after which the agent stops requeueing it (in 16.0.0 it also
+  # removes the router from this host; 20.0.0 and later only stop). A
+  # single 'Failed to process compatible router' error is retried and not
+  # matched. Group 3 is the router.
+  expr_retry_limit: '^([\d-]+) ([\d:]+)\.\d{3} \d+ WARNING neutron\.agent\.l3\.agent .+ Hit retry limit with router update for ([0-9a-f-]{36})'
+checks:
+  retry_limit:
+    input:
+      path: 'var/log/neutron/neutron-l3-agent.log'
+    search:
+      expr: $expr_retry_limit
+      hint: 'Hit retry limit'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  neutron-l3-router-retry-limit:
+    decision: retry_limit
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-l3-agent gave up on update(s) for router(s) {routers} on
+        {dates} ('Hit retry limit with router update'), so those routers
+        may be out of date or missing on this host until another update or
+        a full sync. Please check the 'Failed to process compatible router'
+        or 'Failed to fetch router information' errors logged before it,
+        please check on this host whether those routers are in place and up
+        to date (for example their qrouter namespace and its interfaces
+        against 'openstack port list --router <router>'), and if they are
+        not, please restart neutron-l3-agent once the cause is fixed to
+        force a full sync.
+      format-dict:
+        routers: '@checks.retry_limit.search.results_group_3:unique_comma_join'
+        dates: '@checks.retry_limit.search.results_group_1:unique_comma_join'
