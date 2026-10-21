@@ -1,0 +1,13 @@
+target-name: libvirt_connection_failed.yaml
+data-root:
+  files:
+    # Four errors, such as a short libvirtd restart.
+    var/log/nova/nova-compute.log: |
+      2022-02-10 09:01:10.101 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:02:10.215 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:03:10.330 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:04:10.442 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

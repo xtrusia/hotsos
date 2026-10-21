@@ -1,0 +1,9 @@
+target-name: libvirt_connection_failed.yaml
+data-root:
+  files:
+    var/log/nova/nova-compute.log: |
+      2022-02-10 09:06:02.871 2741 INFO nova.virt.libvirt.driver [-] Connection event '1' reason 'None'
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

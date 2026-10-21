@@ -1,0 +1,25 @@
+target-name: libvirt_connection_failed.yaml
+data-root:
+  files:
+    # nova-compute reconnected to libvirt afterwards. The connection event is
+    # also logged at every start, so it does not prove the problem is over;
+    # the message asks to check the service state.
+    var/log/nova/nova-compute.log: |
+      2022-02-10 09:01:10.101 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:02:10.215 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:03:10.330 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:04:10.442 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:05:10.556 2741 ERROR nova.virt.libvirt.host [req-4a6c8e0a-2c4e-4a6c-8e0a-2c4e6a8c0e2a - - - - -] Connection to libvirt failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory: libvirt.libvirtError: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+      2022-02-10 09:06:02.871 2741 INFO nova.virt.libvirt.driver [-] Connection event '1' reason 'None'
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute logged 5 'Connection to libvirt failed' error(s) on
+    2022-02-10, so it could not reach libvirtd at those times and may have
+    disabled this compute service with an 'AUTO: ...' reason. Please check
+    that libvirtd is running and that nova-compute can open its socket (the
+    libvirt error follows 'Connection to libvirt failed:'), and please
+    check with 'openstack compute service list' that nova-compute on this
+    host is enabled and up again.
