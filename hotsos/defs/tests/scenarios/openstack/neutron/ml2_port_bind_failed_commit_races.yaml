@@ -1,0 +1,23 @@
+target-name: ml2_port_bind_failed.yaml
+data-root:
+  files:
+    # One port that failed once and then bound, and another port that
+    # needed 10 attempts because of concurrent updates without a failed
+    # binding. Nothing is reported.
+    var/log/neutron/neutron-server.log: |
+      2022-02-10 09:20:01.003 2112 WARNING neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 2d0f5c7e-9a1b-4c3d-8e5f-6a7b8c9d0e1f on host compute-1 at level 1
+      2022-02-10 09:20:01.005 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 2d0f5c7e-9a1b-4c3d-8e5f-6a7b8c9d0e1f on host compute-1 for vnic_type normal using segments [{'id': '4c1a2b3d-5e6f-4a7b-8c9d-0e1f2a3b4c5d', 'network_type': 'vlan', 'physical_network': 'physnet1', 'segmentation_id': 1001, 'network_id': '9e8d7c6b-5a4f-4e3d-2c1b-0a9f8e7d6c5b'}]
+      2022-02-10 09:20:01.040 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 2 to bind port 2d0f5c7e-9a1b-4c3d-8e5f-6a7b8c9d0e1f
+      2022-02-10 09:21:07.040 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 2 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.060 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 3 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.080 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 4 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.100 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 5 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.120 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 6 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.140 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 7 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.160 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 8 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.180 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 9 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:21:07.200 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 10 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

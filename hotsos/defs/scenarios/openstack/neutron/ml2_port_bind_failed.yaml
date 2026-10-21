@@ -1,0 +1,47 @@
+vars:
+  # neutron/plugins/ml2/managers.py MechanismManager.bind_port(): logged for
+  # each binding attempt that no mechanism driver could bind. Group 3 is the
+  # port and group 4 the host.
+  expr_bind_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR neutron\.plugins\.ml2\.managers .+ Failed to bind port ([0-9a-f-]{36}) on host (\S+) for vnic_type \S+ using segments'
+checks:
+  # neutron/plugins/ml2/plugin.py _bind_port_if_needed() makes up to
+  # MAX_BIND_TRIES (10) binding attempts, and _attempt_binding() sets
+  # try_again when an attempt ends with vif_type binding_failed, so a port
+  # that could not be bound logs this error 10 times and is left
+  # binding_failed. At least 10 in the hour before the latest one is a
+  # noise filter: failed attempts that are retried and bind do not raise
+  # as long as fewer than 10 are logged in that hour. The success is
+  # logged at DEBUG only, so the message says some of the listed ports may
+  # have been left binding_failed.
+  port_bind_failed:
+    input:
+      path: 'var/log/neutron/neutron-server.log'
+    search:
+      expr: $expr_bind_failed
+      hint: 'Failed to bind port'
+      constraints:
+        min-results: 10
+        search-period-hours: 1
+        search-result-age-hours: 24
+conclusions:
+  neutron-ml2-port-bind-failed:
+    decision: port_bind_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-server logged {count} failed binding attempt(s) ('Failed to
+        bind port ... using segments') on {dates} for port(s) {ports} on
+        host(s) {hosts}. ML2 makes up to 10 binding attempts and leaves the
+        port with binding:vif_type binding_failed if every attempt fails,
+        so some of those ports may have been left binding_failed and
+        instances using them may have failed to boot or move. Please check
+        that the L2 agent or ovn-controller on those hosts is up in
+        'openstack network agent list' and has a bridge or physical network
+        mapping for the network segments in the error, and please check
+        with 'openstack port show <port> -c binding_vif_type -c
+        binding_host_id' whether those ports are still binding_failed.
+      format-dict:
+        count: '@checks.port_bind_failed.search.num_results'
+        dates: '@checks.port_bind_failed.search.results_group_1:unique_comma_join'
+        ports: '@checks.port_bind_failed.search.results_group_3:unique_comma_join'
+        hosts: '@checks.port_bind_failed.search.results_group_4:unique_comma_join'

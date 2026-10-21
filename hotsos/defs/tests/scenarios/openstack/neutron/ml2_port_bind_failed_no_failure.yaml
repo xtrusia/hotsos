@@ -1,0 +1,11 @@
+target-name: ml2_port_bind_failed.yaml
+data-root:
+  files:
+    # Only a level warning and a debug line, no binding failure.
+    var/log/neutron/neutron-server.log: |
+      2022-02-10 09:14:52.003 2112 WARNING neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas at level 1
+      2022-02-10 09:14:52.401 2112 DEBUG neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempting to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal with profile  bind_port /usr/lib/python3/dist-packages/neutron/plugins/ml2/managers.py:810
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
