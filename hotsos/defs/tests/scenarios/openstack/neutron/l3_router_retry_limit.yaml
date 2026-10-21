@@ -1,0 +1,34 @@
+data-root:
+  files:
+    # Six failed attempts for one router and then the retry limit.
+    var/log/neutron/neutron-l3-agent.log: |
+      2022-02-10 06:10:30.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3, priority 1, update_id 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e00. Wait time elapsed: 0.001
+      2022-02-10 06:10:30.800 2468 ERROR neutron.agent.l3.agent [-] Failed to process compatible router: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e: neutron_lib.exceptions.ProcessExecutionError: Exit code: 2; Cmd: ['ip', 'netns', 'exec', 'qrouter-b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'ip', '-4', 'route', 'replace', 'default', 'via', '10.5.0.1', 'dev', 'qg-4a5b6c7d-8e']; Stdin: ; Stdout: ; Stderr: Error: Nexthop has invalid gateway.
+      2022-02-10 06:11:31.101 2468 INFO neutron.agent.l3.agent [-] Starting router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3, priority 1, update_id 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e00. Wait time elapsed: 0.001
+      2022-02-10 06:11:31.801 2468 ERROR neutron.agent.l3.agent [-] Failed to process compatible router: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e: neutron_lib.exceptions.ProcessExecutionError: Exit code: 2; Cmd: ['ip', 'netns', 'exec', 'qrouter-b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'ip', '-4', 'route', 'replace', 'default', 'via', '10.5.0.1', 'dev', 'qg-4a5b6c7d-8e']; Stdin: ; Stdout: ; Stderr: Error: Nexthop has invalid gateway.
+      2022-02-10 06:12:32.102 2468 INFO neutron.agent.l3.agent [-] Starting router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3, priority 1, update_id 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e00. Wait time elapsed: 0.001
+      2022-02-10 06:12:32.802 2468 ERROR neutron.agent.l3.agent [-] Failed to process compatible router: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e: neutron_lib.exceptions.ProcessExecutionError: Exit code: 2; Cmd: ['ip', 'netns', 'exec', 'qrouter-b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'ip', '-4', 'route', 'replace', 'default', 'via', '10.5.0.1', 'dev', 'qg-4a5b6c7d-8e']; Stdin: ; Stdout: ; Stderr: Error: Nexthop has invalid gateway.
+      2022-02-10 06:13:33.103 2468 INFO neutron.agent.l3.agent [-] Starting router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3, priority 1, update_id 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e00. Wait time elapsed: 0.001
+      2022-02-10 06:13:33.803 2468 ERROR neutron.agent.l3.agent [-] Failed to process compatible router: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e: neutron_lib.exceptions.ProcessExecutionError: Exit code: 2; Cmd: ['ip', 'netns', 'exec', 'qrouter-b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'ip', '-4', 'route', 'replace', 'default', 'via', '10.5.0.1', 'dev', 'qg-4a5b6c7d-8e']; Stdin: ; Stdout: ; Stderr: Error: Nexthop has invalid gateway.
+      2022-02-10 06:14:34.104 2468 INFO neutron.agent.l3.agent [-] Starting router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3, priority 1, update_id 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e00. Wait time elapsed: 0.001
+      2022-02-10 06:14:34.804 2468 ERROR neutron.agent.l3.agent [-] Failed to process compatible router: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e: neutron_lib.exceptions.ProcessExecutionError: Exit code: 2; Cmd: ['ip', 'netns', 'exec', 'qrouter-b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'ip', '-4', 'route', 'replace', 'default', 'via', '10.5.0.1', 'dev', 'qg-4a5b6c7d-8e']; Stdin: ; Stdout: ; Stderr: Error: Nexthop has invalid gateway.
+      2022-02-10 06:15:35.105 2468 INFO neutron.agent.l3.agent [-] Starting router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3, priority 1, update_id 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e00. Wait time elapsed: 0.001
+      2022-02-10 06:15:35.805 2468 ERROR neutron.agent.l3.agent [-] Failed to process compatible router: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e: neutron_lib.exceptions.ProcessExecutionError: Exit code: 2; Cmd: ['ip', 'netns', 'exec', 'qrouter-b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'ip', '-4', 'route', 'replace', 'default', 'via', '10.5.0.1', 'dev', 'qg-4a5b6c7d-8e']; Stdin: ; Stdout: ; Stderr: Error: Nexthop has invalid gateway.
+      2022-02-10 06:15:40.880 2468 WARNING neutron.agent.l3.agent [-] Hit retry limit with router update for b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e, action 3
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    neutron-l3-agent gave up on update(s) for router(s)
+    b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e on 2022-02-10 ('Hit retry limit
+    with router update'), so those routers may be out of date or missing on
+    this host, or left behind after a failed delete, until another update
+    or a full sync. Please check the 'Failed to process compatible router',
+    'Failed to fetch router information' or 'Error while deleting router'
+    errors logged before it, please check on this host whether those
+    routers match their current state (for a router that still exists here
+    its qrouter namespace and interfaces against 'openstack port list
+    --router <router>', for a deleted or moved router that its qrouter
+    namespace is gone), and if they do not, please restart neutron-l3-agent
+    once the cause is fixed to force a full sync.

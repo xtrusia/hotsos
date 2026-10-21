@@ -1,0 +1,42 @@
+target-name: l3_router_retry_limit.yaml
+data-root:
+  files:
+    # A deleted router whose removal failed six times (action 1); the
+    # agent logs 'Finished a router delete' after each failed removal.
+    var/log/neutron/neutron-l3-agent.log: |
+      2022-02-10 07:20:10.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1, priority 1, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Wait time elapsed: 0.001
+      2022-02-10 07:20:10.600 2468 ERROR neutron.agent.l3.agent [-] Error while deleting router d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70: neutron_lib.exceptions.ProcessExecutionError: Exit code: 1; Cmd: ['ip', 'netns', 'delete', 'qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70']; Stdin: ; Stdout: ; Stderr: Cannot remove namespace file "/run/netns/qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70": Device or resource busy
+      2022-02-10 07:20:10.610 2468 INFO neutron.agent.l3.agent [-] Finished a router delete for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Time elapsed: 0.510
+      2022-02-10 07:21:10.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1, priority 1, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Wait time elapsed: 0.001
+      2022-02-10 07:21:10.600 2468 ERROR neutron.agent.l3.agent [-] Error while deleting router d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70: neutron_lib.exceptions.ProcessExecutionError: Exit code: 1; Cmd: ['ip', 'netns', 'delete', 'qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70']; Stdin: ; Stdout: ; Stderr: Cannot remove namespace file "/run/netns/qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70": Device or resource busy
+      2022-02-10 07:21:10.610 2468 INFO neutron.agent.l3.agent [-] Finished a router delete for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Time elapsed: 0.510
+      2022-02-10 07:22:10.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1, priority 1, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Wait time elapsed: 0.001
+      2022-02-10 07:22:10.600 2468 ERROR neutron.agent.l3.agent [-] Error while deleting router d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70: neutron_lib.exceptions.ProcessExecutionError: Exit code: 1; Cmd: ['ip', 'netns', 'delete', 'qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70']; Stdin: ; Stdout: ; Stderr: Cannot remove namespace file "/run/netns/qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70": Device or resource busy
+      2022-02-10 07:22:10.610 2468 INFO neutron.agent.l3.agent [-] Finished a router delete for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Time elapsed: 0.510
+      2022-02-10 07:23:10.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1, priority 1, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Wait time elapsed: 0.001
+      2022-02-10 07:23:10.600 2468 ERROR neutron.agent.l3.agent [-] Error while deleting router d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70: neutron_lib.exceptions.ProcessExecutionError: Exit code: 1; Cmd: ['ip', 'netns', 'delete', 'qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70']; Stdin: ; Stdout: ; Stderr: Cannot remove namespace file "/run/netns/qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70": Device or resource busy
+      2022-02-10 07:23:10.610 2468 INFO neutron.agent.l3.agent [-] Finished a router delete for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Time elapsed: 0.510
+      2022-02-10 07:24:10.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1, priority 1, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Wait time elapsed: 0.001
+      2022-02-10 07:24:10.600 2468 ERROR neutron.agent.l3.agent [-] Error while deleting router d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70: neutron_lib.exceptions.ProcessExecutionError: Exit code: 1; Cmd: ['ip', 'netns', 'delete', 'qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70']; Stdin: ; Stdout: ; Stderr: Cannot remove namespace file "/run/netns/qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70": Device or resource busy
+      2022-02-10 07:24:10.610 2468 INFO neutron.agent.l3.agent [-] Finished a router delete for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Time elapsed: 0.510
+      2022-02-10 07:25:10.100 2468 INFO neutron.agent.l3.agent [-] Starting router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1, priority 1, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Wait time elapsed: 0.001
+      2022-02-10 07:25:10.600 2468 ERROR neutron.agent.l3.agent [-] Error while deleting router d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70: neutron_lib.exceptions.ProcessExecutionError: Exit code: 1; Cmd: ['ip', 'netns', 'delete', 'qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70']; Stdin: ; Stdout: ; Stderr: Cannot remove namespace file "/run/netns/qrouter-d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70": Device or resource busy
+      2022-02-10 07:25:10.605 2468 WARNING neutron.agent.l3.agent [-] Hit retry limit with router update for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, action 1
+      2022-02-10 07:25:10.610 2468 INFO neutron.agent.l3.agent [-] Finished a router delete for d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70, update_id 7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a01. Time elapsed: 0.510
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    neutron-l3-agent gave up on update(s) for router(s)
+    d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70 on 2022-02-10 ('Hit retry limit
+    with router update'), so those routers may be out of date or missing on
+    this host, or left behind after a failed delete, until another update
+    or a full sync. Please check the 'Failed to process compatible router',
+    'Failed to fetch router information' or 'Error while deleting router'
+    errors logged before it, please check on this host whether those
+    routers match their current state (for a router that still exists here
+    its qrouter namespace and interfaces against 'openstack port list
+    --router <router>', for a deleted or moved router that its qrouter
+    namespace is gone), and if they do not, please restart neutron-l3-agent
+    once the cause is fixed to force a full sync.
