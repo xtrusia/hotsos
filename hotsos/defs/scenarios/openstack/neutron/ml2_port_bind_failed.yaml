@@ -1,0 +1,62 @@
+vars:
+  # neutron/plugins/ml2/managers.py MechanismManager.bind_port(): logged for
+  # each binding attempt that no mechanism driver could bind. Group 3 is the
+  # port and group 4 the host.
+  expr_bind_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR neutron\.plugins\.ml2\.managers .+ Failed to bind port ([0-9a-f-]{36}) on host (\S+) for vnic_type \S+ using segments'
+  # neutron/plugins/ml2/plugin.py _bind_port_if_needed(): logged before each
+  # binding retry. Group 3 is the port.
+  expr_last_attempt: '^([\d-]+) ([\d:]+)\.\d{3} \d+ INFO neutron\.plugins\.ml2\.plugin .+ Attempt 10 to bind port ([0-9a-f-]{36})$'
+checks:
+  # _bind_port_if_needed() makes up to MAX_BIND_TRIES (10) binding attempts
+  # and _attempt_binding() sets try_again when an attempt ends with vif_type
+  # binding_failed, so a port that could not be bound logs the error 10
+  # times and 'Attempt 2' to 'Attempt 10' in between, all in one request,
+  # and is left binding_failed. Both checks are required: at least 10
+  # errors (a retried failure that then binds logs one) and an 'Attempt
+  # 10' line (a port that bound on an earlier retry never reaches it). The
+  # listed ports are the ones that reached attempt 10. Commit races also
+  # log 'Attempt N' without the error, and the 10th attempt can still bind,
+  # so a port that bound on attempt 10 plus an unrelated failure in the
+  # window would still raise. The success is logged at DEBUG only.
+  port_bind_failed:
+    input:
+      path: 'var/log/neutron/neutron-server.log'
+    search:
+      expr: $expr_bind_failed
+      hint: 'Failed to bind port'
+      constraints:
+        min-results: 10
+        search-result-age-hours: 24
+  reached_last_attempt:
+    input:
+      path: 'var/log/neutron/neutron-server.log'
+    search:
+      expr: $expr_last_attempt
+      hint: 'Attempt 10 to bind port'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  neutron-ml2-port-bind-failed:
+    decision:
+      and: [port_bind_failed, reached_last_attempt]
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-server logged {count} failed binding attempt(s)
+        ('Failed to bind port ... using segments') on {dates} for
+        host(s) {hosts}, and port(s) {ports} reached the 10th and last
+        binding attempt ('Attempt 10 to bind port'). ML2 leaves a port
+        with binding:vif_type binding_failed when all 10 attempts fail,
+        so those ports may have been left binding_failed and instances
+        using them may have failed to boot or move. Please check that
+        the L2 agent or ovn-controller on those hosts is up in
+        'openstack network agent list' and has a bridge or physical
+        network mapping for flat or VLAN segments in the error (VXLAN
+        and Geneve segments need a tunnel type instead), and please
+        check with 'openstack port show <port> -c binding_vif_type -c
+        binding_host_id' whether those ports are still binding_failed.
+      format-dict:
+        count: '@checks.port_bind_failed.search.num_results'
+        dates: '@checks.port_bind_failed.search.results_group_1:unique_comma_join'
+        hosts: '@checks.port_bind_failed.search.results_group_4:unique_comma_join'
+        ports: '@checks.reached_last_attempt.search.results_group_3:unique_comma_join'

@@ -1,0 +1,44 @@
+target-name: ml2_port_bind_failed.yaml
+data-root:
+  files:
+    # A later binding attempt for the port. Successful binds are not logged
+    # at INFO, so the past failure is still reported and the message asks
+    # to check whether the port is still binding_failed.
+    var/log/neutron/neutron-server.log: |
+      2022-02-10 09:14:52.025 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.040 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 2 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.045 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.060 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 3 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.065 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.080 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 4 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.085 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.100 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 5 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.105 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.120 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 6 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.125 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.140 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 7 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.145 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.160 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 8 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.165 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.180 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 9 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.185 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:14:52.200 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 10 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+      2022-02-10 09:14:52.205 2112 ERROR neutron.plugins.ml2.managers [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Failed to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f on host compute-2.maas for vnic_type normal using segments [{'id': '8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d', 'network_type': 'geneve', 'physical_network': None, 'segmentation_id': 7, 'network_id': '3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f'}]
+      2022-02-10 09:52:41.019 2112 INFO neutron.plugins.ml2.plugin [req-1a3c5e7f-9b2d-4f6a-8c0e-2b4d6f8a0c1e b0e4c6a8d2f04e1a9c3b5d7f9e1a3c5b 6a8c0e2f4b6d48a0b2c4e6f8a0b2c4d6 - default default] Attempt 2 to bind port 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    neutron-server logged 10 failed binding attempt(s) ('Failed to bind
+    port ... using segments') on 2022-02-10 for host(s) compute-2.maas, and
+    port(s) 7f3e1d2c-4b5a-4968-8776-5a4b3c2d1e0f reached the 10th and last
+    binding attempt ('Attempt 10 to bind port'). ML2 leaves a port with
+    binding:vif_type binding_failed when all 10 attempts fail, so those
+    ports may have been left binding_failed and instances using them may
+    have failed to boot or move. Please check that the L2 agent or
+    ovn-controller on those hosts is up in 'openstack network agent list'
+    and has a bridge or physical network mapping for flat or VLAN segments
+    in the error (VXLAN and Geneve segments need a tunnel type instead),
+    and please check with 'openstack port show <port> -c binding_vif_type
+    -c binding_host_id' whether those ports are still binding_failed.
