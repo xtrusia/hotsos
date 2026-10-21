@@ -1,0 +1,11 @@
+target-name: network_allocation_failed.yaml
+data-root:
+  files:
+    # A tenant network out of addresses, which is not matched.
+    var/log/nova/nova-compute.log: |
+      2022-02-10 08:05:12.410 3110 WARNING nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] No more fixed IP to be allocated
+      2022-02-10 08:05:13.991 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Build of instance 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a aborted: Failed to allocate the network(s) with error No fixed IP addresses available for network: 3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f, not rescheduling.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

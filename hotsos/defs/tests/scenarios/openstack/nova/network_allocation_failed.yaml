@@ -1,0 +1,34 @@
+data-root:
+  files:
+    # Two builds aborted after vif plug timeouts (current and ussuri
+    # formats). Timeouts during a live migration and a rebuild are not
+    # counted.
+    var/log/nova/nova-compute.log: |
+      2022-02-10 08:05:12.402 3110 WARNING nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Timeout waiting for ['network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433229a'] for instance with vm_state building and task_state spawning. Event states are: network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433229a: timed out after 300.00 seconds
+      2022-02-10 08:05:12.410 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Failed to allocate network(s): nova.exception.VirtualInterfaceCreateException: Virtual Interface creation failed
+      2022-02-10 08:05:13.991 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Build of instance 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a aborted: Failed to allocate the network(s), not rescheduling.
+      2022-02-10 09:10:40.118 3110 WARNING nova.virt.libvirt.driver [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e] Timeout waiting for [('network-vif-plugged', '8e7d6c5b-4a39-4817-9605-f4e3d2c1b0a9')] for instance with vm_state building and task_state spawning.
+      2022-02-10 09:10:40.200 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e] Failed to allocate network(s): nova.exception.VirtualInterfaceCreateException: Virtual Interface creation failed
+      2022-02-10 09:10:41.502 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e] Build of instance 6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e aborted: Failed to allocate the network(s), not rescheduling.
+      2022-02-10 11:30:00.500 3110 WARNING nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d] Timeout waiting for ['network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433226d'] for instance with vm_state active and task_state migrating. Event states are: network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433226d: timed out after 300.00 seconds
+      2022-02-10 11:45:10.020 3110 WARNING nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f] Timeout waiting for ['network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433225f'] for instance with vm_state active and task_state rebuild_spawning. Event states are: network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433225f: timed out after 300.00 seconds
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute aborted 2 instance build(s) for
+    3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a,
+    6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e on 2022-02-10 with 'Failed to
+    allocate the network(s), not rescheduling' and logged 2 'Timeout
+    waiting for [...network-vif-plugged...]' warning(s) for
+    3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a,
+    6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e on 2022-02-10. With
+    vif_plugging_is_fatal=True (the default) a vif plug timeout aborts a
+    build this way, but the lines are not matched per build. Please check
+    the lines before each abort ('Timeout waiting for
+    [...network-vif-plugged...]' means a vif plug timeout and 'Neutron
+    Reported failure on event' means neutron reported a failed vif plug),
+    and please check that the neutron L2 agent or ovn-controller on this
+    host is running and processing ports and that neutron-server can send
+    network-vif-plugged events to nova.

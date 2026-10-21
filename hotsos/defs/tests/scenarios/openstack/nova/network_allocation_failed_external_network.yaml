@@ -1,0 +1,12 @@
+target-name: network_allocation_failed.yaml
+data-root:
+  files:
+    # A build aborted because the project may not attach to an external
+    # network, a tenant request error. Not reported.
+    var/log/nova/nova-compute.log: |
+      2022-02-10 08:05:12.410 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Failed to allocate network(s): nova.exception.ExternalNetworkAttachForbidden: It is not allowed to create an interface on external network 3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f
+      2022-02-10 08:05:13.991 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Build of instance 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a aborted: Failed to allocate the network(s), not rescheduling.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

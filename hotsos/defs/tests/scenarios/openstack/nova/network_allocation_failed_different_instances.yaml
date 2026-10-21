@@ -1,0 +1,29 @@
+target-name: network_allocation_failed.yaml
+data-root:
+  files:
+    # A build aborted after neutron reported a failed vif plug and a timeout
+    # for another instance.
+    # Both instance lists are shown so they can be told apart.
+    var/log/nova/nova-compute.log: |
+      2022-02-10 08:05:12.300 3110 ERROR nova.virt.libvirt.driver [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Neutron Reported failure on event network-vif-plugged-4e5f6a7b-8c9d-4e0f-a1b2-c3d4e5f6a7b8 for instance 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a
+      2022-02-10 08:05:12.410 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Failed to allocate network(s): nova.exception.VirtualInterfaceCreateException: Virtual Interface creation failed
+      2022-02-10 08:05:13.991 3110 ERROR nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a] Build of instance 3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a aborted: Failed to allocate the network(s), not rescheduling.
+      2022-02-10 09:10:40.118 3110 WARNING nova.compute.manager [req-2c4e6a8c-0e2a-4c6e-8a0c-2e4a6c8e0a2c 5b2c0e6a8d4f4b1c9e7a3d5f1b9c7e3a 0c2e4a6c8e0a4c2e8a0c2e4a6c8e0a2c - default default] [instance: 6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e] Timeout waiting for ['network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433227e'] for instance with vm_state building and task_state spawning. Event states are: network-vif-plugged-0f1e2d3c-4b5a-4697-8877-66554433227e: timed out after 300.00 seconds
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute aborted 1 instance build(s) for
+    3f2e1d0c-9b8a-4766-8554-4f3e2d1c0b9a on 2022-02-10 with 'Failed to
+    allocate the network(s), not rescheduling' and logged 1 'Timeout
+    waiting for [...network-vif-plugged...]' warning(s) for
+    6c5b4a39-2817-4f6e-9d5c-4b3a29180f7e on 2022-02-10. With
+    vif_plugging_is_fatal=True (the default) a vif plug timeout aborts a
+    build this way, but the lines are not matched per build. Please check
+    the lines before each abort ('Timeout waiting for
+    [...network-vif-plugged...]' means a vif plug timeout and 'Neutron
+    Reported failure on event' means neutron reported a failed vif plug),
+    and please check that the neutron L2 agent or ovn-controller on this
+    host is running and processing ports and that neutron-server can send
+    network-vif-plugged events to nova.

@@ -1,0 +1,133 @@
+vars:
+  # nova/compute/manager.py ComputeVirtAPI.wait_for_instance_event() (25.0.0
+  # and later) or nova/virt/libvirt/driver.py (21.0.0 to 24.0.0; 24.0.0 has
+  # no trailing period):
+  #   'Timeout waiting for [...network-vif-plugged...] for instance with
+  #    vm_state building and task_state spawning. Event states are: ...'
+  # Older releases list the events as tuples. Only builds (vm_state
+  # building) are matched. Other operations and live migrations, where the
+  # source host waits for an event raised on the destination, are not.
+  # Group 3 is the instance.
+  expr_vif_timeout: '^([\d-]+) ([\d:]+)\.\d{3} \d+ WARNING nova\.(?:compute\.manager|virt\.libvirt\.driver) .*\[instance: ([0-9a-f-]{36})\] Timeout waiting for \[.*network-vif-plugged.*\] for instance with vm_state building and task_state \w+'
+  # nova/virt/libvirt/driver.py _neutron_failed_callback(): neutron sent a
+  # failed network-vif-plugged event; with vif_plugging_is_fatal=True the
+  # build is aborted. Group 3 is the instance.
+  expr_vif_plug_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR nova\.virt\.libvirt\.driver .*\[instance: ([0-9a-f-]{36})\] Neutron Reported failure on event network-vif-plugged-'
+  # _do_build_and_run_instance() logs the BuildAbortException that
+  # _build_and_run_instance() / _build_resources() raise when network
+  # allocation failed, including VirtualInterfaceCreateException after a
+  # vif plug timeout with vif_plugging_is_fatal=True. The 'Failed to
+  # allocate the network(s) with error ...' form (NoMoreFixedIps, a tenant
+  # running out of addresses) is not matched. The same abort reason is also
+  # used for tenant request errors such as ExternalNetworkAttachForbidden,
+  # so an abort is only reported with a vif plug timeout or failure on this
+  # host. Group 3 is the instance.
+  expr_build_aborted: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR nova\.compute\.manager .*\[instance: ([0-9a-f-]{36})\] Build of instance \S+ aborted: Failed to allocate the network\(s\), not rescheduling\.'
+checks:
+  vif_plug_timeout:
+    input:
+      path: 'var/log/nova/nova-compute.log'
+    search:
+      expr: $expr_vif_timeout
+      hint: 'network-vif-plugged'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  vif_plug_failed:
+    input:
+      path: 'var/log/nova/nova-compute.log'
+    search:
+      expr: $expr_vif_plug_failed
+      hint: 'Neutron Reported failure'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  build_aborted:
+    input:
+      path: 'var/log/nova/nova-compute.log'
+    search:
+      expr: $expr_build_aborted
+      hint: 'Failed to allocate the network'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+# With vif_plugging_is_fatal=True (the default) a vif plug timeout during a
+# build aborts it, so both lines come from one event and are reported as one
+# issue. The checks cannot be matched by instance, so both instance lists are
+# shown.
+conclusions:
+  nova-build-aborted-vif-plug-timeout:
+    priority: 2
+    decision:
+      - build_aborted
+      - vif_plug_timeout
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute aborted {build_count} instance build(s) for
+        {instances} on {build_dates} with 'Failed to allocate the
+        network(s), not rescheduling' and logged {timeout_count} 'Timeout
+        waiting for [...network-vif-plugged...]' warning(s) for
+        {timeout_instances} on {timeout_dates}. With
+        vif_plugging_is_fatal=True (the default) a vif plug timeout aborts
+        a build this way, but the lines are not matched per build. Please
+        check the lines before each abort ('Timeout waiting for
+        [...network-vif-plugged...]' means a vif plug timeout and 'Neutron
+        Reported failure on event' means neutron reported a failed vif
+        plug), and please check that the neutron L2 agent or ovn-controller
+        on this host is running and processing ports and that
+        neutron-server can send network-vif-plugged events to nova.
+      format-dict:
+        build_count: '@checks.build_aborted.search.num_results'
+        instances: '@checks.build_aborted.search.results_group_3:unique_comma_join'
+        build_dates: '@checks.build_aborted.search.results_group_1:unique_comma_join'
+        timeout_count: '@checks.vif_plug_timeout.search.num_results'
+        timeout_instances: '@checks.vif_plug_timeout.search.results_group_3:unique_comma_join'
+        timeout_dates: '@checks.vif_plug_timeout.search.results_group_1:unique_comma_join'
+  nova-build-aborted-vif-plug-failed:
+    priority: 1
+    decision:
+      - build_aborted
+      - vif_plug_failed
+      - not: vif_plug_timeout
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute aborted {build_count} instance build(s) for
+        {instances} on {build_dates} with 'Failed to allocate the
+        network(s), not rescheduling' and logged {failed_count} 'Neutron
+        Reported failure on event network-vif-plugged' error(s) for
+        {failed_instances} on {failed_dates}, so neutron reported that it
+        could not plug the ports of those instances on this host. Please
+        check the neutron L2 agent or ovn-controller log on this host for
+        those ports, and please check the 'Failed to allocate network(s)'
+        traceback before each abort.
+      format-dict:
+        build_count: '@checks.build_aborted.search.num_results'
+        instances: '@checks.build_aborted.search.results_group_3:unique_comma_join'
+        build_dates: '@checks.build_aborted.search.results_group_1:unique_comma_join'
+        failed_count: '@checks.vif_plug_failed.search.num_results'
+        failed_instances: '@checks.vif_plug_failed.search.results_group_3:unique_comma_join'
+        failed_dates: '@checks.vif_plug_failed.search.results_group_1:unique_comma_join'
+  nova-vif-plug-timeout:
+    priority: 1
+    decision:
+      - vif_plug_timeout
+      - not: build_aborted
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute logged {timeout_count} 'Timeout waiting for
+        [...network-vif-plugged...]' warning(s) while building instance(s)
+        {instances} on {timeout_dates} with no matching build abort in
+        these logs, which can mean that vif_plugging_is_fatal is False (and
+        those instances started before their network was ready) or that the
+        abort is not in these logs. Please check vif_plugging_is_fatal in
+        nova.conf, please check that the neutron L2 agent or ovn-controller
+        on this host is running and processing ports and that
+        neutron-server can send network-vif-plugged events to nova, and
+        please check the network of those instances.
+      format-dict:
+        timeout_count: '@checks.vif_plug_timeout.search.num_results'
+        instances: '@checks.vif_plug_timeout.search.results_group_3:unique_comma_join'
+        timeout_dates: '@checks.vif_plug_timeout.search.results_group_1:unique_comma_join'
