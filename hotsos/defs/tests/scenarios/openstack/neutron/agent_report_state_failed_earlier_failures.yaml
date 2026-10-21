@@ -1,0 +1,28 @@
+target-name: agent_report_state_failed.yaml
+data-root:
+  files:
+    # Three earlier DHCP failures at 02:1x and seven at 10:4x. Only the
+    # hour ending at the newest failure is counted, so the count is 7.
+    var/log/neutron/neutron-dhcp-agent.log: |
+      2022-02-10 02:12:24.104 1590 ERROR neutron.agent.dhcp.agent [req-256e4f13-1462-43bc-980c-1f1848e34614 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 6a046f66730740bd99292dbbf75fc29e
+      2022-02-10 02:13:24.114 1590 ERROR neutron.agent.dhcp.agent [req-3967cbc8-07cd-4760-986a-73a50e0a6ae7 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 1535070fefc6404f91d8b9323a7df9d3
+      2022-02-10 02:14:24.124 1590 ERROR neutron.agent.dhcp.agent [req-04b4c812-078c-41ed-be56-6f6fd2adaea5 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 75996128056d4031922524845d1793a3
+      2022-02-10 10:42:24.104 1590 ERROR neutron.agent.dhcp.agent [req-256e4f13-1462-43bc-980c-1f1848e34614 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 6a046f66730740bd99292dbbf75fc29e
+      2022-02-10 10:43:24.114 1590 ERROR neutron.agent.dhcp.agent [req-3967cbc8-07cd-4760-986a-73a50e0a6ae7 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 1535070fefc6404f91d8b9323a7df9d3
+      2022-02-10 10:44:24.124 1590 ERROR neutron.agent.dhcp.agent [req-04b4c812-078c-41ed-be56-6f6fd2adaea5 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 75996128056d4031922524845d1793a3
+      2022-02-10 10:45:24.134 1590 ERROR neutron.agent.dhcp.agent [req-7687a82a-5c53-40f2-a1be-f76bebb843cd - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID d8f475473c3c45bcbb1dcd9a8e6767fb
+      2022-02-10 10:46:24.144 1590 ERROR neutron.agent.dhcp.agent [req-3dc6cce6-852f-46a6-97d2-0ee7d7e779e2 - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 775e3fa669774b00835839d2f82846d9
+      2022-02-10 10:47:24.154 1590 ERROR neutron.agent.dhcp.agent [req-c93fb0f6-2191-4402-9790-2fc5b300570a - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID 76bf033ff501483c936d5743043bed3e
+      2022-02-10 10:48:24.164 1590 ERROR neutron.agent.dhcp.agent [req-c848b0d4-a899-403a-9fdd-1f7c979c08ca - - - - -] Failed reporting state!: oslo_messaging.exceptions.MessagingTimeout: Timed out waiting for a reply to message ID de76fc589fc041569a07ccee2bb787db
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackWarning: >-
+    neutron-dhcp-agent logged 7 'Failed reporting state!' error(s) within
+    one hour on 2022-02-10, so its state reports to neutron-server failed
+    repeatedly and neutron-server may have considered it down then
+    (networks can then be rescheduled away from it). Please check the
+    exception logged with the errors (often MessagingTimeout) and RabbitMQ
+    and neutron-server health around those errors, and please check with
+    'openstack network agent list' that the agent is up now.

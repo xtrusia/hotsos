@@ -1,0 +1,9 @@
+target-name: agent_report_state_failed.yaml
+data-root:
+  files:
+    var/log/neutron/neutron-l3-agent.log: |
+      2022-02-10 11:05:21.371 222935 INFO neutron.agent.l3.agent [-] Agent has just been revived. Doing a full sync.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

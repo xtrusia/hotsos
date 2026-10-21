@@ -1,0 +1,120 @@
+vars:
+  # LOG.exception("Failed reporting state!") in _report_state() of the OVS,
+  # L3, DHCP and metadata agents, which report with an RPC call (the
+  # metadata agent only until its first successful report). The SR-IOV
+  # agent reports with a cast, which does not time out, so it is not
+  # checked.
+  expr_report_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR neutron\.\S+ .+ Failed reporting state!'
+checks:
+  openvswitch_report_failed:
+    input:
+      path: 'var/log/neutron/neutron-openvswitch-agent.log'
+    search:
+      expr: $expr_report_failed
+      hint: 'Failed reporting state'
+      constraints:
+        min-results: 5
+        search-period-hours: 1
+        search-result-age-hours: 24
+  l3_report_failed:
+    input:
+      path: 'var/log/neutron/neutron-l3-agent.log'
+    search:
+      expr: $expr_report_failed
+      hint: 'Failed reporting state'
+      constraints:
+        min-results: 5
+        search-period-hours: 1
+        search-result-age-hours: 24
+  dhcp_report_failed:
+    input:
+      path: 'var/log/neutron/neutron-dhcp-agent.log'
+    search:
+      expr: $expr_report_failed
+      hint: 'Failed reporting state'
+      constraints:
+        min-results: 5
+        search-period-hours: 1
+        search-result-age-hours: 24
+  metadata_report_failed:
+    input:
+      path: 'var/log/neutron/neutron-metadata-agent.log'
+    search:
+      expr: $expr_report_failed
+      hint: 'Failed reporting state'
+      constraints:
+        min-results: 5
+        search-period-hours: 1
+        search-result-age-hours: 24
+# At least 5 failures of one agent in the hour before its latest failure.
+# This is a noise filter, not a duration: the failures need not be
+# consecutive, so the message only says neutron-server may have considered
+# the agent down. The threshold is per agent so that a short RabbitMQ
+# restart seen by every agent on a gateway node does not raise. Each agent
+# raises its own issue.
+conclusions:
+  neutron-openvswitch-agent-report-state-failed:
+    decision: openvswitch_report_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-openvswitch-agent logged {count} 'Failed reporting
+        state!' error(s) within one hour on {dates}, so its state
+        reports to neutron-server failed repeatedly and neutron-server
+        may have considered it down then (new ports on this host then
+        fail to bind). Please check the exception logged with the
+        errors (often MessagingTimeout) and RabbitMQ and neutron-server
+        health around those errors, and please check with 'openstack
+        network agent list' that the agent is up now.
+      format-dict:
+        count: '@checks.openvswitch_report_failed.search.num_results'
+        dates: '@checks.openvswitch_report_failed.search.results_group_1:unique_comma_join'
+  neutron-l3-agent-report-state-failed:
+    decision: l3_report_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-l3-agent logged {count} 'Failed reporting state!'
+        error(s) within one hour on {dates}, so its state reports to
+        neutron-server failed repeatedly and neutron-server may have
+        considered it down then (routers are then not scheduled to it).
+        Please check the exception logged with the errors (often
+        MessagingTimeout) and RabbitMQ and neutron-server health around
+        those errors, and please check with 'openstack network agent
+        list' that the agent is up now.
+      format-dict:
+        count: '@checks.l3_report_failed.search.num_results'
+        dates: '@checks.l3_report_failed.search.results_group_1:unique_comma_join'
+  neutron-dhcp-agent-report-state-failed:
+    decision: dhcp_report_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-dhcp-agent logged {count} 'Failed reporting state!'
+        error(s) within one hour on {dates}, so its state reports to
+        neutron-server failed repeatedly and neutron-server may have
+        considered it down then (networks can then be rescheduled away
+        from it). Please check the exception logged with the errors
+        (often MessagingTimeout) and RabbitMQ and neutron-server health
+        around those errors, and please check with 'openstack network
+        agent list' that the agent is up now.
+      format-dict:
+        count: '@checks.dhcp_report_failed.search.num_results'
+        dates: '@checks.dhcp_report_failed.search.results_group_1:unique_comma_join'
+  neutron-metadata-agent-report-state-failed:
+    decision: metadata_report_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        neutron-metadata-agent logged {count} 'Failed reporting state!'
+        error(s) within one hour on {dates}, so its state reports to
+        neutron-server failed repeatedly and neutron-server may have
+        considered it down then (if its other RPC calls to
+        neutron-server failed as well, metadata requests that need a
+        port lookup may have failed). Please check the exception logged
+        with the errors (often MessagingTimeout) and RabbitMQ and
+        neutron-server health around those errors, and please check
+        with 'openstack network agent list' that the agent is up now.
+      format-dict:
+        count: '@checks.metadata_report_failed.search.num_results'
+        dates: '@checks.metadata_report_failed.search.results_group_1:unique_comma_join'
