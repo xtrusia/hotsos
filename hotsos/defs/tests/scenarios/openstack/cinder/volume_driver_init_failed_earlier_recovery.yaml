@@ -1,0 +1,30 @@
+target-name: volume_driver_init_failed.yaml
+data-root:
+  files:
+    # An init failure at 08:12 was fixed by a restart at 09:00; a later
+    # start failed on re-export without 'Failed to initialize driver.'.
+    var/log/cinder/cinder-volume.log: |
+      2022-02-10 08:12:01.001 3021 INFO cinder.volume.manager [req-5c1e9a7d-0b8e-4c1f-9d55-3a6f1f2b7c10 - - - - -] Starting volume driver RBDDriver (1.2.0)
+      2022-02-10 08:12:09.123 3021 ERROR cinder.volume.manager [req-5c1e9a7d-0b8e-4c1f-9d55-3a6f1f2b7c10 - - - - -] Failed to initialize driver.: cinder.exception.VolumeBackendAPIException: Bad or unexpected response from the storage volume backend API: Error connecting to ceph cluster.
+      2022-02-10 08:13:09.200 3021 WARNING cinder.volume.manager [req-9f0c2d4e-6a1b-4e7f-8c3d-2b5a9e1f0d22 - - - - -] Update driver status failed: (config name cinder-ceph) is uninitialized.
+      2022-02-10 09:00:01.001 3377 INFO cinder.volume.manager [req-2a4c6e8f-1b3d-4f5a-8c7e-9d0f1a2b3c4d - - - - -] Starting volume driver RBDDriver (1.2.0)
+      2022-02-10 09:00:05.100 3377 INFO cinder.volume.manager [req-2a4c6e8f-1b3d-4f5a-8c7e-9d0f1a2b3c4d - - - - -] Driver initialization completed successfully.
+      2022-02-10 15:49:58.001 4410 INFO cinder.volume.manager [req-6b8d0f2a-3c5e-4a7b-9d1f-2e4a6c8e0b13 - - - - -] Starting volume driver RBDDriver (1.2.0)
+      2022-02-10 15:50:00.432 4410 ERROR cinder.volume.manager [req-6b8d0f2a-3c5e-4a7b-9d1f-2e4a6c8e0b13 - - - - -] Error during re-export on driver init.: cinder.exception.VolumeBackendAPIException: Bad or unexpected response from the storage volume backend API: export failed.
+      2022-02-10 16:15:41.334 4410 WARNING cinder.volume.manager [req-0a7e3b19-4c2d-4f58-9e61-7d3c2a8b5f44 - - - - -] Update driver status failed: (config name cinder-ceph) is uninitialized.
+      2022-02-10 16:16:41.338 4410 WARNING cinder.volume.manager [req-1c8f4d2a-5e3b-4a69-8f72-8e4d3b9c6a55 - - - - -] Update driver status failed: (config name cinder-ceph) is uninitialized.
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackError: >-
+    cinder-volume logged 2 'Update driver status failed: ... is
+    uninitialized.' warning(s) within one hour on 2022-02-10, so a volume
+    backend on this host may still be uninitialized and unable to serve
+    volume requests. Please find the ERROR that cinder-volume logged when
+    it last started, usually a 'Failed to initialize driver.' traceback but
+    also 'Unsupported drivers are disabled' or 'Error during re-export on
+    driver init.', in cinder-volume.log or its rotated logs to find the
+    cause (often an unreachable storage backend or wrong credentials),
+    please check with 'openstack volume service list' whether the backend
+    is down and please restart cinder-volume once the cause is fixed.

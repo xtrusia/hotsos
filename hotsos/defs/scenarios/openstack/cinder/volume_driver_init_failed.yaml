@@ -1,0 +1,57 @@
+vars:
+  # _report_driver_status(), run by the publish_service_capabilities
+  # periodic task (every backend_stats_polling_interval, default 60s) for as
+  # long as the driver is not initialized. The config group is empty when
+  # config_group is None, which leaves two spaces after the colon. Config
+  # group names may contain spaces.
+  expr_uninitialized: '^([\d-]+) ([\d:]+)\.\d{3} \d+ WARNING cinder\.volume\.manager .+ Update driver status failed:\s+(?:\(config name [^)]+\)\s+)?is uninitialized\.'
+  expr_init_ok: '^([\d-]+) ([\d:]+)\.\d{3} \d+ INFO cinder\.volume\.manager .+ Driver initialization completed successfully\.'
+checks:
+  # The warning stops once the driver is initialized (for example after a
+  # restart), so only warnings from the last hour before the logs were
+  # collected are used, and at least two within an hour of the newest one
+  # (search-period-hours also applies on a live host, where the age filter
+  # is skipped). A success line in that hour suppresses the issue even if it
+  # came before a later failed restart or from a healthy backend; the DSL
+  # cannot order or attribute the lines.
+  driver_still_uninitialized:
+    input:
+      path: 'var/log/cinder/cinder-volume.log'
+    search:
+      expr: $expr_uninitialized
+      hint: 'is uninitialized'
+      constraints:
+        min-results: 2
+        search-period-hours: 1
+        search-result-age-hours: 1
+  driver_init_ok_recently:
+    input:
+      path: 'var/log/cinder/cinder-volume.log'
+    search:
+      expr: $expr_init_ok
+      hint: 'Driver initialization completed'
+      constraints:
+        search-result-age-hours: 1
+conclusions:
+  cinder-volume-driver-uninitialized:
+    decision:
+      - driver_still_uninitialized
+      - not: driver_init_ok_recently
+    raises:
+      type: OpenstackError
+      message: >-
+        cinder-volume logged {uninit_count} 'Update driver status
+        failed: ... is uninitialized.' warning(s) within one hour on
+        {uninit_dates}, so a volume backend on this host may still be
+        uninitialized and unable to serve volume requests. Please find
+        the ERROR that cinder-volume logged when it last started,
+        usually a 'Failed to initialize driver.' traceback but also
+        'Unsupported drivers are disabled' or 'Error during re-export
+        on driver init.', in cinder-volume.log or its rotated logs to
+        find the cause (often an unreachable storage backend or wrong
+        credentials), please check with 'openstack volume service list'
+        whether the backend is down and please restart cinder-volume
+        once the cause is fixed.
+      format-dict:
+        uninit_count: '@checks.driver_still_uninitialized.search.num_results'
+        uninit_dates: '@checks.driver_still_uninitialized.search.results_group_1:unique_comma_join'
