@@ -1,0 +1,11 @@
+target-name: amphora_failover_unreachable.yaml
+data-root:
+  files:
+    var/log/octavia/octavia-health-manager.log: |
+      2022-02-01 09:12:44.731 1288 ERROR octavia.controller.worker.v2.controller_worker [-] Amphora 3e4f5a6b-7c8d-4e9f-8a0b-1c2d3e4f5a6b failover exception: contacting the amphora timed out: octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+    var/log/octavia/octavia-worker.log: |
+      2022-02-01 10:45:12.456 1534 ERROR octavia.controller.worker.v2.controller_worker [-] LB 7e6f5a4b-3c2d-4e1f-9a8b-7c6d5e4f3a2b failover exception: contacting the amphora timed out: octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

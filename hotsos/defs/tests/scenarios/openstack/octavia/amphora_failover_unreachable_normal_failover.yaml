@@ -1,0 +1,17 @@
+target-name: amphora_failover_unreachable.yaml
+data-root:
+  files:
+    # A normal failover that logs the probe's 'exhausted' error, a
+    # failover that failed for another reason (no database record) and an
+    # AmpConnectionRetry failover line, which released workers do not log
+    # (v2 filters it, v1 never raises it) and which is not matched.
+    var/log/octavia/octavia-worker.log: |
+      2022-02-10 10:20:06.123 1534 WARNING octavia.amphorae.drivers.haproxy.rest_api_driver [-] Could not connect to instance. Retrying.: requests.exceptions.ConnectionError: HTTPSConnectionPool(host='172.31.0.10', port=9443): Max retries exceeded with url: //
+      2022-02-10 10:20:11.123 1534 ERROR octavia.amphorae.drivers.haproxy.rest_api_driver [-] Connection retries (currently set to 2) exhausted.  The amphora is unavailable. Reason: HTTPSConnectionPool(host='172.31.0.10', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f3c2a1b5e80>, 'Connection to 172.31.0.10 timed out. (connect timeout=10.0)'))
+      2022-02-10 10:24:41.123 1534 INFO octavia.controller.worker.v2.controller_worker [-] Successfully completed the failover for an amphora: {'id': '5d4e3f2a-1b0c-4d9e-8f7a-6b5c4d3e2f1a', 'load_balancer_id': '1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e', 'lb_network_ip': '172.31.0.10', 'compute_id': '9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a', 'role': 'MASTER'}
+      2022-02-10 10:30:00.123 1534 ERROR octavia.controller.worker.v2.controller_worker [-] Amphora 9c7d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f failover exception: Amphora 9c7d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f not found.: octavia.common.exceptions.NotFound: Amphora 9c7d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f not found.
+      2022-02-10 10:35:00.123 1534 ERROR octavia.controller.worker.v2.controller_worker [-] Amphora 6f5e4d3c-2b1a-4c9d-8e7f-6a5b4c3d2e1f failover exception: Could not connect to amphora, exception caught: HTTPSConnectionPool(host='172.31.0.11', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f2c1c3e5d90>, 'Connection to 172.31.0.11 timed out. (connect timeout=10.0)'))
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

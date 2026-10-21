@@ -1,0 +1,13 @@
+target-name: amphora_failover_unreachable.yaml
+data-root:
+  files:
+    var/log/octavia/octavia-health-manager.log: |
+      2022-02-01 10:28:35.123 1290 WARNING octavia.amphorae.drivers.haproxy.rest_api_driver [-] Could not connect to instance. Retrying.: requests.exceptions.ConnectionError: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f2c1c3e5d90>, 'Connection to 172.31.0.27 timed out. (connect timeout=10.0)'))
+      2022-02-01 10:38:30.123 1290 ERROR octavia.amphorae.drivers.haproxy.rest_api_driver [-] Connection retries (currently set to 120) exhausted.  The amphora is unavailable. Reason: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f2c1c3e5d90>, 'Connection to 172.31.0.27 timed out. (connect timeout=10.0)'))
+      2022-02-01 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker [-] Amphora 8a6b0d1c-2e3f-4a5b-8c6d-7e8f9a0b1c2d failover exception: contacting the amphora timed out: octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+      2022-02-01 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker Traceback (most recent call last):
+      2022-02-01 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:

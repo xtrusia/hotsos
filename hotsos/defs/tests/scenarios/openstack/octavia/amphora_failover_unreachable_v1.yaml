@@ -1,0 +1,32 @@
+target-name: amphora_failover_unreachable.yaml
+data-root:
+  files:
+    # v1 worker (up to 12.x): the REST driver retries for
+    # connection_max_retries x connection_retry_interval and the
+    # failover fails with TimeOutException. Traceback lines are not
+    # counted.
+    var/log/octavia/octavia-health-manager.log: |
+      2022-02-10 10:28:35.123 1290 WARNING octavia.amphorae.drivers.haproxy.rest_api_driver [-] Could not connect to instance. Retrying.: requests.exceptions.ConnectionError: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f2c1c3e5d90>, 'Connection to 172.31.0.27 timed out. (connect timeout=10.0)'))
+      2022-02-10 10:38:30.123 1290 ERROR octavia.amphorae.drivers.haproxy.rest_api_driver [-] Connection retries (currently set to 120) exhausted.  The amphora is unavailable. Reason: HTTPSConnectionPool(host='172.31.0.27', port=9443): Max retries exceeded with url: // (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7f2c1c3e5d90>, 'Connection to 172.31.0.27 timed out. (connect timeout=10.0)'))
+      2022-02-10 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker [-] Amphora 8a6b0d1c-2e3f-4a5b-8c6d-7e8f9a0b1c2d failover exception: contacting the amphora timed out: octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+      2022-02-10 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker Traceback (most recent call last):
+      2022-02-10 10:38:35.123 1290 ERROR octavia.controller.worker.v1.controller_worker octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackError: >-
+    Octavia logged 1 failover failure(s) on 2022-02-10 for Amphora
+    8a6b0d1c-2e3f-4a5b-8c6d-7e8f9a0b1c2d because requests to an amphora
+    agent kept failing until the connection retries ran out ('contacting
+    the amphora timed out': the controller could not connect to the agent,
+    the agent did not answer in time, or the agent or the amphora network
+    interface was not ready), and it set them to ERROR. Please find which
+    amphora did not answer from the 'Connection retries ... exhausted'
+    error and 'Could not connect to instance' warnings before each failure
+    (the address is in the reason when there is one), please check that its
+    agent answers from the controller over the lb-mgmt-net on its port
+    (9443 by default) and that its network ports were plugged, and once
+    that works please fail over the load balancers that are still in ERROR
+    (for an amphora, 'openstack loadbalancer amphora show <id>' shows its
+    load balancer).

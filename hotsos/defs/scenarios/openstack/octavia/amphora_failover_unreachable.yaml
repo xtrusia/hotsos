@@ -1,0 +1,55 @@
+vars:
+  # octavia/controller/worker/v2/controller_worker.py failover_amphora() and
+  # failover_loadbalancer() (and the v1 worker up to 12.x) log
+  #   'Amphora <id> failover exception: <exc>' / 'LB <id> failover exception: <exc>'
+  # and set the amphora and/or load balancer to ERROR. Only failures caused
+  # by TimeOutException from the amphora REST driver are matched: request()
+  # raises it when the connection retries run out. Each retry follows a
+  # requests ConnectionError or Timeout: the controller could not connect
+  # to the amphora agent, the agent did not answer within
+  # rest_request_read_timeout (ReadTimeout), or it answered that it or the
+  # amphora network interface was not ready (404).
+  # AmpConnectionRetry is not matched: only v2 tasks raise it, and the v2
+  # worker drops those records (retryMaskFilter). The v2 worker logs these
+  # lines from 7.0.0, when flows can run without the jobboard; with
+  # [task_flow] jobboard_enabled the flow runs in a conductor and they are
+  # not logged. The 'Connection retries ... exhausted' error is not matched
+  # because a failover can log it while probing the failed amphora,
+  # including during failovers that succeed. Group 3 is 'Amphora <id>' or
+  # 'LB <id>'.
+  expr_failover_unreachable: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR octavia\.controller\.worker\.v[12]\.controller_worker .+ ((?:Amphora|LB) \S+) failover exception: contacting the amphora timed out'
+checks:
+  failover_unreachable:
+    input:
+      # Failovers can be logged by the health manager or the worker.
+      path: 'var/log/octavia/*.log'
+    search:
+      expr: $expr_failover_unreachable
+      hint: 'failover exception'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  octavia-amphora-failover-unreachable:
+    decision: failover_unreachable
+    raises:
+      type: OpenstackError
+      message: >-
+        Octavia logged {count} failover failure(s) on {dates} for {ids}
+        because requests to an amphora agent kept failing until the
+        connection retries ran out ('contacting the amphora timed out':
+        the controller could not connect to the agent, the agent did
+        not answer in time, or the agent or the amphora network
+        interface was not ready), and it set them to ERROR. Please find
+        which amphora did not answer from the 'Connection retries ...
+        exhausted' error and 'Could not connect to instance' warnings
+        before each failure (the address is in the reason when there is
+        one), please check that its agent answers from the controller
+        over the lb-mgmt-net on its port (9443 by default) and that its
+        network ports were plugged, and once that works please fail
+        over the load balancers that are still in ERROR (for an
+        amphora, 'openstack loadbalancer amphora show <id>' shows its
+        load balancer).
+      format-dict:
+        count: '@checks.failover_unreachable.search.num_results'
+        dates: '@checks.failover_unreachable.search.results_group_1:unique_comma_join'
+        ids: '@checks.failover_unreachable.search.results_group_3:unique_comma_join'

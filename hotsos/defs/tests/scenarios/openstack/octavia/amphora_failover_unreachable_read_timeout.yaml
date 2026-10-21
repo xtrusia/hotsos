@@ -1,0 +1,29 @@
+target-name: amphora_failover_unreachable.yaml
+data-root:
+  files:
+    # The agent accepted the connections but did not answer within the read
+    # timeout, so the retries ran out with ReadTimeout.
+    var/log/octavia/octavia-worker.log: |
+      2022-02-10 11:02:14.201 1534 WARNING octavia.amphorae.drivers.haproxy.rest_api_driver [-] Could not connect to instance. Retrying.: requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='172.31.0.27', port=9443): Read timed out. (read timeout=60.0)
+      2022-02-10 11:03:19.207 1534 WARNING octavia.amphorae.drivers.haproxy.rest_api_driver [-] Could not connect to instance. Retrying.: requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='172.31.0.27', port=9443): Read timed out. (read timeout=60.0)
+      2022-02-10 11:03:24.210 1534 ERROR octavia.amphorae.drivers.haproxy.rest_api_driver [-] Connection retries (currently set to 2) exhausted.  The amphora is unavailable. Reason: HTTPSConnectionPool(host='172.31.0.27', port=9443): Read timed out. (read timeout=60.0)
+      2022-02-10 11:03:24.233 1534 ERROR octavia.controller.worker.v2.controller_worker [-] Amphora 5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f failover exception: contacting the amphora timed out: octavia.amphorae.driver_exceptions.exceptions.TimeOutException: contacting the amphora timed out
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/dpkg/dpkg_-l
+raised-issues:
+  OpenstackError: >-
+    Octavia logged 1 failover failure(s) on 2022-02-10 for Amphora
+    5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f because requests to an amphora
+    agent kept failing until the connection retries ran out ('contacting
+    the amphora timed out': the controller could not connect to the agent,
+    the agent did not answer in time, or the agent or the amphora network
+    interface was not ready), and it set them to ERROR. Please find which
+    amphora did not answer from the 'Connection retries ... exhausted'
+    error and 'Could not connect to instance' warnings before each failure
+    (the address is in the reason when there is one), please check that its
+    agent answers from the controller over the lb-mgmt-net on its port
+    (9443 by default) and that its network ports were plugged, and once
+    that works please fail over the load balancers that are still in ERROR
+    (for an amphora, 'openstack loadbalancer amphora show <id>' shows its
+    load balancer).
