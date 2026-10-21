@@ -275,6 +275,11 @@ class TestCoreCephCluster(  # pylint: disable=too-many-public-methods
         health = ceph.CephCluster().health_status
         self.assertEqual(health, 'HEALTH_WARN')
 
+    def test_health_checks_unmuted(self):
+        """Test unmuted health check codes are listed."""
+        checks = ceph.CephCluster().health_checks_unmuted
+        self.assertEqual(checks, ['AUTH_INSECURE_GLOBAL_ID_RECLAIM_ALLOWED'])
+
     def test_osd_versions(self):
         """Test OSD daemon versions are reported correctly."""
         versions = ceph.CephCluster().daemon_versions('osd')

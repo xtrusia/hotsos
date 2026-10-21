@@ -7,8 +7,32 @@ checks:
     property:
       path: hotsos.core.plugins.storage.ceph.CephCluster.health_status
       ops: [[ne, HEALTH_OK]]
+  # Codes from 'ceph health detail' that are not muted. Muted checks do not
+  # count towards the overall status (HealthMonitor::get_health_status()).
+  unmuted_health_checks:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks_unmuted
+      ops: [[length_hint], [gt, 0]]
 conclusions:
+  cluster-health-not-ok-with-checks:
+    priority: 2
+    decision:
+      - cluster_health_available
+      - cluster_unhealthy
+      - unmuted_health_checks
+    raises:
+      type: CephWarning
+      message: >-
+        Ceph cluster is in '{health_status}' state with unmuted health
+        check(s) {health_checks}. Please check 'ceph health detail' for
+        details.
+      format-dict:
+        health_status: '@checks.cluster_unhealthy.requires.value_actual'
+        health_checks: '@checks.unmuted_health_checks.requires.value_actual:comma_join'
+  # Fallback when 'ceph health detail' was not collected or lists no unmuted
+  # check.
   cluster-health-not-ok:
+    priority: 1
     decision:
       - cluster_health_available
       - cluster_unhealthy
