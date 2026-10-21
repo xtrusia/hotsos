@@ -1,0 +1,37 @@
+vars:
+  # nova/scheduler/client/report.py get_allocation_candidates(): logged when
+  # GET /allocation_candidates returns a status other than 200. The
+  # 'Got <status>: <body>.' part is on the next line, which has no timestamp,
+  # so it is not matched.
+  expr_candidates_failed: '^([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR nova\.scheduler\.client\.report .+ Failed to retrieve allocation candidates from placement API for filters'
+checks:
+  # At least 3 within the hour before the latest one, to filter out a few
+  # failed requests, for example while placement restarts. This is a noise
+  # filter, not a duration.
+  candidates_failed:
+    input:
+      path: 'var/log/nova/nova-scheduler.log'
+    search:
+      expr: $expr_candidates_failed
+      hint: 'allocation candidates'
+      constraints:
+        min-results: 3
+        search-period-hours: 1
+        search-result-age-hours: 24
+conclusions:
+  nova-placement-allocation-candidates-failed:
+    decision: candidates_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-scheduler logged {count} 'Failed to retrieve allocation
+        candidates from placement API' error(s) on {dates}, so placement
+        answered those scheduling requests with an error and they may have
+        failed with 'No valid host was found'. Please read the 'Got
+        <status>' line after each error: for a 5xx status please check the
+        placement API log and its database, for a 400 please check the
+        resources and traits requested by the flavor, image or ports, and
+        for a 406 please upgrade placement to the latest version.
+      format-dict:
+        count: '@checks.candidates_failed.search.num_results'
+        dates: '@checks.candidates_failed.search.results_group_1:unique_comma_join'
