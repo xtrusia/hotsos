@@ -1,0 +1,10 @@
+target-name: ext4.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs error (device sda1): ext4_find_entry:1455: inode #131073: comm ls: reading directory lblock 0
+      Feb  1 10:49:13 compute4 kernel: [1694473.621694] EXT4-fs error (device sda1) in ext4_reserve_inode_write:5741: IO failure
+      2022-02-01T11:48:13.123456+00:00 compute4 kernel: EXT4-fs error (device dm-0): ext4_lookup:1785: inode #2: comm ls: deleted inode referenced: 12
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected

@@ -1,0 +1,18 @@
+target-name: ext4.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs error (device sda1): ext4_find_entry:1455: inode #131073: comm ls: reading directory lblock 0
+      Feb 10 10:49:13 compute4 kernel: [1694473.621694] EXT4-fs error (device sda1) in ext4_reserve_inode_write:5741: IO failure
+      2022-02-10T11:48:13.123456+00:00 compute4 kernel: EXT4-fs error (device dm-0): ext4_lookup:1785: inode #2: comm ls: deleted inode referenced: 12
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    The kernel logged 3 'EXT4-fs error' line(s) for dm-0, sda1 on
+    2022-02-10, Feb 10. ext4 found an error such as metadata corruption, an
+    I/O error or a failed allocation; depending on its errors behaviour
+    (errors= mount option or superblock default) it continued, was
+    remounted read-only or the host panicked. Please check the full EXT4-fs
+    messages and the kernel log for I/O errors around them, and run fsck on
+    the unmounted filesystem once the cause is fixed.

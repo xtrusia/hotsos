@@ -1,0 +1,16 @@
+target-name: ext4.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:49:13 compute4 kernel: [1694473.621700] EXT4-fs (sda1): Remounting filesystem read-only
+      2022-02-10T11:48:14.123456+00:00 compute4 kernel: EXT4-fs (dm-0): Remounting filesystem read-only
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    ext4 logged 'Remounting filesystem read-only' for dm-0, sda1 on
+    2022-02-10, Feb 10, so writes to these filesystems fail until they are
+    unmounted, repaired and mounted again (a reboot for the root
+    filesystem). Please check the full EXT4-fs messages and the kernel log
+    for I/O errors around them, and run fsck on the unmounted filesystem
+    once the cause is fixed.

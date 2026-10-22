@@ -1,0 +1,96 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the messages) and group 2 the time.
+  # fs/ext4/super.c __ext4_error() and friends, e.g.
+  #   EXT4-fs error (device sda1): ext4_find_entry:1455: inode #131073: ...
+  #   EXT4-fs error (device sda1) in ext4_reserve_inode_write:5741: IO failure
+  # These are rate limited, so the count is a count of lines. Group 3 is the
+  # device.
+  expr_error: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?EXT4-fs error \(device ([^)\s]+)\)'
+  # ext4_handle_error() after an error with errors=remount-ro (or the same
+  # superblock default) or a journal abort, e.g.
+  #   EXT4-fs (sda1): Remounting filesystem read-only
+  # Up to 6.8 this sets SB_RDONLY; newer kernels shut the filesystem down
+  # instead. Either way it stays unwritable until it is unmounted.
+  expr_ro: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?EXT4-fs \((\S+)\): Remounting filesystem read-only'
+  msg_fsck: >-
+    Please check the full EXT4-fs messages and the kernel log for I/O
+    errors around them, and run fsck on the unmounted filesystem once the
+    cause is fixed.
+checks:
+  ext4_error:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_error
+      hint: 'EXT4-fs error'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  ext4_remount_ro:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_ro
+      hint: 'Remounting filesystem read-only'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+# An ext4 error with errors=remount-ro is followed by the remount, so the
+# combined conclusion reports both, and each device list is shown whichever
+# conclusion is reached.
+conclusions:
+  ext4-remount-ro-with-errors:
+    priority: 3
+    decision:
+      - ext4_remount_ro
+      - ext4_error
+    raises:
+      type: KernelError
+      message: >-
+        ext4 logged 'Remounting filesystem read-only' for {ro_devs} on
+        {ro_dates}, so writes to these filesystems fail until they are
+        unmounted, repaired and mounted again (a reboot for the root
+        filesystem), and logged {count} 'EXT4-fs error' line(s) for
+        {err_devs} on {err_dates}. {msg_fsck}
+      format-dict:
+        ro_devs: '@checks.ext4_remount_ro.search.results_group_3:unique_comma_join'
+        ro_dates: '@checks.ext4_remount_ro.search.results_group_1:unique_comma_join'
+        count: '@checks.ext4_error.search.num_results'
+        err_devs: '@checks.ext4_error.search.results_group_3:unique_comma_join'
+        err_dates: '@checks.ext4_error.search.results_group_1:unique_comma_join'
+        msg_fsck: $msg_fsck
+  ext4-remount-ro:
+    priority: 2
+    decision: ext4_remount_ro
+    raises:
+      type: KernelError
+      message: >-
+        ext4 logged 'Remounting filesystem read-only' for {ro_devs} on
+        {ro_dates}, so writes to these filesystems fail until they are
+        unmounted, repaired and mounted again (a reboot for the root
+        filesystem). {msg_fsck}
+      format-dict:
+        ro_devs: '@checks.ext4_remount_ro.search.results_group_3:unique_comma_join'
+        ro_dates: '@checks.ext4_remount_ro.search.results_group_1:unique_comma_join'
+        msg_fsck: $msg_fsck
+  ext4-error:
+    priority: 1
+    decision: ext4_error
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel logged {count} 'EXT4-fs error' line(s) for
+        {err_devs} on {err_dates}. ext4 found an error such as metadata
+        corruption, an I/O error or a failed allocation; depending on
+        its errors behaviour (errors= mount option or superblock
+        default) it continued, was remounted read-only or the host
+        panicked. {msg_fsck}
+      format-dict:
+        count: '@checks.ext4_error.search.num_results'
+        err_devs: '@checks.ext4_error.search.results_group_3:unique_comma_join'
+        err_dates: '@checks.ext4_error.search.results_group_1:unique_comma_join'
+        msg_fsck: $msg_fsck

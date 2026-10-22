@@ -1,0 +1,9 @@
+target-name: ext4.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] EXT4-fs (sda1): mounted filesystem with ordered data mode. Opts: errors=remount-ro
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] EXT4-fs (sda1): re-mounted. Opts: errors=remount-ro
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected
