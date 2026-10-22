@@ -1,0 +1,16 @@
+target-name: md_raid.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] md/raid1:md0: Disk failure on sdb1, disabling device.
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] md/raid1:md0: Operation continuing on 1 devices.
+      2022-02-10T10:30:35.123456+00:00 host1 kernel: md/raid:md1: Disk failure on sdc1, disabling device.
+      2022-02-10T10:30:35.123456+00:00 host1 kernel: md/raid:md1: Operation continuing on 2 devices.
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    md failed and disabled member disk(s) sdb1, sdc1 of array(s) md0, md1
+    on 2022-02-10, Feb 10. /proc/mdstat was not collected, so the current
+    state of the arrays is unknown. Please check 'mdadm --detail' for the
+    arrays and SMART data and I/O errors for the failed disks.

@@ -1,0 +1,12 @@
+target-name: md_raid.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] md/raid1:mdX: Disk failure on dm-3, disabling device.
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] md/raid1:mdX: Operation continuing on 1 devices.
+    proc/mdstat: |
+      Personalities : [raid1]
+      unused devices: <none>
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected

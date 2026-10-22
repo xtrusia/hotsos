@@ -1,0 +1,138 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the messages) and group 2 the time.
+  # drivers/md/raid1.c, raid5.c and raid10.c when md fails a member, e.g.
+  #   md/raid1:md0: Disk failure on sdb1, disabling device.
+  # dm-raid (LVM RAID) runs the same code with the array name 'mdX' and is
+  # not listed in /proc/mdstat, so it is not matched. Group 3 is the array
+  # and group 4 the member disk.
+  expr_disk_failure: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?md/raid\d*:(?!mdX:)(\S+): Disk failure on (\S+), disabling device'
+  # The status of a redundant array in /proc/mdstat has a '_' for each
+  # missing member, e.g. "1046528 blocks super 1.2 [2/1] [U_]". It is also
+  # shown while a replaced member is rebuilding.
+  expr_degraded: '^\s+\d+ blocks .*\[\d+/\d+\] \[[U_]*_[U_]*\]'
+  # md_seq_show() prints "<array> : inactive" and a blocks line that ends
+  # after the superblock (none is shown for 0.90), without the member
+  # status above, for an array that is assembled but not started (e.g. too
+  # few members at assembly), e.g. "2093056 blocks super 1.2". IMSM/DDF
+  # containers are always inactive ("blocks super external:imsm") and are
+  # not matched. An array that fails while running stays active with '_'
+  # in its status.
+  expr_inactive: '^\s+\d+ blocks(?: super (?!external:(?:imsm|ddf)\b)\S+)?\s*$'
+checks:
+  md_disk_failure:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_disk_failure
+      hint: 'Disk failure on'
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+  mdstat_degraded:
+    input:
+      path: 'proc/mdstat'
+    search:
+      expr: $expr_degraded
+  mdstat_inactive:
+    input:
+      path: 'proc/mdstat'
+    search:
+      expr: $expr_inactive
+  mdstat_collected:
+    input:
+      path: 'proc/mdstat'
+    search:
+      expr: '^(Personalities) :'
+conclusions:
+  md-disk-failure-degraded:
+    priority: 3
+    decision:
+      - md_disk_failure
+      - mdstat_degraded
+    raises:
+      type: KernelError
+      message: >-
+        md failed and disabled member disk(s) {disks} of array(s)
+        {arrays} on {dates}, and /proc/mdstat shows {count} array(s)
+        degraded or rebuilding (they may not be the same arrays), which
+        have less or no redundancy left. Please check 'mdadm --detail'
+        for the arrays and SMART data and I/O errors for the failed
+        disks.
+      format-dict:
+        disks: '@checks.md_disk_failure.search.results_group_4:unique_comma_join'
+        arrays: '@checks.md_disk_failure.search.results_group_3:unique_comma_join'
+        dates: '@checks.md_disk_failure.search.results_group_1:unique_comma_join'
+        count: '@checks.mdstat_degraded.search.num_results'
+  md-disk-failure-inactive:
+    priority: 3
+    decision:
+      - md_disk_failure
+      - mdstat_inactive
+      - not: mdstat_degraded
+    raises:
+      type: KernelWarning
+      message: >-
+        md failed and disabled member disk(s) {disks} of array(s)
+        {arrays} on {dates}, and /proc/mdstat lists {inactive} array(s)
+        that are assembled but not started (inactive), not counting
+        IMSM/DDF containers (they may not be the same arrays, and an
+        old md superblock on a reused disk is also assembled as an
+        inactive array). Please check 'mdadm --detail' for the arrays
+        and SMART data and I/O errors for the failed disks.
+      format-dict:
+        disks: '@checks.md_disk_failure.search.results_group_4:unique_comma_join'
+        arrays: '@checks.md_disk_failure.search.results_group_3:unique_comma_join'
+        dates: '@checks.md_disk_failure.search.results_group_1:unique_comma_join'
+        inactive: '@checks.mdstat_inactive.search.num_results'
+  md-degraded:
+    priority: 2
+    decision: mdstat_degraded
+    raises:
+      type: KernelWarning
+      message: >-
+        /proc/mdstat shows {count} md array(s) degraded or rebuilding
+        (a '_' in the member status), so they have less or no
+        redundancy left. Please check 'mdadm --detail' for the missing
+        members and the kernel log for md and disk errors.
+      format-dict:
+        count: '@checks.mdstat_degraded.search.num_results'
+  md-disk-failure:
+    priority: 1
+    decision:
+      - md_disk_failure
+      - mdstat_collected
+      - not: mdstat_degraded
+      - not: mdstat_inactive
+    raises:
+      type: KernelWarning
+      message: >-
+        md failed and disabled member disk(s) {disks} of array(s)
+        {arrays} on {dates}. No degraded array was found in
+        /proc/mdstat, so the disks may have been replaced and rebuilt.
+        Please check 'mdadm --detail' for the arrays and SMART data and
+        I/O errors for the failed disks.
+      format-dict:
+        disks: '@checks.md_disk_failure.search.results_group_4:unique_comma_join'
+        arrays: '@checks.md_disk_failure.search.results_group_3:unique_comma_join'
+        dates: '@checks.md_disk_failure.search.results_group_1:unique_comma_join'
+  md-disk-failure-state-unknown:
+    priority: 1
+    decision:
+      - md_disk_failure
+      - not: mdstat_collected
+    raises:
+      type: KernelWarning
+      message: >-
+        md failed and disabled member disk(s) {disks} of array(s)
+        {arrays} on {dates}. /proc/mdstat was not collected, so the
+        current state of the arrays is unknown. Please check 'mdadm
+        --detail' for the arrays and SMART data and I/O errors for the
+        failed disks.
+      format-dict:
+        disks: '@checks.md_disk_failure.search.results_group_4:unique_comma_join'
+        arrays: '@checks.md_disk_failure.search.results_group_3:unique_comma_join'
+        dates: '@checks.md_disk_failure.search.results_group_1:unique_comma_join'

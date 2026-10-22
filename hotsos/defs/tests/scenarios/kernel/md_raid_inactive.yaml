@@ -1,0 +1,28 @@
+target-name: md_raid.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] md/raid1:md0: Disk failure on sdb1, disabling device.
+      Feb 10 10:28:35 host1 kernel: [1694413.621694] md/raid1:md0: Operation continuing on 1 devices.
+      2022-02-10T10:30:35.123456+00:00 host1 kernel: md/raid:md1: Disk failure on sdc1, disabling device.
+      2022-02-10T10:30:35.123456+00:00 host1 kernel: md/raid:md1: Operation continuing on 2 devices.
+    proc/mdstat: |
+      Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+      md1 : inactive sdd1[1](S) sde1[0](S)
+            2093056 blocks super 1.2
+
+      md0 : active raid1 sdb1[2] sda1[0]
+            1046528 blocks super 1.2 [2/2] [UU]
+
+      unused devices: <none>
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    md failed and disabled member disk(s) sdb1, sdc1 of array(s) md0, md1
+    on 2022-02-10, Feb 10, and /proc/mdstat lists 1 array(s) that are
+    assembled but not started (inactive), not counting IMSM/DDF containers
+    (they may not be the same arrays, and an old md superblock on a reused
+    disk is also assembled as an inactive array). Please check 'mdadm
+    --detail' for the arrays and SMART data and I/O errors for the failed
+    disks.
