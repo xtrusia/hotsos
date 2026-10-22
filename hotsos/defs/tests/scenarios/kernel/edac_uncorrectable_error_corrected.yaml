@@ -1,0 +1,9 @@
+target-name: edac_uncorrectable_error.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb 10 10:40:01 compute4 kernel: [1694000.000000] EDAC MC0: Giving out device to module sb_edac controller Haswell SrcID#0_Ha#0: DEV 0000:ff:12.0 (INTERRUPT)
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] EDAC MC0: 1 CE memory read error on CPU_SrcID#0_Ha#0_Chan#1_DIMM#0 (channel:1 slot:0 page:0x1234 offset:0x0 grain:32 syndrome:0x0 - area:DRAM err_code:0001:0090 socket:0 ha:0 channel_mask:2 rank:0)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected

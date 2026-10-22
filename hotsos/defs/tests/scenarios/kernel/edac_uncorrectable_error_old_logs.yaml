@@ -1,0 +1,9 @@
+target-name: edac_uncorrectable_error.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  1 10:48:13 compute4 kernel: [1694413.621694] EDAC MC0: 1 UE memory read error on CPU_SrcID#0_Ha#0_Chan#1_DIMM#0 (channel:1 slot:0 page:0x1234 offset:0x0 grain:32 - area:DRAM err_code:0001:0090 socket:0 ha:0 channel_mask:2 rank:0)
+      2022-02-01T11:02:44.123456+00:00 compute4 kernel: EDAC MC1: 1 UE memory read error on CPU_SrcID#1_Ha#0_Chan#0_DIMM#1 (channel:0 slot:1 page:0x5678 offset:0x0 grain:32 - area:DRAM err_code:0001:0090 socket:1 ha:0 channel_mask:1 rank:0)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:  # none expected

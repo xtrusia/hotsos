@@ -1,0 +1,39 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the messages) and group 2 the time.
+  # drivers/edac/edac_mc.c (edac_ue_error() in v6.8, the same format
+  # since 3.6), printed with
+  # the "EDAC MC%d: " prefix, e.g.
+  #   EDAC MC0: 1 UE memory read error on CPU_SrcID#0_Ha#0_Chan#1_DIMM#0 (...)
+  # Corrected errors ('CE') are not matched. Group 3 is the memory
+  # controller.
+  expr_edac_ue: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?EDAC MC(\d+): \d+ UE '
+checks:
+  edac_uncorrectable:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_edac_ue
+      hint: ' UE '
+      constraints:
+        min-results: 1
+        search-result-age-hours: 24
+conclusions:
+  edac-uncorrectable:
+    decision: edac_uncorrectable
+    raises:
+      type: KernelError
+      message: >-
+        EDAC logged {count} uncorrectable memory error line(s) for
+        memory controller(s) {mcs} on {dates}, which can crash the host
+        or corrupt data. Please identify the DIMM from the label in
+        those lines or with 'ras-mc-ctl --errors' if rasdaemon is
+        installed, check the BMC/IPMI event log and contact the
+        hardware vendor about replacing it.
+      format-dict:
+        count: '@checks.edac_uncorrectable.search.num_results'
+        mcs: '@checks.edac_uncorrectable.search.results_group_3:unique_comma_join'
+        dates: '@checks.edac_uncorrectable.search.results_group_1:unique_comma_join'
