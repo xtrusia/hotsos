@@ -1,0 +1,51 @@
+target-name: pg_data_damage.yaml
+data-root:
+  files:
+    # Only a PG whose snapshot trimming failed, without scrub errors.
+    sos_commands/ceph_mon/json_output/ceph_status_--format_json-pretty: |
+      {
+          "fsid": "eccf3d48-859f-11ec-9de2-d72b3e8a3058",
+          "health": {
+              "status": "HEALTH_ERR"
+          }
+      }
+    sos_commands/ceph_mon/json_output/ceph_health_detail_--format_json-pretty: |
+      {
+          "status": "HEALTH_ERR",
+          "checks": {
+              "PG_DAMAGED": {
+                  "severity": "HEALTH_ERR",
+                  "summary": {
+                      "message": "Possible data damage: 1 pg snaptrim_error",
+                      "count": 1
+                  },
+                  "detail": [
+                      {
+                          "message": "pg 6.1a is active+clean+snaptrim_error, acting [2,1,0]"
+                      }
+                  ],
+                  "muted": false
+              }
+          },
+          "mutes": []
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:
+  CephOSDError: >-
+    Ceph health detail reports Possible data damage: 1 pg snaptrim_error
+    (pg 6.1a is active+clean+snaptrim_error, acting [2,1,0]). In an
+    inconsistent PG, scrub found object copies that differ or could not be
+    read. Please run 'rados list-inconsistent-obj <pgid>
+    --format=json-pretty' for each inconsistent PG to see which OSD copies
+    have errors, check the disks of OSDs whose copies have a read_error
+    (dmesg, smartctl), and only then run 'ceph pg repair <pgid>', which
+    overwrites the copies Ceph considers bad and can pick the wrong one
+    when a data digest is missing
+    (https://docs.ceph.com/en/latest/rados/troubleshooting/troubleshooting-pg/#pgs-inconsistent).
+    For a snaptrim_error PG, please look for 'Can not trim' and other
+    snapshot errors from its primary OSD in the cluster log (ceph.log). For
+    a PG with unfound objects, please follow
+    https://docs.ceph.com/en/latest/rados/operations/health-checks/#object-unfound.

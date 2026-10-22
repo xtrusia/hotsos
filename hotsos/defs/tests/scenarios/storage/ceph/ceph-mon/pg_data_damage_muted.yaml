@@ -1,0 +1,75 @@
+target-name: pg_data_damage.yaml
+data-root:
+  files:
+    # PG_DAMAGED and OSD_SCRUB_ERRORS are muted while an unrelated warning
+    # keeps the cluster in HEALTH_WARN.
+    sos_commands/ceph_mon/json_output/ceph_status_--format_json-pretty: |
+      {
+          "fsid": "eccf3d48-859f-11ec-9de2-d72b3e8a3058",
+          "health": {
+              "status": "HEALTH_WARN"
+          }
+      }
+    sos_commands/ceph_mon/json_output/ceph_health_detail_--format_json-pretty: |
+      {
+          "status": "HEALTH_WARN",
+          "checks": {
+              "MON_MSGR2_NOT_ENABLED": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "1 monitors have not enabled msgr2",
+                      "count": 1
+                  },
+                  "detail": [
+                      {
+                          "message": "mon.juju-1 is not bound to a msgr2 port"
+                      }
+                  ],
+                  "muted": false
+              },
+              "OSD_SCRUB_ERRORS": {
+                  "severity": "HEALTH_ERR",
+                  "summary": {
+                      "message": "3 scrub errors",
+                      "count": 3
+                  },
+                  "detail": [],
+                  "muted": true
+              },
+              "PG_DAMAGED": {
+                  "severity": "HEALTH_ERR",
+                  "summary": {
+                      "message": "Possible data damage: 2 pgs inconsistent",
+                      "count": 2
+                  },
+                  "detail": [
+                      {
+                          "message": "pg 2.5 is active+clean+inconsistent, acting [0,1,2]"
+                      },
+                      {
+                          "message": "pg 3.1f is active+clean+scrubbing+deep+inconsistent, acting [2,0,1]"
+                      }
+                  ],
+                  "muted": true
+              }
+          },
+          "mutes": [
+              {
+                  "code": "OSD_SCRUB_ERRORS",
+                  "sticky": false,
+                  "summary": "3 scrub errors",
+                  "count": 3
+              },
+              {
+                  "code": "PG_DAMAGED",
+                  "sticky": false,
+                  "summary": "Possible data damage: 2 pgs inconsistent",
+                  "count": 2
+              }
+          ]
+      }
+  copy-from-original:
+    - sos_commands/date/date
+    - sos_commands/systemd/systemctl_list-units
+    - sos_commands/systemd/systemctl_list-unit-files
+raised-issues:

@@ -24,6 +24,9 @@ log = logging.getLogger()
 # before we consider them "mixed".
 OSD_MIXED_SIZE_THRESHOLD_PERCENT = 10
 
+# PGs listed in the PG_DAMAGED issue, the rest are only counted.
+PG_DAMAGED_MAX_LISTED = 5
+
 
 class CephCluster():  # pylint: disable=too-many-public-methods
     """
@@ -108,6 +111,45 @@ class CephCluster():  # pylint: disable=too-many-public-methods
             return status['health']['status']
 
         return None
+
+    @cached_property
+    def _health_detail(self):
+        return CLIHelper().ceph_health_detail_json_decoded() or {}
+
+    @cached_property
+    def health_checks_unmuted(self):
+        """
+        Return list of health check codes from 'ceph health detail' that are
+        not muted. Muted checks are still listed by ceph but do not affect
+        the overall health status.
+        """
+        return sorted(code for code, check in
+                      self._health_detail.get('checks', {}).items()
+                      if not check.get('muted', False))
+
+    @cached_property
+    def pg_damaged_report(self):
+        """
+        Return the summary and the first per-PG detail lines of an unmuted
+        PG_DAMAGED health check ("pg 2.5 is active+clean+inconsistent,
+        acting [0,1,2]") as one string, or an empty string if it is not
+        active. Ceph may truncate the detail (mon_health_max_detail).
+        """
+        if 'PG_DAMAGED' not in self.health_checks_unmuted:
+            return ''
+
+        check = self._health_detail['checks']['PG_DAMAGED']
+        summary = check.get('summary', {}).get('message', 'PG_DAMAGED')
+        pgs = [d['message'] for d in check.get('detail', [])
+               if d.get('message')]
+        if not pgs:
+            return summary
+
+        shown = '; '.join(pgs[:PG_DAMAGED_MAX_LISTED])
+        if len(pgs) > PG_DAMAGED_MAX_LISTED:
+            shown += f'; and {len(pgs) - PG_DAMAGED_MAX_LISTED} more listed'
+
+        return f'{summary} ({shown})'
 
     @cached_property
     def _mon_dump(self):

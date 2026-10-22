@@ -1,0 +1,31 @@
+checks:
+  # PG_DAMAGED active (not muted) in 'ceph health detail': PGs that are
+  # inconsistent, snaptrim_error, recovery_unfound or backfill_unfound.
+  # OSD_SCRUB_ERRORS has no per-PG detail and normally comes with
+  # PG_DAMAGED, so it is not checked on its own. Ceph already raises HEALTH_ERR for both;
+  # this lists the PGs and the steps for each kind of damage.
+  pg_damaged:
+    property:
+      path: hotsos.core.plugins.storage.ceph.CephCluster.pg_damaged_report
+      ops: [[length_hint], [gt, 0]]
+conclusions:
+  pg-data-damage:
+    decision: pg_damaged
+    raises:
+      type: CephOSDError
+      message: >-
+        Ceph health detail reports {report}. In an inconsistent PG,
+        scrub found object copies that differ or could not be read.
+        Please run 'rados list-inconsistent-obj <pgid>
+        --format=json-pretty' for each inconsistent PG to see which OSD
+        copies have errors, check the disks of OSDs whose copies have a
+        read_error (dmesg, smartctl), and only then run 'ceph pg repair
+        <pgid>', which overwrites the copies Ceph considers bad and can
+        pick the wrong one when a data digest is missing
+        (https://docs.ceph.com/en/latest/rados/troubleshooting/troubleshooting-pg/#pgs-inconsistent).
+        For a snaptrim_error PG, please look for 'Can not trim' and
+        other snapshot errors from its primary OSD in the cluster log
+        (ceph.log). For a PG with unfound objects, please follow
+        https://docs.ceph.com/en/latest/rados/operations/health-checks/#object-unfound.
+      format-dict:
+        report: hotsos.core.plugins.storage.ceph.CephCluster.pg_damaged_report
