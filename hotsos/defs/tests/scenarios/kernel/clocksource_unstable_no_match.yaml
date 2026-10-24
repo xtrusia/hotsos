@@ -1,0 +1,13 @@
+target-name: clocksource_unstable.yaml
+data-root:
+  files:
+    # Lines this scenario does not match: a skipped watchdog check, a TSC
+    # sync failure outside the watchdog (out of scope) and a switch with no
+    # watchdog mark.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] clocksource: Long readout interval, skipping watchdog check: cs_nsec: 1504000000 wd_nsec: 1504000000
+      Feb 10 10:48:13 compute4 kernel: [1694413.621696] tsc: Marking TSC unstable due to check_tsc_sync_source failed
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] clocksource: Switched to clocksource hpet
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

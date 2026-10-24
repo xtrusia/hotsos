@@ -1,0 +1,50 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the messages) and group 2 the time.
+  # kernel/time/clocksource.c clocksource_watchdog() (same string in v4.15,
+  # v5.4, v5.15 and v6.8; v4.4 has no " on CPU%d"), with pr_fmt
+  # "clocksource: ". Only clocksources flagged CLOCK_SOURCE_MUST_VERIFY are
+  # checked: tsc and tsc-early, and in v6.8 hpet and acpi_pm when the TSC
+  # watchdog is disabled. Group 3 is the clocksource.
+  expr_clocksource_unstable: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?clocksource: timekeeping watchdog(?: on CPU\d+)?: Marking clocksource \x27([^\x27]+)\x27 as unstable because the skew is too large'
+checks:
+  # No search-result-age-hours: the clocksource stays unstable until the
+  # next reboot, so only the global log window applies (one day on a
+  # sosreport, max_logrotate_depth days with --all-logs, none on a live
+  # host). The message shows the dates. The watchdog's read-back delay
+  # path ("... read-back delay ..., marking [<name>] unstable", v5.15 and
+  # later) is not matched.
+  clocksource_unstable:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_clocksource_unstable
+      hint: 'as unstable because the skew'
+conclusions:
+  kernel-clocksource-unstable:
+    decision: clocksource_unstable
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel clocksource watchdog marked clocksource(s) {clocks}
+        as unstable on {dates} because their skew against the watchdog
+        clocksource was too large. The kernel demotes an unstable
+        clocksource and normally does not use it again until the next
+        reboot, unless an override (the clocksource= boot option or a
+        write to current_clocksource) forces it. If it was the current
+        clocksource, the kernel usually switched to another one, which
+        for tsc usually means a slower clocksource and more overhead
+        for every time read. On virtual machines and busy hosts the
+        skew can also come from delays in the watchdog itself rather
+        than from a broken clock. Please check the current clocksource
+        in
+        /sys/devices/system/clocksource/clocksource0/current_clocksource,
+        the watchdog and clocksource values in the kern.log lines that
+        follow the 'Marking clocksource' line, and the host or
+        hypervisor load and firmware settings.
+      format-dict:
+        clocks: '@checks.clocksource_unstable.search.results_group_3:unique_comma_join'
+        dates: '@checks.clocksource_unstable.search.results_group_1:unique_comma_join'

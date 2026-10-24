@@ -1,0 +1,27 @@
+target-name: clocksource_unstable.yaml
+data-root:
+  files:
+    # Ubuntu 16.04 (4.4): the line has no 'on CPU<n>'.
+    var/log/kern.log: |
+      Feb 10 08:15:02 compute4 kernel: [ 9876.543210] clocksource: timekeeping watchdog: Marking clocksource 'tsc' as unstable because the skew is too large:
+      Feb 10 08:15:02 compute4 kernel: [ 9876.543211] clocksource:                       'hpet' wd_now: 6b2d8a4c wd_last: 6a1f3e10 mask: ffffffff
+      Feb 10 08:15:02 compute4 kernel: [ 9876.543212] clocksource:                       'tsc' cs_now: 3a1b2c3d4e5f cs_last: 3a1a2b3c4d5e mask: ffffffffffffffff
+      Feb 10 08:15:03 compute4 kernel: [ 9877.543210] clocksource: Switched to clocksource hpet
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning: >-
+    The kernel clocksource watchdog marked clocksource(s) tsc as unstable
+    on Feb 10 because their skew against the watchdog clocksource was too
+    large. The kernel demotes an unstable clocksource and normally does
+    not use it again until the next reboot, unless an override (the
+    clocksource= boot option or a write to current_clocksource) forces it.
+    If it was the current clocksource, the kernel usually switched to
+    another one, which for tsc usually means a slower clocksource and more
+    overhead for every time read. On virtual machines and busy hosts the
+    skew can also come from delays in the watchdog itself rather than from
+    a broken clock. Please check the current clocksource in
+    /sys/devices/system/clocksource/clocksource0/current_clocksource, the
+    watchdog and clocksource values in the kern.log lines that follow the
+    'Marking clocksource' line, and the host or hypervisor load and
+    firmware settings.
