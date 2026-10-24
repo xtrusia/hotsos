@@ -1,0 +1,61 @@
+# Fork-only: runs the default tox suite on the homelab self-hosted runner
+# (label "hotsos") whenever "Run Tests" is requested for a push to
+# xtrusia/hotsos. workflow_run always uses this file from the default
+# branch, so feature branches do not need to carry it.
+# No concurrency group on purpose: a single "hotsos" runner runs one job
+# at a time and further jobs stay queued instead of being cancelled.
+name: Self-hosted Tests
+
+on:
+  workflow_run:
+    workflows: ["Run Tests"]
+    # "requested" is not emitted for re-runs, so re-runs (run_attempt > 1)
+    # are picked up when they complete.
+    types: [requested, completed]
+
+permissions:
+  contents: read
+
+jobs:
+  tox:
+    if: >-
+      github.event.workflow_run.head_repository.full_name == 'xtrusia/hotsos'
+      && github.event.workflow_run.event == 'push'
+      && (github.event.action == 'requested'
+          || github.event.workflow_run.run_attempt > 1)
+    runs-on: [self-hosted, hotsos]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Show environment
+        run: |
+          echo "branch=${{ github.event.workflow_run.head_branch }}"
+          echo "sha=${{ github.event.workflow_run.head_sha }}"
+          echo "runner=${RUNNER_NAME}"
+          python3 --version
+          tox --version
+          /usr/bin/time --version
+          journalctl --version | head -1
+      - name: Test with tox
+        run: tox -e py3-coverage
+      - name: Test with tox (non-utc timezone)
+        run: tox -e py3-non-utc-tz
+      - name: Run pylint
+        run: tox -e pylint
+      - name: Run pep8
+        run: tox -e pep8
+      - name: Run coveragereport
+        run: tox -e coveragereport
+      - name: Run bashate
+        run: tox -e bashate
+      - name: Run yamllint
+        run: tox -e yamllint
+      - name: Run functional
+        run: tox -e functional
+      - name: Run hotyvalidate
+        run: tox -e hotyvalidate
+      - name: Build docs
+        run: tox -e docs
