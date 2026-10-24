@@ -1,0 +1,75 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the messages) and group 2 the time.
+  # arch/x86/kernel/cpu/mce/core.c (same strings in v5.4, v5.15, v6.8 and
+  # v6.17), with pr_fmt "mce: " (mce/internal.h) and HW_ERR
+  # "[Hardware Error]: ":
+  # - mce_notify_irq(): "Machine check events logged" for any new record,
+  #   corrected ones included (rate limited to two a minute).
+  # - __print_mce(), from mce_default_notifier() when no other consumer
+  #   handled the record (m->kflags, v5.10 and later) or, before v5.10,
+  #   when no other decoder was registered:
+  #   "CPU %d: Machine Check%s: %Lx Bank %d: %016Lx", the last field being
+  #   MCi_STATUS.
+  expr_mce_logged: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?mce: \[Hardware Error\]: (?:Machine check events logged|CPU \d+: Machine Check)'
+  # The same "CPU" line with MCI_STATUS_UC (bit 61) set next to
+  # MCI_STATUS_VAL (bit 63), i.e. a first status digit of a, b, e or f.
+  # Group 3 is the CPU and group 4 the bank.
+  expr_mce_uncorrected: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?mce: \[Hardware Error\]: CPU (\d+): Machine Check(?: Exception)?: [0-9a-f]+ Bank (\d+): [abef][0-9a-f]{15}$'
+checks:
+  mce_logged:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_mce_logged
+      hint: 'Hardware Error'
+      constraints:
+        search-result-age-hours: 24
+  mce_uncorrected:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_mce_uncorrected
+      hint: 'Hardware Error'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  kernel-mce-logged:
+    priority: 1
+    decision: mce_logged
+    raises:
+      type: KernelWarning
+      message: >-
+        The kernel logged x86 machine check (MCE) records on {dates}.
+        The kernel also logs these for errors the hardware corrected,
+        so they do not necessarily mean that data was lost, but an
+        EDAC driver may have decoded the same records as uncorrected
+        errors. Please check the EDAC lines in kern.log and, if
+        rasdaemon was running, the errors it recorded ('ras-mc-ctl
+        --errors'), decode the CPU lines with 'mcelog --ascii' on
+        Intel, check the BMC/IPMI event log and contact the hardware
+        vendor if the errors are uncorrected or keep recurring.
+      format-dict:
+        dates: '@checks.mce_logged.search.results_group_1:unique_comma_join'
+  kernel-mce-uncorrected:
+    priority: 2
+    decision: mce_uncorrected
+    raises:
+      type: KernelError
+      message: >-
+        The kernel logged uncorrected x86 machine check (MCE) errors
+        (the UC bit is set in the bank status) for CPU(s) {cpus},
+        bank(s) {banks} on {dates}, which can crash the host or
+        corrupt data. Records left over from a crash are logged at the
+        next boot. Please decode the CPU lines with 'mcelog --ascii'
+        on Intel or, if rasdaemon was running, check the errors it
+        recorded ('ras-mc-ctl --errors') to find the failing part
+        (memory, cache or bus), check the BMC/IPMI event log and
+        contact the hardware vendor.
+      format-dict:
+        cpus: '@checks.mce_uncorrected.search.results_group_3:unique_comma_join'
+        banks: '@checks.mce_uncorrected.search.results_group_4:unique_comma_join'
+        dates: '@checks.mce_uncorrected.search.results_group_1:unique_comma_join'

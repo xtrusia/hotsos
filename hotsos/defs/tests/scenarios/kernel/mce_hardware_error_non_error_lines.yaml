@@ -1,0 +1,11 @@
+target-name: mce_hardware_error.yaml
+data-root:
+  files:
+    # Recent mce lines that are not hardware error reports.
+    var/log/kern.log: |
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] mce: CPU supports 9 MCE banks
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 4.
+      2022-02-10T10:48:14.621694+00:00 compute4 kernel: mce: CPU supports 9 MCE banks
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

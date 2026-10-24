@@ -1,0 +1,22 @@
+target-name: mce_hardware_error.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  9 18:10:01 compute4 kernel: [1694413.621690] mce: [Hardware Error]: CPU 3: Machine Check: 0 Bank 7: 8c00004000010090
+      Feb  9 18:12:01 compute4 kernel: [    2.345678] mce: [Hardware Error]: CPU 0: Machine Check: 0 Bank 4: bd00000000100135
+      Feb  9 18:12:01 compute4 kernel: [    2.345679] mce: [Hardware Error]: TSC 0 ADDR 2f3a1c000 MISC 86
+      Feb  9 18:12:01 compute4 kernel: [    2.345680] mce: [Hardware Error]: PROCESSOR 0:50654 TIME 1644430321 SOCKET 0 APIC 0 microcode 2006b06
+      2022-02-10T09:30:00.123456+00:00 compute4 kernel: mce: [Hardware Error]: CPU 12: Machine Check: 0 Bank 1: bd80000000100134
+      2022-02-10T09:30:00.123460+00:00 compute4 kernel: mce: [Hardware Error]: Machine check events logged
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelError: >-
+    The kernel logged uncorrected x86 machine check (MCE) errors (the UC
+    bit is set in the bank status) for CPU(s) 0, 12, bank(s) 1, 4 on
+    2022-02-10, Feb  9, which can crash the host or corrupt data. Records
+    left over from a crash are logged at the next boot. Please decode the
+    CPU lines with 'mcelog --ascii' on Intel or, if rasdaemon was running,
+    check the errors it recorded ('ras-mc-ctl --errors') to find the
+    failing part (memory, cache or bus), check the BMC/IPMI event log and
+    contact the hardware vendor.

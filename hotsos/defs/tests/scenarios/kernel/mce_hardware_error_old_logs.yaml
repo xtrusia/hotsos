@@ -1,0 +1,12 @@
+target-name: mce_hardware_error.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  6 18:00:01 compute4 kernel: [1694413.621690] mce: [Hardware Error]: CPU 3: Machine Check: 0 Bank 7: 8c00004000010090
+      Feb  6 18:00:01 compute4 kernel: [1694413.621691] mce: [Hardware Error]: TSC 0 ADDR 1c3f8f080 MISC 9001
+      Feb  6 18:00:01 compute4 kernel: [1694413.621692] mce: [Hardware Error]: PROCESSOR 0:50654 TIME 1644429601 SOCKET 0 APIC 6 microcode 2006b06
+      Feb  6 18:00:01 compute4 kernel: [1694413.621694] mce: [Hardware Error]: Machine check events logged
+      2022-02-07T10:48:13.621694+00:00 compute4 kernel: mce: [Hardware Error]: Machine check events logged
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
