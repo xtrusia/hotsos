@@ -1,7 +1,7 @@
 import glob
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import cached_property
 
 import dateutil
@@ -40,16 +40,23 @@ class SystemdService():
         @return: dictionary of name: timezone mappings.
         """
         def fetch():
-            for zone in pytz.common_timezones:
-                try:
-                    tzdate = pytz.timezone(zone).localize(datetime.utcnow(),
-                                                          is_dst=None)
-                except pytz.NonExistentTimeError:
-                    pass
-                else:
-                    tzinfo = dateutil.tz.gettz(zone)
+            # Convert an aware UTC time into each zone rather than localising
+            # a naive UTC time as if it were local wall-clock time, which
+            # raises AmbiguousTimeError or NonExistentTimeError when that
+            # time falls in a DST change hour of any of the zones.
+            #
+            # A service may have started before a DST change, so include the
+            # abbreviations each zone used over the last year (sampled
+            # weekly). The ones in use now come last so that they win when
+            # zones share a name.
+            now = datetime.now(timezone.utc)
+            zones = [(pytz.timezone(zone), dateutil.tz.gettz(zone))
+                     for zone in pytz.common_timezones]
+            for weeks_ago in range(52, -1, -1):
+                when = now - timedelta(weeks=weeks_ago)
+                for zone, tzinfo in zones:
                     if tzinfo:
-                        yield tzdate.tzname(), tzinfo
+                        yield when.astimezone(zone).tzname(), tzinfo
 
         return dict(fetch())
 
