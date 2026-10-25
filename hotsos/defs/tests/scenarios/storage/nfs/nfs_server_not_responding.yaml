@@ -1,0 +1,34 @@
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  9 18:26:02 compute4 kernel: [135522.062941] nfs: server nfs01.example.com not responding, still trying
+      Feb  9 18:26:02 compute4 kernel: [135522.062950] nfs: server nfs01.example.com not responding, still trying
+      Feb  9 18:26:02 compute4 kernel: [135522.062960] call_decode: 12 callbacks suppressed
+      Feb  9 18:26:02 compute4 kernel: [135522.062970] nfs: server nfs01.example.com OK
+      2022-02-10T05:26:02.570514+00:00 compute4 kernel: nfs: server 10.0.0.5 not responding, still trying
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] nfs: server 10.0.0.7 not responding, timed out
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] nfs: server 10.0.0.7 not responding, timed out
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  KernelWarning:
+    - >-
+      kern.log has 'nfs: server ... not responding, still trying' messages for
+      the NFS server(s) 10.0.0.5, nfs01.example.com on 2022-02-10, Feb  9. The
+      NFS client logs this on a hard mount when a request to the server has
+      timed out and is retried, and processes using that mount wait until the
+      server answers again, which can show up as hung tasks. The kernel logs
+      'nfs: server <name> OK' when the server answers again (both messages can
+      be rate limited, so not every event is logged). Please check whether an
+      OK line follows for each server, the NFS server and the network path to
+      it.
+    - >-
+      kern.log has 'nfs: server ... not responding, timed out' messages for
+      the NFS server(s) 10.0.0.7 on Feb 10. The NFS client logs this when a
+      request to the server times out and is not retried, which happens on
+      soft mounts and for some requests with their own timeout (for example
+      attribute requests with softreval), and the request then fails with an
+      error (for softreval attribute requests the client can use cached
+      attributes instead), so reads or writes on a soft mount may have failed.
+      Please check the NFS server, the network path to it and the options of
+      the mounts from that server (soft, softerr, softreval, timeo, retrans).

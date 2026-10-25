@@ -1,0 +1,15 @@
+target-name: nfs_server_not_responding.yaml
+data-root:
+  files:
+    # The positive test lines, 3 days earlier (outside the 24 hour window).
+    var/log/kern.log: |
+      Feb  6 18:26:02 compute4 kernel: [135522.062941] nfs: server nfs01.example.com not responding, still trying
+      Feb  6 18:26:02 compute4 kernel: [135522.062950] nfs: server nfs01.example.com not responding, still trying
+      Feb  6 18:26:02 compute4 kernel: [135522.062960] call_decode: 12 callbacks suppressed
+      Feb  6 18:26:02 compute4 kernel: [135522.062970] nfs: server nfs01.example.com OK
+      2022-02-07T05:26:02.570514+00:00 compute4 kernel: nfs: server 10.0.0.5 not responding, still trying
+      Feb  7 10:48:13 compute4 kernel: [1694413.621694] nfs: server 10.0.0.7 not responding, timed out
+      Feb  7 10:48:13 compute4 kernel: [1694413.621695] nfs: server 10.0.0.7 not responding, timed out
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

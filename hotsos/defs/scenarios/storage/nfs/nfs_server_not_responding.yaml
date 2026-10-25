@@ -1,0 +1,70 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the message), group 2 the time and group 3 the server.
+  # net/sunrpc/clnt.c logs "%s: server %s not responding, still trying"
+  # when a request that is retried (hard mounts) hits a major timeout, or
+  # "... timed out" when the request is not retried (RPC_IS_SOFT(): soft
+  # mounts and requests with their own timeout such as softreval
+  # getattr), with the RPC program name, and "%s: server %s OK" in
+  # call_decode() when the server answers again. Same strings in v4.15
+  # (call_timeout()), v5.4, v5.15 and v6.8 (rpc_check_timeout(), rate
+  # limited). Only the "nfs" program (NFSv2/3/4, fs/nfs/client.c
+  # nfs_program) is matched.
+  expr_still_trying: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?nfs: server (\S+) not responding, still trying'
+  expr_timed_out: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?nfs: server (\S+) not responding, timed out'
+checks:
+  still_trying:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_still_trying
+      hint: 'not responding'
+      constraints:
+        search-result-age-hours: 24
+  timed_out:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_timed_out
+      hint: 'not responding'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  nfs-server-not-responding:
+    decision: still_trying
+    raises:
+      type: KernelWarning
+      message: >-
+        kern.log has 'nfs: server ... not responding, still trying'
+        messages for the NFS server(s) {servers} on {dates}. The NFS
+        client logs this on a hard mount when a request to the server
+        has timed out and is retried, and processes using that mount
+        wait until the server answers again, which can show up as hung
+        tasks. The kernel logs 'nfs: server <name> OK' when the server
+        answers again (both messages can be rate limited, so not every
+        event is logged). Please check whether an OK line follows for
+        each server, the NFS server and the network path to it.
+      format-dict:
+        servers: '@checks.still_trying.search.results_group_3:unique_comma_join'
+        dates: '@checks.still_trying.search.results_group_1:unique_comma_join'
+  nfs-server-timed-out:
+    decision: timed_out
+    raises:
+      type: KernelWarning
+      message: >-
+        kern.log has 'nfs: server ... not responding, timed out' messages
+        for the NFS server(s) {servers} on {dates}. The NFS client logs
+        this when a request to the server times out and is not retried,
+        which happens on soft mounts and for some requests with their
+        own timeout (for example attribute requests with softreval), and
+        the request then fails with an error (for softreval attribute
+        requests the client can use cached attributes instead), so
+        reads or writes on a soft mount may have failed. Please check the NFS server, the
+        network path to it and the options of the mounts from that
+        server (soft, softerr, softreval, timeo, retrans).
+      format-dict:
+        servers: '@checks.timed_out.search.results_group_3:unique_comma_join'
+        dates: '@checks.timed_out.search.results_group_1:unique_comma_join'

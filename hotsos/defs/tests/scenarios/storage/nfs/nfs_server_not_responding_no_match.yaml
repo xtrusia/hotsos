@@ -1,0 +1,13 @@
+target-name: nfs_server_not_responding.yaml
+data-root:
+  files:
+    # NFS and other RPC client lines that are not an NFS server that is not
+    # responding.
+    var/log/kern.log: |
+      Feb 10 10:47:13 compute4 kernel: [1694353.621694] nfs: server nfs01.example.com OK
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] lockd: server 10.0.0.5 not responding, still trying
+      Feb 10 10:48:14 compute4 kernel: [1694414.621694] rpcbind: server localhost not responding, timed out
+      Feb 10 10:49:13 compute4 kernel: [1694473.621694] NFS: state manager: check lease failed on NFSv4 server 10.0.0.5 with error 10008
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
