@@ -1,0 +1,20 @@
+target-name: lp2039803.yaml
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  nova-common                          3:27.1.0-0ubuntu1~cloud0                             all          OpenStack Compute - common files
+      ii  nova-compute                         3:27.1.0-0ubuntu1~cloud0                             all          OpenStack Compute - compute node base
+      ii  nova-compute-kvm                     3:27.1.0-0ubuntu1~cloud0                             all          OpenStack Compute - compute node (KVM)
+    # The failures were logged before the workaround was set.
+    etc/nova/nova.conf: |
+      [DEFAULT]
+      debug = False
+
+      [workarounds]
+      skip_cpu_compare_on_dest = True
+    var/log/nova/nova-compute.log: |
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server nova.exception.MigrationPreCheckError: Migration pre-check error: Unacceptable CPU info: CPU doesn't have compatibility.
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server nova.exception.MigrationPreCheckError: Migration pre-check error: Unacceptable CPU info: CPU doesn't have compatibility.
+  copy-from-original:
+    - sos_commands/date/date
+raised-bugs:

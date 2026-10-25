@@ -1,0 +1,59 @@
+vars:
+  # The destination nova-compute logs this at the end of the RPC traceback
+  # when check_can_live_migrate_destination() fails the CPU pre-check.
+  expr_cpu_compare_failed: '([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR \S+ .*MigrationPreCheckError: Migration pre-check error: Unacceptable CPU info: CPU doesn''t have compatibility\.'
+checks:
+  cpu_compare_failed:
+    input: var/log/nova/nova-compute.log
+    search:
+      expr: $expr_cpu_compare_failed
+      hint: 'Unacceptable CPU info'
+      constraints:
+        search-result-age-hours: 24
+  # From 27.0.0 (2023.1) the pre-check uses libvirt compareHypervisorCPU().
+  nova_compares_with_hypervisor_cpu:
+    apt:
+      nova-compute:
+        - min: '3:27.0.0'
+  nova_conf_exists:
+    path: etc/nova/nova.conf
+  # oslo.config reads true, 1, yes and on (any case) as True. The handler
+  # turns true in any case into True; yes and on match in lower case only.
+  skip_cpu_compare_on_dest:
+    config:
+      handler: hotsos.core.plugins.openstack.OpenstackConfig
+      path: etc/nova/nova.conf
+      assertions:
+        or:
+          - section: workarounds
+            key: skip_cpu_compare_on_dest
+            value: true
+          - section: workarounds
+            key: skip_cpu_compare_on_dest
+            value: '1'
+          - section: workarounds
+            key: skip_cpu_compare_on_dest
+            value: 'yes'
+          - section: workarounds
+            key: skip_cpu_compare_on_dest
+            value: 'on'
+conclusions:
+  lp2039803:
+    decision:
+      - cpu_compare_failed
+      - nova_compares_with_hypervisor_cpu
+      - nova_conf_exists
+      - not: skip_cpu_compare_on_dest
+    raises:
+      type: LaunchpadBug
+      bug-id: 2039803
+      message: >-
+        Live migrations to this host failed the CPU pre-check with
+        'Unacceptable CPU info: CPU doesn't have compatibility' on {dates}.
+        Nova {version} can reject hosts whose CPUs are compatible. Please
+        compare the CPUs of both hosts and, if they are compatible, please set
+        [workarounds] skip_cpu_compare_on_dest = True in nova.conf (charm
+        option skip-cpu-compare-on-dest).
+      format-dict:
+        dates: '@checks.cpu_compare_failed.search.results_group_1:unique_comma_join'
+        version: '@checks.nova_compares_with_hypervisor_cpu.requires.version'

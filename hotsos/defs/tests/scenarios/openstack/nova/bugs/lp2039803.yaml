@@ -1,0 +1,59 @@
+data-root:
+  files:
+    sos_commands/dpkg/dpkg_-l: |
+      ii  nova-common                          3:27.1.0-0ubuntu1~cloud0                             all          OpenStack Compute - common files
+      ii  nova-compute                         3:27.1.0-0ubuntu1~cloud0                             all          OpenStack Compute - compute node base
+      ii  nova-compute-kvm                     3:27.1.0-0ubuntu1~cloud0                             all          OpenStack Compute - compute node (KVM)
+    etc/nova/nova.conf: |
+      [DEFAULT]
+      debug = False
+    var/log/nova/nova-compute.log: |
+      2022-02-09 18:28:14.120 4521 INFO nova.virt.libvirt.driver [req-3f2a1c6e-0b7d-4d5e-9f1a-2c3b4d5e6f70 - - - - -] Instance launched has CPU info: {"arch": "x86_64", "model": "SandyBridge", "vendor": "Intel"}
+      2022-02-09 18:28:15.301 4521 ERROR nova.virt.libvirt.driver [req-3f2a1c6e-0b7d-4d5e-9f1a-2c3b4d5e6f70 - - - - -] CPU doesn't have compatibility.
+      2022-02-09 18:28:15.301 4521 ERROR nova.virt.libvirt.driver [req-3f2a1c6e-0b7d-4d5e-9f1a-2c3b4d5e6f70 - - - - -] 0
+      2022-02-09 18:28:15.301 4521 ERROR nova.virt.libvirt.driver [req-3f2a1c6e-0b7d-4d5e-9f1a-2c3b4d5e6f70 - - - - -] Refer to http://libvirt.org/html/libvirt-libvirt-host.html#virCPUCompareResult
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server [req-3f2a1c6e-0b7d-4d5e-9f1a-2c3b4d5e6f70 - - - - -] Exception during message handling
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server Traceback (most recent call last):
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server   File "/usr/lib/python3/dist-packages/nova/virt/libvirt/driver.py", line 9635, in check_can_live_migrate_destination
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server     self._compare_cpu(None, source_cpu_info, instance)
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server   File "/usr/lib/python3/dist-packages/nova/virt/libvirt/driver.py", line 10012, in _compare_cpu
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server     raise exception.InvalidCPUInfo(reason=m % {'ret': ret, 'u': u})
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server nova.exception.InvalidCPUInfo: Unacceptable CPU info: CPU doesn't have compatibility.
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server 0
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server Refer to http://libvirt.org/html/libvirt-libvirt-host.html#virCPUCompareResult
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server During handling of the above exception, another exception occurred:
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server Traceback (most recent call last):
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server   File "/usr/lib/python3/dist-packages/nova/virt/libvirt/driver.py", line 9639, in check_can_live_migrate_destination
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server     raise exception.MigrationPreCheckError(reason=e)
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server nova.exception.MigrationPreCheckError: Migration pre-check error: Unacceptable CPU info: CPU doesn't have compatibility.
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server 0
+      2022-02-09 18:28:15.301 4521 ERROR oslo_messaging.rpc.server Refer to http://libvirt.org/html/libvirt-libvirt-host.html#virCPUCompareResult
+      2022-02-10 08:28:15.301 4521 ERROR nova.virt.libvirt.driver [req-8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d - - - - -] CPU doesn't have compatibility.
+      2022-02-10 08:28:15.301 4521 ERROR nova.virt.libvirt.driver [req-8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d - - - - -] 0
+      2022-02-10 08:28:15.301 4521 ERROR nova.virt.libvirt.driver [req-8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d - - - - -] Refer to http://libvirt.org/html/libvirt-libvirt-host.html#virCPUCompareResult
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server [req-8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d - - - - -] Exception during message handling
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server Traceback (most recent call last):
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server   File "/usr/lib/python3/dist-packages/nova/virt/libvirt/driver.py", line 9635, in check_can_live_migrate_destination
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server     self._compare_cpu(None, source_cpu_info, instance)
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server   File "/usr/lib/python3/dist-packages/nova/virt/libvirt/driver.py", line 10012, in _compare_cpu
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server     raise exception.InvalidCPUInfo(reason=m % {'ret': ret, 'u': u})
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server nova.exception.InvalidCPUInfo: Unacceptable CPU info: CPU doesn't have compatibility.
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server 0
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server Refer to http://libvirt.org/html/libvirt-libvirt-host.html#virCPUCompareResult
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server During handling of the above exception, another exception occurred:
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server Traceback (most recent call last):
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server   File "/usr/lib/python3/dist-packages/nova/virt/libvirt/driver.py", line 9639, in check_can_live_migrate_destination
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server     raise exception.MigrationPreCheckError(reason=e)
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server nova.exception.MigrationPreCheckError: Migration pre-check error: Unacceptable CPU info: CPU doesn't have compatibility.
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server 0
+      2022-02-10 08:28:15.301 4521 ERROR oslo_messaging.rpc.server Refer to http://libvirt.org/html/libvirt-libvirt-host.html#virCPUCompareResult
+  copy-from-original:
+    - sos_commands/date/date
+raised-bugs:
+  https://bugs.launchpad.net/bugs/2039803: >-
+    Live migrations to this host failed the CPU pre-check with
+    'Unacceptable CPU info: CPU doesn't have compatibility' on 2022-02-09,
+    2022-02-10. Nova 3:27.1.0-0ubuntu1~cloud0 can reject hosts whose CPUs
+    are compatible. Please compare the CPUs of both hosts and, if they are
+    compatible, please set [workarounds] skip_cpu_compare_on_dest = True in
+    nova.conf (charm option skip-cpu-compare-on-dest).
