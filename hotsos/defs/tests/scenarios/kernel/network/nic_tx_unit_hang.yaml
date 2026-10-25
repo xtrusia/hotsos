@@ -1,0 +1,29 @@
+data-root:
+  files:
+    var/log/kern.log: |
+      Feb  9 18:20:13 compute4 kernel: [135522.062941] igb 0000:01:00.1: Detected Tx Unit Hang
+      Feb  9 18:20:13 compute4 kernel: [135522.062943]   Tx Queue             <4>
+      Feb  9 18:20:18 compute4 kernel: [135527.014839] NETDEV WATCHDOG: eth1 (igb): transmit queue 4 timed out
+      Feb  9 18:20:18 compute4 kernel: [135527.015044] igb 0000:01:00.1 eth1: Reset adapter
+      2022-02-10T06:51:18.570514+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: Detected Tx Unit Hang
+      2022-02-10T06:51:18.570523+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: tx hang 4298 detected on queue 36, resetting adapter
+      2022-02-10T06:51:18.574777+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: Reset adapter
+      2022-02-10T06:51:19.698374+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: Detected Tx Unit Hang
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] e1000e 0000:00:1f.6 eno1: Detected Hardware Unit Hang:
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695]   TDH                  <a5>
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  NetworkWarning: >-
+    kern.log has 'Detected Tx Unit Hang' or 'Detected Hardware Unit Hang'
+    errors from the e1000e, igb, ixgbe driver(s) for the network adapter(s)
+    at PCI address(es) 0000:00:1f.6, 0000:01:00.0, 0000:01:00.1 on
+    2022-02-10, Feb  9, Feb 10. The driver logs this when a transmit queue
+    has stopped sending packets; ixgbe then resets the adapter, and igb and
+    e1000e reset it after the transmit timeout that usually follows ('Reset
+    adapter'), so traffic on that interface stops until the reset completes
+    and repeated hangs can leave it without network. Please check how often
+    this happens and whether the link recovers after each reset, whether it
+    started after a kernel, driver or NIC firmware change (ethtool -i), and
+    the NIC firmware, offload settings (ethtool -k) and switch port for
+    those adapters.

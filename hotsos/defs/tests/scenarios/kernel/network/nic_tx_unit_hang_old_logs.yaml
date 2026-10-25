@@ -1,0 +1,18 @@
+target-name: nic_tx_unit_hang.yaml
+data-root:
+  files:
+    # The positive test lines, 3 days earlier (outside the 24 hour window).
+    var/log/kern.log: |
+      Feb  6 18:20:13 compute4 kernel: [135522.062941] igb 0000:01:00.1: Detected Tx Unit Hang
+      Feb  6 18:20:13 compute4 kernel: [135522.062943]   Tx Queue             <4>
+      Feb  6 18:20:18 compute4 kernel: [135527.014839] NETDEV WATCHDOG: eth1 (igb): transmit queue 4 timed out
+      Feb  6 18:20:18 compute4 kernel: [135527.015044] igb 0000:01:00.1 eth1: Reset adapter
+      2022-02-07T06:51:18.570514+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: Detected Tx Unit Hang
+      2022-02-07T06:51:18.570523+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: tx hang 4298 detected on queue 36, resetting adapter
+      2022-02-07T06:51:18.574777+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: Reset adapter
+      2022-02-07T06:51:19.698374+00:00 compute4 kernel: ixgbe 0000:01:00.0 enp1s0f0: Detected Tx Unit Hang
+      Feb  7 10:48:13 compute4 kernel: [1694413.621694] e1000e 0000:00:1f.6 eno1: Detected Hardware Unit Hang:
+      Feb  7 10:48:13 compute4 kernel: [1694413.621695]   TDH                  <a5>
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

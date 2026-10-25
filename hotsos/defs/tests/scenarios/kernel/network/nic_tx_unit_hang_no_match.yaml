@@ -1,0 +1,12 @@
+target-name: nic_tx_unit_hang.yaml
+data-root:
+  files:
+    # NIC lines that are not a transmit unit hang message.
+    var/log/kern.log: |
+      Feb 10 10:47:13 compute4 kernel: [1694353.621694] igb 0000:01:00.1 eth1: igb: eth1 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX
+      Feb 10 10:48:13 compute4 kernel: [1694413.621694] NETDEV WATCHDOG: eth1 (igb): transmit queue 4 timed out
+      Feb 10 10:48:13 compute4 kernel: [1694413.621695] igb 0000:01:00.1 eth1: Reset adapter
+      Feb 10 10:49:13 compute4 kernel: [1694473.621694] ixgbe 0000:01:00.0 enp1s0f0: NIC Link is Down
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

@@ -1,0 +1,50 @@
+vars:
+  # kern.log lines start with the legacy syslog timestamp
+  # ("Feb 10 10:48:13 host kernel: [123.456] ...") or the RFC3339 one used
+  # by rsyslog on Ubuntu 24.04 and later ("2022-02-10T10:48:13.123456+00:00
+  # host kernel: ..."), where the kernel uptime may be absent. Group 1 is the
+  # date (used in the message) and group 2 the time.
+  # Transmit hang messages of the Intel drivers (same strings in v4.15,
+  # v5.4, v5.15 and v6.8):
+  #   ixgbe: ixgbe_clean_tx_irq() e_err(drv, "Detected Tx Unit Hang %s\n"
+  #          ...) when ixgbe_check_tx_hang() is true, logged by netdev_err() as
+  #          "ixgbe <pci> <ifname>: Detected Tx Unit Hang"
+  #   igb:   igb_clean_tx_irq() dev_err(tx_ring->dev, "Detected Tx Unit
+  #          Hang\n" ...), logged as "igb <pci>: Detected Tx Unit Hang"
+  #   e1000e: e1000_print_hw_hang() e_err("Detected Hardware Unit Hang:\n"
+  #          ...), logged as "e1000e <pci> <ifname>: Detected Hardware
+  #          Unit Hang:"
+  # The register dump lines that follow are not matched. Group 3 is the
+  # driver and group 4 the PCI address.
+  expr_nic_tx_hang: '(\w{3,5}\s+\d{1,2}|\d{4}-\d{2}-\d{2})[T ]([\d:]+)\S* \S+ kernel: (?:\[[^\]]*\] )?(ixgbe|igb|e1000e) ([\da-f]{4}:[\da-f]{2}:[\da-f]{2}\.[\da-f])(?: \S+)?: Detected (?:Tx|Hardware) Unit Hang'
+checks:
+  nic_tx_hang:
+    input:
+      path: 'var/log/kern.log'
+    search:
+      expr: $expr_nic_tx_hang
+      hint: 'Unit Hang'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  kernel-nic-tx-unit-hang:
+    decision: nic_tx_hang
+    raises:
+      type: NetworkWarning
+      message: >-
+        kern.log has 'Detected Tx Unit Hang' or 'Detected Hardware Unit
+        Hang' errors from the {drivers} driver(s) for the network
+        adapter(s) at PCI address(es) {devs} on {dates}. The driver logs
+        this when a transmit queue has stopped sending packets; ixgbe
+        then resets the adapter, and igb and e1000e reset it after the
+        transmit timeout that usually follows ('Reset adapter'), so
+        traffic on that interface stops until the reset completes and
+        repeated hangs can leave it without network. Please check how often this
+        happens and whether the link recovers after each reset, whether
+        it started after a kernel, driver or NIC firmware change
+        (ethtool -i), and the NIC firmware, offload settings (ethtool -k)
+        and switch port for those adapters.
+      format-dict:
+        drivers: '@checks.nic_tx_hang.search.results_group_3:unique_comma_join'
+        devs: '@checks.nic_tx_hang.search.results_group_4:unique_comma_join'
+        dates: '@checks.nic_tx_hang.search.results_group_1:unique_comma_join'
