@@ -1,0 +1,12 @@
+target-name: group_replication_member_expelled.yaml
+data-root:
+  files:
+    # Group Replication lines of the members that stayed in the group, not
+    # of an expelled member.
+    var/log/mysql/error.log: |
+      2022-02-10T08:12:40.320409Z 0 [Warning] [MY-011493] [Repl] Plugin group_replication reported: 'Member with address 10.5.0.12:3306 has become unreachable.'
+      2022-02-10T08:12:45.144352Z 0 [Warning] [MY-011499] [Repl] Plugin group_replication reported: 'Members removed from the group: 10.5.0.12:3306'
+      2022-02-10T08:12:45.144400Z 0 [System] [MY-011503] [Repl] Plugin group_replication reported: 'Group membership changed to 10.5.0.10:3306, 10.5.0.11:3306 on view 16444773370512925:4.'
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

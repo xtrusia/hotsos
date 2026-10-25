@@ -1,0 +1,39 @@
+vars:
+  # Group Replication logs ER_GRP_RPL_MEMBER_EXPELLED (MY-011505, same
+  # number and text in the 8.0 and 8.4 error references) on the member that
+  # the rest of the group expelled e.g.
+  #   2020-06-04T19:03:16.519849Z 0 [ERROR] [MY-011505] [Repl] Plugin group_replication reported: 'Member was expelled from the group due to network failures, changing member status to ERROR.'
+  # Group 1 is the date and group 2 the time.
+  expr_member_expelled: '^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* \d+ \[ERROR\] \[MY-011505\] \[Repl\] Plugin group_replication reported: .Member was expelled from the group due to network failures'
+checks:
+  member_expelled:
+    input:
+      path: 'var/log/mysql/error.log'
+    search:
+      expr: $expr_member_expelled
+      hint: 'MY-011505'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  mysql-group-replication-member-expelled:
+    decision: member_expelled
+    raises:
+      type: MySQLWarning
+      message: >-
+        The MySQL error log has 'Member was expelled from the group due
+        to network failures' (MY-011505) errors on {dates}. Group
+        Replication logs this on a member that the other members
+        expelled because they could not reach it for the 5 second
+        detection period plus group_replication_member_expel_timeout;
+        the member then goes to the ERROR state and leaves the group.
+        What happens to it next depends on
+        group_replication_exit_state_action (for example read only,
+        offline mode or server abort), and it may rejoin by itself if
+        auto-rejoin is enabled (group_replication_autorejoin_tries).
+        Please check the cluster status (for example with the
+        cluster-status action of the mysql-innodb-cluster charm or
+        performance_schema.replication_group_members), the network
+        between the cluster members around those dates and, on charmed
+        deployments, the expel-timeout option (LP#1882205).
+      format-dict:
+        dates: '@checks.member_expelled.search.results_group_1:unique_comma_join'
