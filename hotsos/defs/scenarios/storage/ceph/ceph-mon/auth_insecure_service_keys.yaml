@@ -1,0 +1,45 @@
+# Ceph releases with the CVE-2025-30156 fix (Squid 19.2.6, Tentacle 20.2.4)
+# raise these HEALTH_ERR checks (src/mon/AuthMonitor.cc) until the service
+# daemon keys are rotated and the service ticket cipher is switched to
+# aes256k. The CephX upgrade procedure rotates the keys first, so that
+# conclusion takes priority. Muted checks are still reported since a mute
+# does not remove the exposure.
+checks:
+  insecure_service_key_type:
+    input:
+      command: ceph_health_detail_json_decoded
+    # summary message of AUTH_INSECURE_SERVICE_KEY_TYPE
+    expr: '.*"(\d+) auth service entities with insecure key types"'
+  insecure_service_tickets:
+    input:
+      command: ceph_health_detail_json_decoded
+    expr: '.+"AUTH_INSECURE_SERVICE_TICKETS":'
+conclusions:
+  auth-insecure-service-key-type:
+    priority: 2
+    decision: insecure_service_key_type
+    raises:
+      type: MitreCVE
+      cve-id: CVE-2025-30156
+      message: >-
+        Ceph reports AUTH_INSECURE_SERVICE_KEY_TYPE: {count} service entities
+        use insecure CephX key types, so the cluster remains exposed to
+        CVE-2025-30156. Please make sure each listed daemon runs the latest
+        version, then please rotate its key with
+        'ceph auth rotate --key-type=aes256k <entity>' and please save the new
+        key in its keyring (not needed for mon.), as described in
+        https://docs.ceph.com/en/latest/rados/configuration/auth-config-ref/#cephx-upgrade.
+      format-dict:
+        count: '@checks.insecure_service_key_type.search.results_group_1:first'
+  auth-insecure-service-tickets:
+    decision: insecure_service_tickets
+    raises:
+      type: MitreCVE
+      cve-id: CVE-2025-30156
+      message: >-
+        Ceph reports AUTH_INSECURE_SERVICE_TICKETS: the monitors still issue
+        insecure service tickets, so the cluster remains exposed to
+        CVE-2025-30156. Please make sure all mgr, osd and mds daemons run the
+        latest version, then please run
+        'ceph mon set auth_service_cipher aes256k' as described in
+        https://docs.ceph.com/en/latest/rados/configuration/auth-config-ref/#cephx-upgrade.
