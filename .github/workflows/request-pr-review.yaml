@@ -1,0 +1,43 @@
+name: Request PR review
+
+'on':
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  request:
+    if: >-
+      github.repository == 'xtrusia/hotsos'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Request Copilot review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          current_head=$(gh pr view "$PR_NUMBER" --json headRefOid --jq .headRefOid)
+          if [ "$current_head" != "$EXPECTED_HEAD" ]; then
+            echo "Skipping an outdated pull request event."
+            exit 0
+          fi
+          reviewed=$(gh pr view "$PR_NUMBER" --json reviews --jq \
+            '.reviews[] | select(.author.login == "copilot-pull-request-reviewer") | .commit.oid')
+          if printf '%s\n' "$reviewed" | grep -Fxq "$EXPECTED_HEAD"; then
+            echo "Copilot already reviewed this commit."
+            exit 0
+          fi
+          gh pr edit "$PR_NUMBER" --add-reviewer @copilot
+          printf 'Requested Copilot review for PR #%s at %s.\n' \
+            "$PR_NUMBER" "$EXPECTED_HEAD" >> "$GITHUB_STEP_SUMMARY"
