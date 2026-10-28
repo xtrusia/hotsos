@@ -39,6 +39,13 @@ data-root:
                       "message": "1 monitors have not enabled msgr2"
                   },
                   "muted": false
+              },
+              "WAL_DEVICE_STALLED_READ_ALERT": {
+                  "severity": "HEALTH_WARN",
+                  "summary": {
+                      "message": "1 OSD(s) experiencing stalled read in wal device of BlueFS"
+                  },
+                  "muted": true
               }
           },
           "mutes": [
@@ -58,6 +65,12 @@ data-root:
                   "code": "DB_DEVICE_STALLED_READ_ALERT",
                   "sticky": false,
                   "summary": "1 OSD(s) experiencing stalled read in db device of BlueFS",
+                  "count": 1
+              },
+              {
+                  "code": "WAL_DEVICE_STALLED_READ_ALERT",
+                  "sticky": false,
+                  "summary": "1 OSD(s) experiencing stalled read in wal device of BlueFS",
                   "count": 1
               }
           ]

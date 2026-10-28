@@ -17,20 +17,6 @@ data-root:
                       "message": "2 OSD(s) experiencing slow operations in BlueStore"
                   },
                   "muted": false
-              },
-              "BLOCK_DEVICE_STALLED_READ_ALERT": {
-                  "severity": "HEALTH_WARN",
-                  "summary": {
-                      "message": "1 OSD(s) experiencing stalled read in block device of BlueStore"
-                  },
-                  "muted": false
-              },
-              "DB_DEVICE_STALLED_READ_ALERT": {
-                  "severity": "HEALTH_WARN",
-                  "summary": {
-                      "message": "1 OSD(s) experiencing stalled read in db device of BlueFS"
-                  },
-                  "muted": false
               }
           },
           "mutes": []
