@@ -164,7 +164,7 @@ class CommonTimestampMatcher(TimestampMatcherBase):
         # since they are identical we wont add but leaving in case we want to
         # edit later.
         # openvswitch = ceph
-        kernlog = (r'^(?P<month>\w{3,5})\s+(?P<day>\d{1,2})\s+'
+        kernlog = (r'^(?:<\d+>)?(?P<month>\w{3,5})\s+(?P<day>\d{1,2})\s+'
                    r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})')
         return [iso8601, openstack, ceph, kernlog, apache]
 

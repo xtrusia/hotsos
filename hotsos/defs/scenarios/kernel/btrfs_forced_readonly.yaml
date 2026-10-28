@@ -4,7 +4,7 @@ checks:
       path: 'var/log/kern.log'
     search:
       expr:
-        - '(\w{3,5}\s+\d{1,2}\s+[\d:]+)\s+\S+ kernel:\s+(?:\[[\d. ]+\]\s+)?BTRFS info \(device (\S+?)(?::? state [A-Z]+)?\): forced readonly$'
+        - '(?:<\d+>)?(\w{3,5}\s+\d{1,2}\s+[\d:]+)\s+\S+ kernel:\s+(?:\[[\d. ]+\]\s+)?BTRFS info \(device (\S+?)(?::? state [A-Z]+)?\): forced readonly$'
         - '(?:<\d+>)?(\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2}))\s+\S+ kernel:\s+(?:\[[\d. ]+\]\s+)?BTRFS info \(device (\S+?)(?::? state [A-Z]+)?\): forced readonly$'
       constraints:
         search-result-age-hours: 24

@@ -11,6 +11,17 @@ from . import utils
 class TestSearchTimestamps(utils.BaseTestCase):
     """Tests for timestamps used by file search constraints."""
 
+    def test_priority_syslog_age_constraint(self):
+        """Apply the age boundary to traditional syslog priority prefixes."""
+        constraint = SearchConstraintSearchSince(
+            ts_matcher_cls=CommonTimestampMatcher, hours=24)
+        for prefix in ('', '<6>'):
+            for timestamp, expected in (('Feb 09 16:19:18', True),
+                                        ('Feb 09 16:19:16', False)):
+                with self.subTest(prefix=prefix, timestamp=timestamp):
+                    self.assertEqual(constraint.apply_to_line(
+                        f'{prefix}{timestamp} host kernel: message'), expected)
+
     def test_iso_timestamp_timezone(self):
         """Convert ISO timestamps to the constraint's UTC time base."""
         for prefix in ('', '<6>'):
