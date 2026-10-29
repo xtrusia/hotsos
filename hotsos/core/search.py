@@ -135,6 +135,9 @@ class CommonTimestampMatcher(TimestampMatcherBase):
         This needs to contain timestamp patterns for any/all types of file
         we want to analyse where SearchConstraintsSince is to be applied.
         """
+        logrus = (r'^time="(?P<timestamp>\d{4}-\d{2}-\d{2}T'
+                  r'\d{2}:\d{2}:\d{2})(?P<timezone>Z|[+-]'
+                  r'(?:[01]\d|2[0-3]):[0-5]\d)"(?:\s|$)')
         # should match plugins.openstack.openstack.OpenstackDateTimeMatcher
         openstack = (r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})+\s+'
                      r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d+)')
@@ -152,7 +155,7 @@ class CommonTimestampMatcher(TimestampMatcherBase):
         # openvswitch = ceph
         kernlog = (r'^(?P<month>\w{3,5})\s+(?P<day>\d{1,2})\s+'
                    r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})')
-        return [openstack, ceph, kernlog, apache]
+        return [logrus, openstack, ceph, kernlog, apache]
 
 
 class ExtraSearchConstraints():
