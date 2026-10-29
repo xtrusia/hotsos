@@ -32,7 +32,8 @@ from hotsos.core.ycheck.engine.common import (
 #   ([\d.]+[\s-]+\[\d{2}/\w{3,5}/...)  apache access log (IP + bracketed date)
 #   (\S+) (\S+) ...                      loose date/time tokens
 # Optional '(?:<\d+>)?' prefixes are accepted for the syslog example and
-# '(\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2}))' ISO captures.
+# complete timezone-qualified ISO captures using '[\d:.]+' or explicit
+# '\d{2}:\d{2}:\d{2}' times with optional fractional seconds.
 LEADING_TIMESTAMP_RE = re.compile(
     r"(?:"
     r"\(\[\\d-\]\+ \[\\d:\]"       # ([\d-]+ [\d:]   (combined date+time group)
@@ -82,6 +83,10 @@ class SearchExpressionValidator:
             return candidate.startswith((
                 r'(\w{3,5}\s+\d{1,2}\s+[\d:]+)',
                 r'(\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2}))',
+                r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+                r'(?:Z|[+-]\d{2}:\d{2}))',
+                r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?'
+                r'(?:Z|[+-]\d{2}:\d{2}))',
             ))
         return bool(LEADING_TIMESTAMP_RE.match(candidate))
 

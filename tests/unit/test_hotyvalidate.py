@@ -17,10 +17,14 @@ class TestSearchExpressionValidator(unittest.TestCase):
 
     def test_priority_timestamp_formats(self):
         """Accept priority prefixes only for runtime-supported timestamps."""
+        iso_date = r'\d{4}-\d{2}-\d{2}T'
+        iso_timezone = r'(?:Z|[+-]\d{2}:\d{2})'
         supported = (
             r'(\w{3,5}\s+\d{1,2}\s+[\d:]+)',
-            r'(\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2}))',
         )
+        supported += tuple(f'({iso_date}{time}{iso_timezone})' for time in (
+            r'[\d:.]+', r'\d{2}:\d{2}:\d{2}',
+            r'\d{2}:\d{2}:\d{2}(?:\.\d+)?'))
         unsupported = (
             r'([\d-]+) ([\d:]+)',
             r'(\d{4}-\d{2}-\d{2}T[\d:]+)',
