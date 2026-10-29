@@ -366,13 +366,21 @@ class TestCephChecks(CephCommonTestsBase):
         })})
     def test_health_checks_unmuted(self):
         """Return sorted active check codes, excluding muted checks."""
-        self.assertEqual(ceph.CephCluster().health_checks_unmuted,
+        cluster = ceph.CephCluster()
+        self.assertEqual(cluster.health_checks, {
+            'MDS_ALL_DOWN': {'muted': False},
+            'BLUESTORE_NO_COMPRESSION': {},
+            'MDS_DAMAGE': {'muted': True},
+        })
+        self.assertEqual(cluster.health_checks_unmuted,
                          ['BLUESTORE_NO_COMPRESSION', 'MDS_ALL_DOWN'])
 
     @utils.create_data_root({})
     def test_health_checks_missing(self):
         """Missing health output supplies no check codes."""
-        self.assertEqual(ceph.CephCluster().health_checks_unmuted, [])
+        cluster = ceph.CephCluster()
+        self.assertEqual(cluster.health_checks, {})
+        self.assertEqual(cluster.health_checks_unmuted, [])
 
     @utils.create_data_root({
         'sos_commands/ceph_mon/json_output/'
@@ -382,7 +390,9 @@ class TestCephChecks(CephCommonTestsBase):
         })})
     def test_health_checks_cleared(self):
         """A retained mute entry alone is not an active check."""
-        self.assertEqual(ceph.CephCluster().health_checks_unmuted, [])
+        cluster = ceph.CephCluster()
+        self.assertEqual(cluster.health_checks, {})
+        self.assertEqual(cluster.health_checks_unmuted, [])
 
     @utils.create_data_root(
         {'sos_commands/ceph_osd/'
