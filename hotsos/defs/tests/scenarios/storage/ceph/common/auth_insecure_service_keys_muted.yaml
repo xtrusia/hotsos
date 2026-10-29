@@ -43,9 +43,9 @@ data-root:
     - sos_commands/systemd/systemctl_list-unit-files
 raised-bugs:
   https://www.cve.org/CVERecord?id=CVE-2025-30156: >-
-    Collected Ceph health detail reports AUTH_INSECURE_SERVICE_KEY_TYPE:
-    service credentials use insecure CephX key types and remain exposed to
-    CVE-2025-30156. Please upgrade the affected daemons to the latest
-    version. Please follow
+    Collected Ceph health detail reports AUTH_INSECURE_SERVICE_KEY_TYPE and
+    AUTH_INSECURE_SERVICE_TICKETS: service keys and tickets use insecure
+    CephX cryptography (CVE-2025-30156). Please upgrade the affected daemons
+    to the latest version, then follow
     https://docs.ceph.com/en/latest/rados/configuration/auth-config-ref/#cephx-upgrade
-    to rotate their keys.
+    to rotate service keys before changing the service-ticket cipher.

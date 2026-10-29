@@ -10,6 +10,21 @@ checks:
       path: hotsos.core.plugins.storage.ceph.CephCluster.health_checks
       ops: [[contains, AUTH_INSECURE_SERVICE_TICKETS]]
 conclusions:
+  auth-insecure-service-keys-and-tickets:
+    priority: 3
+    decision:
+      - insecure_service_key_type
+      - insecure_service_tickets
+    raises:
+      type: MitreCVE
+      cve-id: CVE-2025-30156
+      message: >-
+        Collected Ceph health detail reports AUTH_INSECURE_SERVICE_KEY_TYPE
+        and AUTH_INSECURE_SERVICE_TICKETS: service keys and tickets use
+        insecure CephX cryptography (CVE-2025-30156). Please upgrade the
+        affected daemons to the latest version, then follow
+        https://docs.ceph.com/en/latest/rados/configuration/auth-config-ref/#cephx-upgrade
+        to rotate service keys before changing the service-ticket cipher.
   auth-insecure-service-key-type:
     priority: 2
     decision: insecure_service_key_type
