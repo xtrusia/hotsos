@@ -5,7 +5,37 @@ import unittest
 from unittest import mock
 
 from hotsos.core.config import HotSOSConfig
-from tools.validation.hotyvalidate import HotYValidate, configure_defs_dir
+from tools.validation.hotyvalidate import (
+    HotYValidate,
+    SearchExpressionValidator,
+    configure_defs_dir,
+)
+
+
+class TestSearchExpressionValidator(unittest.TestCase):
+    """Check priority prefixes against the supported timestamp formats."""
+
+    def test_priority_timestamp_formats(self):
+        """Accept priority prefixes only for runtime-supported timestamps."""
+        supported = (
+            r'(\w{3,5}\s+\d{1,2}\s+[\d:]+)',
+            r'(\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2}))',
+        )
+        unsupported = (
+            r'([\d-]+) ([\d:]+)',
+            r'(\d{4}-\d{2}-\d{2}T[\d:]+)',
+            r'([\d.]+[\s-]+\[\d{2}/\w{3,5}/)',
+            r'(\S+) (\S+)',
+        )
+        for anchor in ('', '^'):
+            for prefix in ('', r'(?:<\d+>)?'):
+                for timestamp in supported + unsupported:
+                    with self.subTest(anchor=anchor, prefix=prefix,
+                                      timestamp=timestamp):
+                        self.assertEqual(
+                            SearchExpressionValidator.is_compliant(
+                                anchor + prefix + timestamp + r'\s+message'),
+                            not prefix or timestamp in supported)
 
 
 class TestHotYValidate(unittest.TestCase):
