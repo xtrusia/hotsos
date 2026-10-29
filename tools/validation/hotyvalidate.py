@@ -30,6 +30,8 @@ from hotsos.core.ycheck.engine.common import (
 #   (\w{3,5}\s+\d{1,2}\s+[\d:]+) ...     syslog/kern.log style
 #   ([\d.]+[\s-]+\[\d{2}/\w{3,5}/...)  apache access log (IP + bracketed date)
 #   (\S+) (\S+) ...                      loose date/time tokens
+# Logrus expressions use time="(...)" with a complete timezone-qualified ISO
+# timestamp in group one, using explicit HH:MM:SS or [\d:]+ for the time.
 LEADING_TIMESTAMP_RE = re.compile(
     r"(?:"
     r"\(\[\\d-\]\+ \[\\d:\]"       # ([\d-]+ [\d:]   (combined date+time group)
@@ -73,6 +75,12 @@ class SearchExpressionValidator:
         if not isinstance(pattern, str):
             return False
         candidate = pattern[1:] if pattern.startswith("^") else pattern
+        if candidate.startswith('time="'):
+            return candidate[len('time="'):].startswith((
+                r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+                r'(?:Z|[+-]\d{2}:\d{2}))"',
+                r'(\d{4}-\d{2}-\d{2}T[\d:]+(?:Z|[+-]\d{2}:\d{2}))"',
+            ))
         return bool(LEADING_TIMESTAMP_RE.match(candidate))
 
     def resolve_expr(self, expr, variables):
