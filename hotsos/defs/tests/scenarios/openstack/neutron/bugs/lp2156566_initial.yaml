@@ -14,4 +14,4 @@ raised-bugs:
     Neutron OVS agent logs record a startup failure while restoring VLAN
     mappings with tunneling disabled: 'NoneType' has no attribute
     'get_flood_to_tun_ofports'. Please upgrade Neutron to the latest version
-    and verify that the agent starts successfully.
+    and please verify that the agent starts successfully.
