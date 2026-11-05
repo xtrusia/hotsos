@@ -38,9 +38,12 @@ conclusions:
     raises:
       type: MemoryWarning
       message: >-
-        The following numa nodes have limited high order memory available: {nodes}.
-        At present the top 5 highest consumers of memory are: {top5}. See `memory:nodes`
-        section in kernel summary or /proc/buddyinfo for more info.
+        The following NUMA node zones have few free high-order (large
+        contiguous) memory blocks: {nodes}. Large allocations may fail or
+        stall while the kernel compacts memory. The slab caches with the most
+        objects are: {top5}. Please check the `memory:nodes` section in the
+        kernel summary or /proc/buddyinfo, and the processes and caches using
+        the most memory.
       format-dict:
         nodes: $nodes_with_limited_high_order_memory:comma_join
         top5: $slab_major_consumers:comma_join
@@ -53,13 +56,12 @@ conclusions:
     raises:
       type: MemoryWarning
       message: >-
-        Memory compaction (defragmentation) success to failure ratio is at {pcent}%.
-        This suggests that the system's memory is getting fragmented but the defragmentation
-        attempts are failing at a significant rate, which can indicate that there are
-        insufficient high-order memory blocks available and the kernel cannot form larger
-        blocks on request. Running on a highly fragmented memory will have a negative impact on
-        the system's performance, especially for memory I/O intensive workloads. See /proc/vmstat
-        for more info.
+        Memory compaction (defragmentation) failures are at {pcent}% of
+        successful compactions (compact_fail and compact_success in
+        /proc/vmstat), so the kernel often cannot form the large contiguous
+        blocks it needs and performance may suffer, especially for memory
+        intensive workloads. Please check /proc/vmstat, /proc/buddyinfo and
+        the processes using the most memory to find what is fragmenting it.
       format-dict:
         pcent: $compaction_failures_percent
   too_many_free_hugepages:

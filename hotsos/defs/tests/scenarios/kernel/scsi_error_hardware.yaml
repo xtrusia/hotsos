@@ -10,5 +10,7 @@ data-root:
     - sos_commands/date/date
 raised-issues:
   KernelWarning: >-
-    SCSI Hardware Error detected for device sdh. This typically
-    indicates a failing disk or controller issue.
+    SCSI Hardware Error was logged in kern.log for device(s) sdh, which
+    typically means a failing disk or controller. Please check the disk
+    and controller health (e.g. with smartctl and the controller logs)
+    to find which part needs to be replaced.

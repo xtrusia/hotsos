@@ -19,8 +19,10 @@ conclusions:
     raises:
       type: KernelError
       message: >-
-        critical medium error detected in kern.log for device {dev}.
-        This implies that this disk has a hardware issue!
+        Critical medium errors were logged in kern.log for device(s) {dev},
+        which means the disk could not read or write some sectors and is
+        likely failing. Please check the disk health (e.g. with smartctl),
+        since the disk will likely need to be replaced.
       format-dict:
         dev: '@checks.disk_failure.search.results_group_1:unique_comma_join'
   block_io_error:
@@ -30,7 +32,9 @@ conclusions:
     raises:
       type: KernelWarning
       message: >-
-        Block I/O error '{errno}' detected for device {dev}.
+        Block I/O errors ('{errno}') were logged in kern.log for device(s)
+        {dev}. Please check kern.log around these errors and the health of
+        the disk and its controller or path to find the cause.
       format-dict:
         errno: '@checks.any_io_error.search.results_group_1:unique_comma_join'
         dev: '@checks.any_io_error.search.results_group_2:unique_comma_join'

@@ -43,7 +43,11 @@ Taking the yaml format and using `yq <https://snapcraft.io/yq>`_ (install with
       cpufreq-scaling-governor: unknown
     potential-issues:
       MemoryWarnings:
-        - 1 reports of oom-killer invoked in kern.log - please check. (origin=kernel.auto_scenario_check)
+        - The kernel OOM killer was invoked 1 time(s) according to the kernel log,
+          which means the system or a cgroup ran out of memory and the kernel killed
+          processes to free it. Please check the oom-killer entries in the kernel log
+          to find which processes were killed and which memory limit was reached.
+          (origin=kernel.auto_scenario_check)
 
 The output folder will also contain other formats of the same information and
 one of those is json which can easily be queried using a tool called

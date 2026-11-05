@@ -29,4 +29,8 @@ data-root:
       Feb  4 15:40:27 DELRHIUCBM002V kernel: [ 1920.261785]  [<ffffffff81060c79>] kretprobe_trampoline_holder+0
 raised-issues:
   KernelError: >-
-    1 reports of fanotify related hangs in kern.log. This may be related to antivirus software running in the system.
+    The kernel log has 1 hung task report(s) blocked in fanotify, where
+    file access waits for a fanotify listener such as antivirus or file
+    monitoring software to respond. Please check whether such software
+    is running on this host and whether it is responding to fanotify
+    events.

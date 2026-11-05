@@ -11,7 +11,9 @@ conclusions:
 
         {socks_with_drops}
 
-        This may be a symptom of problems in the associated process(es)
-        and should be investigated further.
+        This usually means the listed process(es) did not read kernel
+        netlink messages fast enough, so they may have missed events such as
+        link or route changes. Please check the logs and load of these
+        processes.
       format-dict:
         socks_with_drops: hotsos.core.plugins.kernel.net.NetLink.all_with_drops_str

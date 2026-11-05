@@ -10,5 +10,7 @@ data-root:
     - sos_commands/date/date
 raised-issues:
   KernelWarning: >-
-    SCSI Medium Error detected for device sdh. This typically indicates
-    disk surface or media issues.
+    SCSI Medium Error was logged in kern.log for device(s) sdh, which
+    typically means unreadable sectors on the disk media. Please check
+    the disk health (e.g. with smartctl), since the disk may need to be
+    replaced if the errors continue.

@@ -9,6 +9,7 @@ data-root:
     - sos_commands/date/date
 raised-issues:
   KernelWarning: >-
-    SCSI error detected for device sdh (hostbyte=DID_OK,
-    driverbyte=DRIVER_SENSE). This may indicate a hardware issue with
-    the disk or controller.
+    SCSI commands failed for device(s) sdh (hostbyte=DID_OK,
+    driverbyte=DRIVER_SENSE), which may indicate a problem with the
+    disk, controller or path. Please check kern.log around these errors
+    and the health of the disk and controller.

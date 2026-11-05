@@ -85,8 +85,16 @@ mock:
         new: '5.3'
 raised-issues:
   MemoryWarning: >-
-    Bcache cache set registration deadlock has occurred. This is caused by a
-    bug that has been fixed in kernel 5.15.11 (current is 5.3).
-    See https://www.spinics.net/lists/stable/msg566639.html for full detail.
+    The kernel log shows a bcache cache set registration deadlock, where
+    bcache-register blocked during journal replay. This is caused by a
+    kernel bug that was fixed in kernel 5.15.11 (current is 5.3), see
+    https://www.spinics.net/lists/stable/msg566639.html for details.
+    Please upgrade the kernel to the latest version, which takes effect
+    after a reboot.
   KernelError: >-
-    1 reports of hung tasks in kern.log - please check.
+    The kernel log has 1 hung task report(s), where a task stayed in
+    uninterruptible (D) state for longer than
+    kernel.hung_task_timeout_secs. Please check the call trace after
+    each 'blocked for more than' message in the kernel log to find the
+    blocked process and the resource it waits on, such as a disk or a
+    network filesystem.
