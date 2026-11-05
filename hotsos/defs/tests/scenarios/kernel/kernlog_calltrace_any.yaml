@@ -15,4 +15,7 @@ data-root:
       Feb 04 10:49:21 tututu kernel: [ 4965.415939] RIP: 0033:0x7fab36d717a9
 raised-issues:
   KernelError: >-
-    1 reports of stacktraces in kern.log - please check.
+    The kernel log contains 1 call trace(s), which the kernel prints
+    when it hits a bug, a warning or a stuck task. Please review the
+    call traces in the kernel log (journalctl -k or /var/log/kern.log)
+    to identify the affected driver or process.

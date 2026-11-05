@@ -13,8 +13,11 @@ conclusions:
     raises:
       type: KernelWarning
       message: >-
-        The qla2xxx driver did not perform SCSI scan on host/port {port}.
-        Some SCSI disks/paths might not be present. (Module option
-        'qla2xxx.qlini_mode')
+        The qla2xxx driver skipped the SCSI scan on host/port {port} because
+        the port is not in initiator mode, so disks or paths behind it may
+        be missing. If this host should use the port as an initiator, please
+        check whether the qla2xxx.qlini_mode module option is set to
+        'disabled' (e.g. in /etc/modprobe.d) or the port is used in target
+        mode.
       format-dict:
         port: '@checks.qla2xxx_skipping_scsi_scan_host.search.results_group_1:first'

@@ -8,4 +8,6 @@ data-root:
     - sos_commands/date/date
 raised-issues:
   KernelWarning: >-
-    Block I/O error 'I/O' detected for device sdk.
+    Block I/O errors ('I/O') were logged in kern.log for device(s) sdk.
+    Please check kern.log around these errors and the health of the disk
+    and its controller or path to find the cause.

@@ -11,7 +11,10 @@ conclusions:
 
         {socks_with_drops}
 
-        This may be a symptom of problems in the associated process(es)
-        and should be investigated further.
+        This usually means the processes that own these sockets did not
+        read kernel netlink messages fast enough, so they may have missed
+        events such as link or route changes. Please check the logs and load
+        of the owning processes, which can be found by searching /proc/*/fd
+        for socket:[<inode>] when procs is empty.
       format-dict:
         socks_with_drops: hotsos.core.plugins.kernel.net.NetLink.all_with_drops_str

@@ -33,4 +33,9 @@ data-root:
       Feb 04 00:07:14 ic-hrvart4-s4anq599 kernel: RIP: 0033:0x7f7004c274ba
 raised-issues:
   KernelError: >-
-    1 reports of hung tasks in kern.log - please check.
+    The kernel log has 1 hung task report(s), where a task stayed in
+    uninterruptible (D) state for longer than
+    kernel.hung_task_timeout_secs. Please check the call trace after
+    each 'blocked for more than' message in the kernel log to find the
+    blocked process and the resource it waits on, such as a disk or a
+    network filesystem.

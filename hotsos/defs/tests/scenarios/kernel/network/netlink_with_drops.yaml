@@ -68,10 +68,15 @@ data-root:
     # yamllint enable rule:trailing-spaces
 raised-issues:
   NetworkWarning: >-
-    This host is reporting dropped packets for the following netlink sockets:
+    This host is reporting dropped packets for the following netlink
+    sockets:
 
     inode=33580 procs=[zabbix_ag/17712]
 
     inode=34703 procs=[ovs-vswit/13936, qemu-syst/20986]
 
-    This may be a symptom of problems in the associated process(es) and should be investigated further.
+    This usually means the processes that own these sockets did not read
+    kernel netlink messages fast enough, so they may have missed events
+    such as link or route changes. Please check the logs and load of the
+    owning processes, which can be found by searching /proc/*/fd for
+    socket:[<inode>] when procs is empty.

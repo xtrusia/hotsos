@@ -30,9 +30,10 @@ conclusions:
     raises:
       type: KernelError
       message: >-
-        SCSI device {dev} has been offlined after error recovery failed.
-        The device is no longer accessible and may need replacement or
-        manual intervention.
+        SCSI device {dev} has been offlined after error recovery failed, so
+        the device is no longer accessible. Please check the disk and
+        controller health to decide whether the device needs to be replaced
+        or can be brought back online once the cause is fixed.
       format-dict:
         dev: '@checks.scsi_device_offlined.search.results_group_1:unique_comma_join'
   scsi_medium_err:
@@ -41,8 +42,10 @@ conclusions:
     raises:
       type: KernelWarning
       message: >-
-        SCSI Medium Error detected for device {dev}. This typically
-        indicates disk surface or media issues.
+        SCSI Medium Error was logged in kern.log for device(s) {dev}, which
+        typically means unreadable sectors on the disk media. Please check
+        the disk health (e.g. with smartctl), since the disk may need to be
+        replaced if the errors continue.
       format-dict:
         dev: '@checks.scsi_medium_error.search.results_group_1:unique_comma_join'
   scsi_hardware_err:
@@ -51,8 +54,10 @@ conclusions:
     raises:
       type: KernelWarning
       message: >-
-        SCSI Hardware Error detected for device {dev}. This typically
-        indicates a failing disk or controller issue.
+        SCSI Hardware Error was logged in kern.log for device(s) {dev}, which
+        typically means a failing disk or controller. Please check the disk
+        and controller health (e.g. with smartctl and the controller logs)
+        to find which part needs to be replaced.
       format-dict:
         dev: '@checks.scsi_hardware_error.search.results_group_1:unique_comma_join'
   scsi_error:
@@ -61,9 +66,10 @@ conclusions:
     raises:
       type: KernelWarning
       message: >-
-        SCSI error detected for device {dev} (hostbyte={hostbyte},
-        driverbyte={driverbyte}). This may indicate a hardware issue
-        with the disk or controller.
+        SCSI commands failed for device(s) {dev} (hostbyte={hostbyte},
+        driverbyte={driverbyte}), which may indicate a problem with the
+        disk, controller or path. Please check kern.log around these errors
+        and the health of the disk and controller.
       format-dict:
         dev: '@checks.scsi_failed_result.search.results_group_1:unique_comma_join'
         hostbyte: '@checks.scsi_failed_result.search.results_group_2:unique_comma_join'

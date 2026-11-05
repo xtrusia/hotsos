@@ -28,7 +28,10 @@ conclusions:
     raises:
       type: KernelError
       message: >-
-        {numreports} reports of stacktraces in kern.log - please check.
+        The kernel log contains {numreports} call trace(s), which the kernel
+        prints when it hits a bug, a warning or a stuck task. Please review
+        the call traces in the kernel log (journalctl -k or
+        /var/log/kern.log) to identify the affected driver or process.
       format-dict:
         numreports: '@checks.has_stacktraces.requires.value_actual:len'
   oom-killer-invoked:
@@ -37,7 +40,11 @@ conclusions:
     raises:
       type: MemoryWarning
       message: >-
-        {numreports} reports of oom-killer invoked in kern.log - please check.
+        The kernel OOM killer was invoked {numreports} time(s) according to
+        the kernel log, which means the system or a cgroup ran out of memory
+        and the kernel killed processes to free it. Please check the
+        oom-killer entries in the kernel log to find which processes were
+        killed and which memory limit was reached.
       format-dict:
         numreports: '@checks.has_oom_killer_invoked.requires.value_actual:len'
   bcache-deadlock-invoked:
@@ -46,10 +53,12 @@ conclusions:
     raises:
       type: MemoryWarning
       message: >-
-        Bcache cache set registration deadlock has occurred. This is caused
-        by a bug that has been fixed in kernel 5.15.11 (current is {kver}).
-        See https://www.spinics.net/lists/stable/msg566639.html for full
-        detail.
+        The kernel log shows a bcache cache set registration deadlock, where
+        bcache-register blocked during journal replay. This is caused by a
+        kernel bug that was fixed in kernel 5.15.11 (current is {kver}), see
+        https://www.spinics.net/lists/stable/msg566639.html for details.
+        Please upgrade the kernel to the latest version, which takes effect
+        after a reboot.
       format-dict:
         kver: hotsos.core.plugins.kernel.KernelBase.version
   hungtasks:
@@ -58,7 +67,12 @@ conclusions:
     raises:
       type: KernelError
       message: >-
-        {numreports} reports of hung tasks in kern.log - please check.
+        The kernel log has {numreports} hung task report(s), where a task
+        stayed in uninterruptible (D) state for longer than
+        kernel.hung_task_timeout_secs. Please check the call trace after each
+        'blocked for more than' message in the kernel log to find the blocked
+        process and the resource it waits on, such as a disk or a network
+        filesystem.
       format-dict:
         numreports: '@checks.has_hungtasks.requires.value_actual:len'
   fanotify_hangs:
@@ -67,7 +81,10 @@ conclusions:
     raises:
       type: KernelError
       message: >-
-        {numreports} reports of fanotify related hangs in kern.log. This may
-        be related to antivirus software running in the system.
+        The kernel log has {numreports} hung task report(s) blocked in
+        fanotify, where file access waits for a fanotify listener such as
+        antivirus or file monitoring software to respond. Please check
+        whether such software is running on this host and whether it is
+        responding to fanotify events.
       format-dict:
         numreports: '@checks.has_fanotify_hang.requires.value_actual:len'

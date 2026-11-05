@@ -8,6 +8,7 @@ data-root:
     - sos_commands/date/date
 raised-issues:
   KernelError: >-
-    SCSI device 0:0:11:0 has been offlined after error recovery failed.
-    The device is no longer accessible and may need replacement or
-    manual intervention.
+    SCSI device 0:0:11:0 has been offlined after error recovery failed,
+    so the device is no longer accessible. Please check the disk and
+    controller health to decide whether the device needs to be replaced
+    or can be brought back online once the cause is fixed.

@@ -12,5 +12,7 @@ data-root:
     - sos_commands/date/date
 raised-issues:
   KernelError: >-
-    critical medium error detected in kern.log for device sdb. This implies
-    that this disk has a hardware issue!
+    Critical medium errors were logged in kern.log for device(s) sdb,
+    which means the disk could not read or write some sectors and is
+    likely failing. Please check the disk health (e.g. with smartctl),
+    since the disk will likely need to be replaced.
