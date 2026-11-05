@@ -75,7 +75,8 @@ raised-issues:
 
     inode=34703 procs=[ovs-vswit/13936, qemu-syst/20986]
 
-    This usually means the listed process(es) did not read kernel
-    netlink messages fast enough, so they may have missed events such as
-    link or route changes. Please check the logs and load of these
-    processes.
+    This usually means the processes that own these sockets did not read
+    kernel netlink messages fast enough, so they may have missed events
+    such as link or route changes. Please check the logs and load of the
+    owning processes, which can be found by searching /proc/*/fd for
+    socket:[<inode>] when procs is empty.
