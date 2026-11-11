@@ -1,7 +1,7 @@
 target-name: bonding_slave_link_down.yaml
 data-root:
   files:
-    # Live-host input uses the kernel log directly without an archive.
+    # Kernel log line without an uptime prefix.
     var/log/kern.log: |
       Feb 10 10:48:13 compute4 kernel: bond0: (slave eno1): link status definitely down, disabling slave
 raised-issues:
