@@ -1,0 +1,23 @@
+checks:
+  net_alloc_failed:
+    input:
+      path:
+        - var/log/nova/nova-compute.log
+    # Require the formatted message immediately after the instance context so
+    # an ERROR-prefixed traceback continuation cannot count as another abort.
+    expr: '([\d-]+) ([\d:]+)\.\d{3} \d+ ERROR nova\.compute\.manager .*\[instance: \S+\] Build of instance \S+ aborted: Failed to allocate the network\(s\)'
+    constraints:
+      min-results: 1
+      search-result-age-hours: 24
+conclusions:
+  nova-network-allocation-failed:
+    decision: net_alloc_failed
+    raises:
+      type: OpenstackWarning
+      message: >-
+        nova-compute on this host aborted {count} instance build(s) with 'Failed to allocate the network(s)', and those instances
+        were not rescheduled. Please check the preceding traceback and any
+        'Timeout waiting for' warning in nova-compute.log, then the
+        neutron-server and OVS/OVN agent logs for the ports concerned.
+      format-dict:
+        count: '@checks.net_alloc_failed.search.num_results'

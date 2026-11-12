@@ -1,0 +1,12 @@
+target-name: nova_network_allocation_failed.yaml
+data-root:
+  files:
+    var/log/nova/nova-compute.log: |
+      2022-02-10 16:20:00.123 1234 ERROR nova.compute.manager [req-abc - - - - -] [instance: 5b1e3f4a-1111-2222-3333-444455556666] Build of instance 5b1e3f4a-1111-2222-3333-444455556666 aborted: Failed to allocate the network(s), not rescheduling.: nova.exception.BuildAbortException: Build of instance 5b1e3f4a-1111-2222-3333-444455556666 aborted: Failed to allocate the network(s), not rescheduling.
+raised-issues:
+  OpenstackWarning: >-
+    nova-compute on this host aborted 1 instance build(s)
+    with 'Failed to allocate the network(s)', and those instances were not
+    rescheduled. Please check the preceding traceback and any 'Timeout waiting
+    for' warning in nova-compute.log, then the neutron-server and OVS/OVN agent
+    logs for the ports concerned.
