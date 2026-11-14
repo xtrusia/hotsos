@@ -16,7 +16,7 @@ conclusions:
     raises:
       type: OpenstackWarning
       message: >-
-        keepalived logged {count} time(s) that VRRP instance(s)
+        Historical keepalived logs record {count} time(s) that VRRP instance(s)
         {instances} entered FAULT state, so redundancy for their
         virtual IPs was reduced while they were in FAULT state. Please check the
         interface, tracked interface and track script messages logged just
