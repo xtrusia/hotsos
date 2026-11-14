@@ -1,0 +1,14 @@
+target-name: disk_full_waiting.yaml
+data-root:
+  files:
+    var/log/mysql/error.log: |
+      2022-01-31T20:15:01.123456Z 12 [ERROR] [MY-000035] [Server] Disk is full writing './binlog.000012' (OS errno 28 - No space left on device). Waiting for someone to free space... Retry in 60 secs. Message reprinted in 600 secs.
+      2022-01-31T20:25:01.123456Z 12 [ERROR] [MY-000035] [Server] Disk is full writing './binlog.000012' (OS errno 28 - No space left on device). Waiting for someone to free space... Retry in 60 secs. Message reprinted in 600 secs.
+      2022-02-01T08:40:30.123456Z 5 [ERROR] Disk is full writing './relay-bin.000003' (Errcode: 28 - No space left on device). Waiting for someone to free space...
+      2022-02-01T08:40:30.123470Z 5 [ERROR] Retry in 60 secs. Message reprinted in 600 secs
+      2022-02-01T08:41:30.123456Z 0 [Note] InnoDB: Buffer pool(s) load completed at 220210  8:41:30
+      2022-02-01T08:42:30.123456Z 7 [ERROR] Disk is full writing '/var/log/mysql/mysql-bin.000003' (Errcode: 122 - Disk quota exceeded). Waiting for someone to free space...
+      2022-02-01T08:42:30.123470Z 7 [ERROR] Retry in 60 secs. Message reprinted in 600 secs
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:

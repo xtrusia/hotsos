@@ -1,0 +1,10 @@
+target-name: disk_full_waiting.yaml
+data-root:
+  files:
+    # Recent error.log without a disk full error.
+    var/log/mysql/error.log: |
+      2022-02-10T08:40:30.123456Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+      2022-02-10T08:41:30.123456Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.28-0ubuntu0.20.04.3'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  (Ubuntu).
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
