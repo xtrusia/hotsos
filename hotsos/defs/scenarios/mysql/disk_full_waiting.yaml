@@ -1,0 +1,34 @@
+vars:
+  # wait_for_free_space() in mysys logs EE_DISK_FULL_WITH_RETRY_MSG (8.0) or
+  # EE_DISK_FULL followed by a 'Retry in 60 secs' line (5.7) e.g.
+  #   [ERROR] [MY-000035] [Server] Disk is full writing './binlog.000012' (OS errno 28 - No space left on device). Waiting for someone to free space... (8.0)
+  #   [ERROR] Disk is full writing './mysql-bin.000003' (Errcode: 28 - No space left on device). Waiting for someone to free space... (5.7)
+  # The write is retried until it succeeds, which is not logged. The error
+  # is reprinted every 600 seconds while a write waits, so the message gives
+  # the files rather than a count. Group 3 is the file and group 4 the
+  # error, 'No space left on device' or 'Disk quota exceeded'. If error.log
+  # is on the full filesystem the error may not be logged at all.
+  expr: '^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})\S* .*\[ERROR\] .*Disk is full writing ''([^'']+)'' \((?:OS errno|Errcode:) \d+ - ([^)]*)\)\. Waiting for someone to free space'
+checks:
+  disk_full:
+    input: 'var/log/mysql/error.log'
+    search:
+      expr: $expr
+      hint: 'Disk is full'
+      constraints:
+        search-result-age-hours: 24
+conclusions:
+  mysql-disk-full-waiting:
+    decision: disk_full
+    raises:
+      type: MySQLWarning
+      message: >-
+        MySQL logged 'Disk is full writing' errors ({errors}) on {dates} for
+        {files}, so writes to these files were blocked waiting for free space.
+        Please check free space, inodes and the mysql user's quota there and
+        please free space, purging only binary logs that replicas and backups
+        no longer need.
+      format-dict:
+        files: '@checks.disk_full.search.results_group_3:unique_comma_join'
+        errors: '@checks.disk_full.search.results_group_4:unique_comma_join'
+        dates: '@checks.disk_full.search.results_group_1:unique_comma_join'

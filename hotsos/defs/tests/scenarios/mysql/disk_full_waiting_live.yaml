@@ -1,0 +1,22 @@
+target-name: disk_full_waiting.yaml
+# A live host has no sos_commands directory, so hotsos.core.search skips the
+# search-result-age-hours constraint and errors older than 24 hours are still
+# reported. The harness always copies sos_commands/date/date, so the check
+# for that directory in hotsos.core.search is mocked to emulate a live root.
+mock:
+  patch:
+    hotsos.core.search.os:
+      kwargs:
+        path.isdir.return_value: false
+data-root:
+  files:
+    var/log/mysql/error.log: |
+      2022-02-01T08:42:30.123456Z 7 [ERROR] Disk is full writing '/var/log/mysql/mysql-bin.000003' (Errcode: 122 - Disk quota exceeded). Waiting for someone to free space...
+      2022-02-01T08:42:30.123470Z 7 [ERROR] Retry in 60 secs. Message reprinted in 600 secs
+raised-issues:
+  MySQLWarning: >-
+    MySQL logged 'Disk is full writing' errors (Disk quota exceeded) on
+    2022-02-01 for /var/log/mysql/mysql-bin.000003, so writes to these files
+    were blocked waiting for free space. Please check free space, inodes and
+    the mysql user's quota there and please free space, purging only binary
+    logs that replicas and backups no longer need.
