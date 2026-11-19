@@ -1,0 +1,31 @@
+checks:
+  journal_has_worker_exit:
+    input:
+      command: journalctl
+      options:
+        kwargs:
+          unit: haproxy.service
+    expr: &worker_exit '^\S+(?:\s+\d{1,2}\s+\S+)?\s+\S+ haproxy\[\d+\]: \[ALERT\]\s+\(\d+\) : Current worker(?: #\d+)? \((\d+)\) exited with code 139 \([^)]+\)$'
+  sos_has_worker_exit:
+    input: 'sos_commands/haproxy/journalctl_--no-pager_--unit_haproxy'
+    expr: *worker_exit
+conclusions:
+  journal_worker_segfault:
+    priority: 2
+    decision: journal_has_worker_exit
+    raises:
+      type: SystemWarning
+      message: &warning >-
+        HAProxy reported exit status 139 (SIGSEGV) for current worker PID(s)
+        {pids}. This can interrupt connections handled by those workers.
+        Please check the HAProxy service journal for the crash context.
+      format-dict:
+        pids: '@checks.journal_has_worker_exit.search.results_group_1:unique_comma_join'
+  sos_worker_segfault:
+    priority: 1
+    decision: sos_has_worker_exit
+    raises:
+      type: SystemWarning
+      message: *warning
+      format-dict:
+        pids: '@checks.sos_has_worker_exit.search.results_group_1:unique_comma_join'

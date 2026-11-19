@@ -1,0 +1,10 @@
+target-name: haproxy_worker_segfault.yaml
+data-root:
+  files:
+    sos_commands/haproxy/journalctl_--no-pager_--unit_haproxy: |
+      Nov 19 12:00:01 node haproxy[1821]: [WARNING]  (1821) : Former worker (1822) exited with code 0 (Exit)
+      Nov 19 12:00:02 node haproxy[1821]: [ALERT]    (1821) : Current worker (1823) exited with code 143 (Terminated)
+      Nov 19 12:00:03 node haproxy[1821]: request path contains Current worker (1824) exited with code 139 (Segmentation fault)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
