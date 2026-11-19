@@ -1,0 +1,17 @@
+target-name: haproxy_worker_segfault.yaml
+mock:
+  patch.object:
+    hotsos.core.ycheck.engine.properties.inputdef.CLIHelperFile:
+      kwargs:
+        create: true
+        attribute: journalctl
+        return_value: /tmp/hotsos-unit-test-haproxy-worker-segfault.txt
+data-root:
+  files:
+    /tmp/hotsos-unit-test-haproxy-worker-segfault.txt: |
+      2026-11-19T12:00:01+00:00 node haproxy[921]: [ALERT]    (921) : Current worker #1 (922) exited with code 139 (Segmentation fault)
+raised-issues:
+  SystemWarning: >-
+    HAProxy reported exit status 139 (SIGSEGV) for current worker PID(s) 922.
+    This can interrupt connections handled by those workers.
+    Please check the HAProxy service journal for the crash context.

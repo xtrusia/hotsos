@@ -1,0 +1,11 @@
+data-root:
+  files:
+    sos_commands/haproxy/journalctl_--no-pager_--unit_haproxy: |
+      Nov 19 12:00:01 node haproxy[1821]: [ALERT]    (1821) : Current worker (1822) exited with code 139 (Segmentation fault)
+  copy-from-original:
+    - sos_commands/date/date
+raised-issues:
+  SystemWarning: >-
+    HAProxy reported exit status 139 (SIGSEGV) for current worker PID(s) 1822.
+    This can interrupt connections handled by those workers.
+    Please check the HAProxy service journal for the crash context.
