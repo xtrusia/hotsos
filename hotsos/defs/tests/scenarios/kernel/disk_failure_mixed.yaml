@@ -1,0 +1,13 @@
+target-name: disk_failure.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      2026-11-19T12:00:01+00:00 node kernel: [ 2000.100000] print_req_error: critical medium error, dev sda, sector 10
+      2026-11-19T12:00:02+00:00 node kernel: [ 2001.100000] I/O error, dev dm-0, sector 10 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+      2026-11-19T12:00:03+00:00 node logger[1]: I/O error, dev unrelated
+raised-issues:
+  KernelError: >-
+    critical medium error detected in kern.log for device sda. This implies
+    that this disk has a hardware issue!
+  KernelWarning: >-
+    Block I/O error 'I/O' detected for device dm-0.
