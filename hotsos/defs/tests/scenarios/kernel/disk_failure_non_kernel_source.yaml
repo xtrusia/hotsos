@@ -1,0 +1,7 @@
+target-name: disk_failure.yaml
+data-root:
+  files:
+    var/log/kern.log: |
+      Nov 19 12:00:01 node kernel: [ 2000.100000] device initialised
+      Nov 19 12:00:02 node logger[1]: I/O error, dev bogus
+raised-issues:

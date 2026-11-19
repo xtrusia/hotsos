@@ -6,13 +6,11 @@ checks:
     #       "Jun  8 10:48:13 compute4 kernel:"
     #       or
     #       "Jun 08 10:48:13 compute4 kernel:"
-    expr: '.* kernel: \[.*\] .+ critical medium error, dev ([^,\s]+)'
+    expr: '.* kernel: \[[^]]+\] (?:.+ )?critical medium error, dev ([^,\s]+)'
   any_io_error:
     input:
       path: 'var/log/kern.log'
-    # This will match the above 'disk_failure' too. But we want to treat this
-    # as a less severe issue.
-    expr: '.* kernel: \[.*\].* blk_update_request: (.*?) error, dev ([^,\s]+)'
+    expr: '.* kernel: \[[^]]+\] (?:blk_update_request: |(?=I/O error, dev ))(?!critical medium error,)(.*?) error, dev ([^,\s]+)'
 conclusions:
   failing_disk:
     decision: disk_failure
@@ -24,9 +22,7 @@ conclusions:
       format-dict:
         dev: '@checks.disk_failure.search.results_group_1:unique_comma_join'
   block_io_error:
-    decision:
-      - any_io_error
-      - not: disk_failure
+    decision: any_io_error
     raises:
       type: KernelWarning
       message: >-
